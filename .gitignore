@@ -137,3 +137,60 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# ---- Python (FastAPI) ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# Packaging / build
+build/
+dist/
+.eggs/
+*.egg-info/
+pip-log.txt
+pip-delete-this-directory.txt
+MANIFEST
+
+# Test/coverage
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+
+# Type checkers / linters
+.mypy_cache/
+.pytype/
+.pyre/
+.ruff_cache/
+.pyright/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Data you typically don't commit
+data/raw/
+data/tmp/
+*.sqlite3
+
+# --- Env files ---
+# You already ignore .env and .env.* above. Add exceptions so example templates ARE tracked:
+!.env.example
+!.env.local.example
+!**/.env.example
+!**/.env.local.example
