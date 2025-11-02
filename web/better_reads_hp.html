@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Reads</title>
+    <script src = "https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors : {
+                        'primary-orange' : '#EB7F50',
+                        'background-light': '#F2DBC8',
+                        'card-background': '#E5C09E',
+                        'dark-brown': '#51200F'
+                    },
+                    fontFamily: {
+                        sans: ['sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        section, .calendar-box, .cat-of-the-day-card {
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+    </style>
+</head>
+<body class ="bg-background-light shadow-lg sticky top-0 z-20">
+    <header class="bg-primary-orange shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">
+                    <a href ="better_reads_hp.html"> BETTER READS</a>
+                </h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+ 
+<!-- Banner and Website Logo -->
+<main class="relative mb-8 shadow-xl">
+    <img 
+        src="ross-tejada-studying-cat-banner.jpg" 
+        alt="Pixel Art Cat Reading" 
+        class="w-full max-h-80 h-full object-cover"
+    >
+    
+</main>
+       <!-- Creation of the current reads -->
+         <!-- TODO: Update for the backend-->
+<div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
+    <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
+        <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
+        <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lgt">
+            <img
+                src = "76713323._SY180_.jpg"
+                alt = "Cover of Empire of Storms by Sarah J. Maas"
+                class = "w-16 h-24 object-cover shadow-md rounded"
+            >
+            <div class = "flex-grow">
+                <p class = "font-bold text-base leading-tight">Empire of Storms</p>
+                <p class = "text-sm text-dark-text/80">Sarah J. Maas </p>
+
+                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-primary-orange h-2 rounded-full" id="progress-bar" 
+                    style="width: 20.6%"></div>
+                </div>
+                <button class=" mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress</div>
+                </button>
+        </div>
+        <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
+            <img
+                src = "222946916._SY180_.jpg"
+                alt = "Cover of For Whom the Belle Tolls by Jaysea Lynn"
+                class = "w-16 h-24 object-cover shadow-md rounded"
+            >
+            <div class = "flex-grow">
+                <p class = "font-bold text-lg leading-tight">For Whom the Belle Tolls</p>
+                <p class = "text-sm text-dark-brown/80">Jaysea Lynn </p>
+
+                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-primary-orange h-2 rounded-full" id="progress-bar" 
+                    style="width: 57.6%"></div>   
+                </div>
+                <button class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress
+                </button>
+            </div>
+        </div>
+    </section>
+
+<!-- Recommendation Panel -->
+    <div class ="lg:col-span-6 space-y-6" >
+        <section class = "bg-card-background">
+            <!-- TODO: Fill in the src's with the backend later-->
+            <h2 class = "text-2xl font-bold text-dark-text mb-6">Recommended for you</h2>
+            <div class = "Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
+                <div class ="book-card-1">
+                    <img src="spark.jpg" alt = "Spark" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-2">
+                    <img src="redrising.jpg" alt = "Red Rising" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-3">
+                    <img src="thedevils.jpg" alt = "The Devils" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-4">
+                    <img src="tod.jpg" alt = "Tower of Dawn" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-5">
+                    <img src="phantasma.jpg" alt = "Phantasma" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-6">
+                    <img src="hotwax.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-7">
+                    <img src="hollowheathens.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+            </div>
+        </section>
+
+        <section class = "bg-card-background rounded-lg">
+            <h2 class="text-xl font-bold mb-4"> Friend Activity</h2>
+            <div class="friend-updates space-y-4">
+
+                <div class="update-item flex justify-between items-center p-3 bg-card-background/70 border border-dark-brown rounded-lg">
+                    <!--Profile Pics-->
+                    <img 
+                        src="https://placehold.co/50x50/EB7F50/FFFFFF?text=M"
+                        alt="Mandie's Profile Picture"
+                        class="w-10 h-10 object-cover rounded-full shadow-md mr-4"
+                        onerror="this.src='https://placehold.co/50x50/EB7F50/FFFFFF?text=M'"
+                    >  
+
+                    <div class="flex-grow flex flex-col justify-center p-2">
+                        <p class = "text-sm">
+                            <strong class="font-semibold">Mandie</strong> rated a book 
+                            <span class="text-star-grey text-lg leading-none align-middle inline-block">
+                                ★★★★★
+                            </span>
+                        </p>
+                        <p class="text-xs italic mt-0.5">
+                            "Tower of Dawn" by Sarah J. Maas
+                        </p>
+                        <p class = "text-text-sm mt-2 p-2 border-l-2 border-primary-orange bg-[#FFF8F3] rounded-r shadow-inner text-dark-brown">
+                           "Omg it had me crying"
+                            <!--Comments-->
+                        </p>
+                        
+                        
+                    </div>
+                    <img 
+                        src = "tod.jpg"
+                        alt = "Tower of Dawn"
+                        class = "w-12 h-20 object-cover rounded shadow"
+                    >
+                </div>
+                 <div class="update-item flex justify-between items-center p-3 bg-card-background/70 border border-dark-brown rounded-lg">
+                    <!--Profile Pics-->
+                    <img 
+                        src="https://placehold.co/50x50/EB7F50/FFFFFF?text=M"
+                        alt="Matt's Profile Picture"
+                        class="w-10 h-10 object-cover rounded-full shadow-md mr-4"
+                        onerror="this.src='https://placehold.co/50x50/EB7F50/FFFFFF?text=M'"
+                    >  
+
+                    <div class="flex-grow flex flex-col justify-center p-2">
+                        <p class = "text-sm">
+                            <strong class="font-semibold">Matt</strong> rated a book 
+                            <span class="text-star-grey text-lg leading-none align-middle inline-block">
+                                ★★★★
+                            </span>
+                            <span class="text-dark-brown/30 text-lg leading-none align-middle inline-block">
+                                ★
+                            </span>
+                        </p>
+                        <p class="text-xs italic mt-0.5">
+                            "Red Rising" by Pierce Brown
+                        </p>
+                        <p class = "text-text-sm mt-2 p-2 border-l-2 border-primary-orange bg-[#FFF8F3] rounded-r shadow-inner text-dark-brown">
+                            "A dystopian masterpiece. Darrow's journey is a must-read for any sci-fi fan."
+                            <!--Comments-->
+                        </p>
+                        
+                    </div>
+                    <img 
+                        src = "redrising.jpg"
+                        alt = "Red Rising"
+                        class = "w-12 h-20 object-cover rounded shadow"
+                    >
+                 </div>
+            </div>
+        </section>
+    </div>
+
+    <aside class="lg:col-span-3 space-y-6">
+        <div class="calendar-box bg-sidebar-bg">
+                <p class="text-center font-bold text-xl mb-2">October 2025</p>
+                <div class="w-full h-40 bg-white/70 flex items-center justify-center text-dark-text/50 mt-2 rounded-lg border border-dark-text/10">
+                    Event Calendar Placeholder
+                </div>
+            </div>
+        <section class="bg-[#BAAF6F]">
+            <h2 class="text-xl font-bold mb-4">Reading Challenge (2025)</h2>
+            <div class="Challenge-box flex items-center">
+                <div class="mr-4">
+                    <svg class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-4xl font-extrabold text-primary">38</p>
+                    <p class="text-dark-text/80">books completed of 50</p>
+                </div>
+            </div>
+        </section>  
+    
+        <div class="cat-of-the-day-card bg-[#BAAF6F]">
+                <h3 class="font-bold text-xl mb-3">Cat of the Day</h3>
+                <img 
+                    src="karly-jones-tsdop0ikzs8-unsplash.jpg" 
+                    alt="Black Cat in a Basket" 
+                    class="w-full h-auto object-cover rounded-lg shadow-lg"
+                >
+            </div>
+
+        </aside>
+</div>  
+
+<footer class="bg-dark-brown text-white py-4 mt-auto">
+    <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+        <div class="footer-links space-x-4 mb-2 sm:mb-0">
+            <a href="#" class="hover:text-primary transition">About the Company</a>
+            <a href="#" class="hover:text-primary transition">Contact Us</a>
+        </div>
+        <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+    </div>
+</footer>
+
+</body>
+</html>

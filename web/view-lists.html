@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Reads</title>
+    <script src = "https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors : {
+                        'primary-orange' : '#EB7F50',
+                        'background-light': '#F2DBC8',
+                        'card-background': '#E5C09E',
+                        'dark-brown': '#51200F'
+                    },
+                    fontFamily: {
+                        sans: ['sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        section, .calendar-box, .cat-of-the-day-card {
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+    </style>
+</head>
+<body class ="bg-[#F2DBC8] shadow-lg sticky top-0 z-20">
+    <header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">
+                    <a href ="better_reads_hp.html"> BETTER READS</a>
+                </h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 mt-8 pb-20">
+        <section class="bg-card-background p-6 md:p-8 rounded-xl shadow-2xl">
+            <div class="flex items-center justify-center mb-6 relative">
+                <a href="better_reads_mb.html" class="absolute left-0 text-xl text-dark-brown hover:text-primary-orange transition-colors">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+                <h2 class="text-3xl font-extrabold text-dark-brown tracking-wide">Finished</h2>
+            </div>
+
+            <form class="w-full max-w-xl mx-auto mb-10">
+                <div class="relative flex items-center">
+                    <i class="fa-solid fa-magnifying-glass pl-4 absolute text-gray-500"></i> 
+                    <input
+                        type="text"
+                        placeholder="Search This List"
+                        aria-label="Search field for Want To Read list"
+                        class="w-full pl-10 pr-10 py-2 border border-gray-400 rounded-3xl focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange transition"
+                    />
+                    <button
+                        type="button"
+                        aria-label="Clear search"
+                        class="absolute right-3 text-gray-500 hover:text-dark-brown focus:outline-none transition"
+                        onclick="document.querySelector('input[type=text]').value = '';"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Book List -->
+            <div class="space-y-4">
+
+                <!-- Book Item 1 -->
+                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
+                    <img 
+                        src="phantasma.jpg" 
+                        alt="Phantasma Cover" 
+                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
+                    >
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Iron Flame</h3>
+                        <p class="text-gray-700 text-sm mb-2">Kaylie Smith</p>
+                        <div class="flex space-x-0.5 text-lg">
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star-half-stroke text-yellow-500"></i>
+                            <i class="fa-regular fa-star text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Item 2 -->
+                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
+                    <img 
+                        src="redrising.jpg" 
+                        alt="Red Rising Cover" 
+                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
+                    >
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Red Rising</h3>
+                        <p class="text-gray-700 text-sm mb-2">Pierce Brown</p>
+                        <div class="flex space-x-0.5 text-lg">
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-regular fa-star text-yellow-500"></i>
+                            <i class="fa-regular fa-star text-yellow-500"></i>
+                            <i class="fa-regular fa-star text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
+                    <img 
+                        src="spark.jpg" 
+                        alt="Spark Cover" 
+                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
+                    >
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Spark</h3>
+                        <p class="text-gray-700 text-sm mb-2">Penn Cole</p>
+                        <div class="flex space-x-0.5 text-lg">
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                            <i class="fa-solid fa-star text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    
+    <button 
+        id="fab"
+        class="fixed bottom-12 right-6 w-16 h-16 bg-primary-orange rounded-full text-white text-4xl flex items-center justify-center shadow-2xl hover:bg-primary-orange/90 active:scale-95 transition-all duration-200 border-4 border-dark-brown"
+        title="Add new book to list"
+    >
+        <i class="fa-solid fa-plus font-bold"></i>
+    </button>
+
+
+<footer class="bg-[#51200F] text-white py-4 mt-auto">
+    <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+        <div class="footer-links space-x-4 mb-2 sm:mb-0">
+            <a href="#" class="hover:text-primary transition">About the Company</a>
+            <a href="#" class="hover:text-primary transition">Contact Us</a>
+        </div>
+        <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+    </div>
+</footer>
+</body>
+</html>

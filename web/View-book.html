@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Reads - Red Rising</title>
+    <script src = "https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors : {
+                        'primary-orange' : '#EB7F50',
+                        'background-light': '#F2DBC8',
+                        'card-background': '#E5C09E',
+                        'dark-brown': '#51200F'
+                    },
+                    fontFamily: {
+                        sans: ['sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        section, .calendar-box, .cat-of-the-day-card {
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+    </style>
+</head>
+<body class ="bg-[#F2DBC8] shadow-lg sticky top-0 z-20">
+    <header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">
+                    <a href ="better_reads_hp.html"> BETTER READS</a>
+                </h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main class="relative mb-8">
+    <img 
+        src="ross-tejada-studying-cat-banner.jpg" 
+        alt="Pixel Art Cat Reading" 
+        class="w-full max-h-80 h-full object-cover"
+    >
+
+    <div class = "container mx-auto px-4 mt-8 py-9 bg-card-background rounded-xl">
+        <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex-shrink-0 mx-auto md:mx-0">
+                <img 
+                    src="redrising.jpg" 
+                    alt="Red Rising Cover" 
+                    class="w-56 h-auto object-cover shadow-2xl rounded-lg"
+                >
+            </div>
+            
+            <div class="flex-grow">
+                <h1 class="text-3xl font-extrabold text-black">Red Rising</h1>
+                <p class="text-lg text-gray-700 mb-4">Pierce Brown</p>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <p class="text-sm font-semibold text-dark-brown mb-1">Your Rating:</p>
+                        <div class="flex space-x-0.5 text-xl text-yellow-500">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="bg-primary-orange text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-primary-orange/90 transition-colors flex items-center space-x-2">
+                            <span>Add to List</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <p class="text-gray-800 mb-4 leading-relaxed">
+                    Darrow is a Red, a member of the lowest caste in the color-coded society of the future. Like his fellow Reds, he works all day, believing that he and his people are making the surface of Mars livable for future generations. Yet he toils willingly, trusting that his blood and sweat will one day result in a better world for his children.
+                </p>
+                <p class="text-gray-800 leading-relaxed">
+                    But Darrow and his kind have been betrayed. Soon he discovers that humanity reached the surface generations ago. Vast cities and lush wilds spread across the planet. Darrow—and Reds like him—are nothing more than slaves to a decadent ruling class.
+                </p>
+
+                <p class="text-gray-800 leading-relaxed">
+                    <br>Inspired by a longing for justice, and driven by the memory of lost love, Darrow sacrifices everything to infiltrate the legendary Institute, a proving ground for the dominant Gold caste, where the next generation of humanity’s overlords struggle for power. He will be forced to compete for his life and the very future of civilization against the best and most brutal of Society’s ruling class. There, he will stop at nothing to bring down his enemies . . . even if it means he has to become one of them to do so.
+                </p>
+                <div class="flex justify-center flex-wrap space-x-8 text-lg font-bold text-dark-brown p-3  ">
+                    <p class = "pr-4"> Sci-Fi </p>
+                    <p class = "pr-4"> Fantasy </p>
+                    <p class = "pr-4"> Fiction </p>
+                    <p class = "pr-4"> Dystopian </p>
+                </div>
+            </div>
+        </div> 
+    </div> 
+    </main>
+
+<footer class="bg-[#51200F] text-white py-4 mt-auto">
+    <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+        <div class="footer-links space-x-4 mb-2 sm:mb-0">
+            <a href="#" class="hover:text-primary transition">About the Company</a>
+            <a href="#" class="hover:text-primary transition">Contact Us</a>
+        </div>
+        <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+    </div>
+</footer>
+</body>
+</html>

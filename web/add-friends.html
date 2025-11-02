@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+</head>
+<style>
+    section{
+        padding: 1.25em;
+        border-radius: 0.75em;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    }
+    .friend-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+    }
+    
+    
+    .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+</style>
+
+<body class ="bg-[#F2DBC8] shadow-lg sticky top-0 z-20">
+    <header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">BETTER READS</h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <a href="#" class="nav-link">CLUBS</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main class="relative mb-8 shadow-xl">
+    <img 
+        src="ross-tejada-studying-cat-banner.jpg" 
+        alt="Pixel Art Cat Reading" 
+        class="w-full max-h-80 h-full object-cover"
+    >
+
+    <div class = "container mx-auto px-4 mt-8">
+        <h1 class="text-3xl font-bold text-center mb-2 text-[#51200F]">Search Friends</h1>
+            <p class="text-center text-gray-600 mb-8">Find and connect with fellow book lovers</p>
+        <form class="w-full max-w-2xl mx-auto mb-10">
+        
+            <div class="relative flex items-center">
+                <i class="fa-solid fa-magnifying-glass pl-4 absolute"></i> 
+                <input
+                    type="text"
+                    placeholder="Search for Friends"
+                    aria-label="Search field"
+                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+    
+                <button
+                    type="button"
+                    aria-label="Clear search"
+                    class="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    onclick="document.querySelector('input[type=text]').value = '';"
+                >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                </button>
+            </div>
+        </form>
+
+        <div class = "pb-12">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <section class="friend-card bg-[#E5C09E] p-4 rounded-lg">
+                        <div class="flex flex-col h-full">
+                            <div class="flex items-center mb-4">
+                                <img src="https://placehold.co/50x50/EB7F50/FFFFFF?text=M" alt="Mandie" class="w-16 h-16 rounded-full mr-4">
+                                <div>
+                                    <h2 class="text-xl font-bold text-dark-text">Mandie</h2>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-grow mb-4">
+                                <p class="text-gray-700">Historical fiction specialist. Always looking for new recommendations.</p>
+                                <div class="flex mt-2 text-sm text-gray-600">
+                                    <span class="mr-4"><i class="fas fa-user-friends mr-1"></i> 5 mutual friends</span>
+                                    <span><i class="fas fa-book mr-1"></i> 3 mutual books</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <button class="w-full bg-[#51200F] hover:bg-[#3a170b] text-white px-4 py-2 rounded-lg transition-colors">
+                                    Send Request
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+            </section>
+
+            <section class="friend-card bg-[#E5C09E] p-4 rounded-lg">
+                        <div class="flex flex-col h-full">
+                            <div class="flex items-center mb-4">
+                                <img src="https://placehold.co/50x50/EB7F50/FFFFFF?text=A" alt="Alicia" class="w-16 h-16 rounded-full mr-4">
+                                <div>
+                                    <h2 class="text-xl font-bold text-dark-text">Alicia</h2>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-grow mb-4">
+                                <p class="text-gray-700">Emotionally attached to fantasy worlds and fictional characters. Prefer to spend my time either reading words on paper or screaming about said words on paper.</p>
+                                <div class="flex mt-2 text-sm text-gray-600">
+                                    <span class="mr-4"><i class="fas fa-user-friends mr-1"></i> 1 mutual friends</span>
+                                    <span><i class="fas fa-book mr-1"></i> 3 mutual books</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <button class="w-full bg-[#51200F] hover:bg-[#3a170b] text-white px-4 py-2 rounded-lg transition-colors">
+                                    Send Request
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+            <section class="friend-card bg-[#E5C09E] p-4 rounded-lg">
+                        <div class="flex flex-col h-full">
+                            <div class="flex items-center mb-4">
+                                <img src="https://placehold.co/50x50/EB7F50/FFFFFF?text=S" alt="Steven" class="w-16 h-16 rounded-full mr-4">
+                                <div>
+                                    <h2 class="text-xl font-bold text-dark-text">Steven</h2>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-grow mb-4">
+                                <p class="text-gray-700">• favorite genres; romance, fantasy/fiction</p>
+                                <p class="text-gray-700">• favorite tropes; enemies to lovers, second chance</p>
+                                <p class="text-gray-700">• favorite authors; Richelle Mead, Kate Stewart, Sarah J Maas, many more. 💜</p>
+                                <div class="flex mt-2 text-sm text-gray-600">
+                                    <span class="mr-4"><i class="fas fa-user-friends mr-1"></i> 1 mutual friends</span>
+                                    <span><i class="fas fa-book mr-1"></i> 3 mutual books</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <button class="w-full bg-[#51200F] hover:bg-[#3a170b] text-white px-4 py-2 rounded-lg transition-colors">
+                                    Send Request
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+            </div>
+        </div>
+    </div>
+</main>
+    <footer class="bg-[#51200F] text-white py-4 mt-auto">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+            <div class="footer-links space-x-4 mb-2 sm:mb-0">
+                <a href="#" class="hover:text-primary transition">About the Company</a>
+                <a href="#" class="hover:text-primary transition">Contact Us</a>
+            </div>
+            <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+        </div>
+    </footer>
+</body>
+</html>

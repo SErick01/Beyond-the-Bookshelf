@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title> Better Reads - Login</title>
+    <style>
+        .pixel-bg {
+            background-image: url('https://i1.sndcdn.com/artworks-000649156789-lx91i9-t500x500.jpg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+        .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+    </style>
+</head>
+
+<body class="pixel-bg min-h-screen flex flex-col">
+        <header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">
+                   <a href ="better_reads_hp.html"> BETTER READS</a>
+                </h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+
+    <main class="flex flex-grow justify-center items-center py-12">
+        <div class="flex flex-col items-center w-full max-w-lg">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">Better Reads</h1>
+            <div class="bg-[#EB7F50] p-8 sm:p-10 w-full max-w-sm rounded-xl shadow-2xl text-center bg-opacity-30">
+                <form action="" class="space-y-5"> 
+                    <h2 class="text-3xl font-bold text-white mb-6">Login</h2>
+                    <div class="input-box">
+                        <input 
+                            type="text" 
+                            placeholder="Username" 
+                            required 
+                            class="w-full p-3 rounded-full bg-white bg-opacity-70 border border-gray-300 placeholder-gray-700 focus:ring-2 focus:ring-[#EB7F50] focus:border-transparent outline-none text-gray-800"
+                        >
+                    </div>
+                    <div class="input-box">
+                        <input 
+                            type="password" 
+                            placeholder="Password" 
+                            required 
+                            class="w-full p-3 rounded-full bg-white bg-opacity-70 border border-gray-300 placeholder-gray-700 focus:ring-2 focus:ring-[#EB7F50] focus:border-transparent outline-none text-gray-800"
+                        >
+                    </div>
+                    <div class="flex justify-between items-center text-sm text-white pt-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="form-checkbox text-[#EB7F50] rounded-sm focus:ring-0 bg-white border-gray-300"> 
+                            <span>Remember Me</span>
+                        </label>
+                        <a href="#" class="hover:underline text-white font-semibold">Forgot Password</a>
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="w-full py-3 mt-4 bg-white text-[#EB7F50] font-bold rounded-full text-lg shadow-md hover:bg-gray-100 transition duration-200"
+                    >
+                        Login
+                    </button>
+                    <div class="register-link pt-4">
+                        <p class="text-white text-sm">
+                            Don't have an account? 
+                            <a href="#" class="font-bold hover:underline">Sign Up</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#51200F] text-white py-4 mt-auto">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+            <div class="footer-links space-x-4 mb-2 sm:mb-0">
+                <a href="#" class="hover:text-primary transition">About the Company</a>
+                <a href="#" class="hover:text-primary transition">Contact Us</a>
+            </div>
+            <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+        </div>
+    </footer>
+</body>
+</html>

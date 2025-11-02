@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better Reads-Profile</title>
+     <script src = "https://cdn.tailwindcss.com"></script>
+    <style>
+        section, .calendar-box, .cat-of-the-day-card {
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.2s ease;
+    }
+    
+    .nav-link:hover {
+        color: #51200F;
+    }
+    </style>
+</head>
+<body class = "bg-[#F2DBC8] font-sans text-dark-text min-h-screen flex flex-col">
+    
+<!-- Nav BARRRRRRRRRRRR-->
+<header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
+        <div class="flex  justify-between items-center p-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-16 h-16">
+                    <div class="w-16 h-16">
+                    <img 
+                        src="Cat_Logo.png" 
+                        alt="Cat Logo" 
+                        class="w-full h-full object-contain" 
+                    >
+                    </div>
+                </div>
+                <h1 class="text-2xl font-extrabold text-black">BETTER READS</h1>
+            </div>
+            
+            <div class="flex items-center">
+                <nav class="hidden md:flex space-x-6">
+                    <a href="better_reads_login.html" class="nav-link">LOGIN</a>
+                    <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
+                    <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
+                    <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
+                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+ 
+<!-- Banner and Website Logo -->
+<main class="relative mb-8 shadow-xl">
+    <img 
+        src="ross-tejada-studying-cat-banner.jpg" 
+        alt="Pixel Art Cat Reading" 
+        class="w-full max-h-80 h-full object-cover"
+    >    
+</main>
+
+<!-- Current Reads-->
+<div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
+    <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
+        <h2 class = "text-2xl font-bold text-dark-text mb-4">Current Reads</h2>
+        <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lgt">
+            <img
+                src = "76713323._SY180_.jpg"
+                alt = "Cover of Empire of Storms by Sarah J. Maas"
+                class = "w-16 h-24 object-cover shadow-md rounded"
+            >
+            <div class = "flex-grow">
+                <p class = "font-bold text-base leading-tight">Empire of Storms</p>
+                <p class = "text-sm text-dark-text/80">Sarah J. Maas </p>
+
+                <div class = "w-full h-2 bg-dark-text/30 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-[#EB7F50] h-2 rounded-full" id="progress-bar" 
+                    style="width: 20.6%"></div>
+                </div>
+                <button class=" mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress</div>
+                </button>
+        </div>
+        <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
+            <img
+                src = "222946916._SY180_.jpg"
+                alt = "Cover of For Whom the Belle Tolls by Jaysea Lynn"
+                class = "w-16 h-24 object-cover shadow-md rounded"
+            >
+            <div class = "flex-grow">
+                <p class = "font-bold text-lg leading-tight">For Whom the Belle Tolls</p>
+                <p class = "text-sm text-dark-text/80">Jaysea Lynn </p>
+
+                <div class = "w-full h-2 bg-dark-text/30 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-[#EB7F50] h-2 rounded-full" id="progress-bar" 
+                    style="width: 57.6%"></div>   
+                </div>
+                <button class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress
+                </button>
+            </div>
+        </div>
+    </section>
+
+ <!-- Favorites -->
+   <div class ="lg:col-span-6 space-y-6" >
+        <section class = "bg-[#E5C09E]">
+            <!-- TODO: Fill in the src's with the backend later-->
+            <h2 class = "text-2xl font-bold mb-6">My Favorites</h2>
+            <div class = "Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
+                <div class ="book-card-1">
+                    <img src="spark.jpg" alt = "Spark" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-2">
+                    <img src="redrising.jpg" alt = "Red Rising" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-3">
+                    <img src="thedevils.jpg" alt = "The Devils" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-4">
+                    <img src="tod.jpg" alt = "Tower of Dawn" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-5">
+                    <img src="phantasma.jpg" alt = "Phantasma" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-6">
+                    <img src="hotwax.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+                <div class ="book-card-7">
+                    <img src="hollowheathens.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
+                </div>
+            </div>
+        </section>
+
+<body>
+  
+    <aside class="lg:col-span-3 space-y-6">
+        <div class="calendar-box bg-sidebar-bg">
+                <p class="text-center font-bold text-xl mb-2">October 2025</p>
+                <div class="w-full h-40 bg-white/70 flex items-center justify-center text-dark-text/50 mt-2 rounded-lg border border-dark-text/10">
+                    Event Calendar Placeholder
+                </div>
+            </div>    
+  
+<footer class="bg-[#51200F] text-white py-4 mt-auto">
+    <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
+        <div class="footer-links space-x-4 mb-2 sm:mb-0">
+            <a href="#" class="hover:text-primary transition">About the Company</a>
+            <a href="#" class="hover:text-primary transition">Contact Us</a>
+        </div>
+        <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
+    </div>
+</footer>
+
+</body>
+</html>
