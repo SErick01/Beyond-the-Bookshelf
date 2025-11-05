@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Reads</title>
     <script src = "https://cdn.tailwindcss.com"></script>
+    <script src>"hp.js"</script>
     <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
     <script>
         tailwind.config = {
@@ -23,6 +24,7 @@
             }
         }
     </script>
+
     <style>
         section, .calendar-box, .cat-of-the-day-card {
             padding: 1.25rem; /* p-5 */
@@ -41,6 +43,7 @@
     }
     </style>
 </head>
+
 <body class ="bg-background-light shadow-lg sticky top-0 z-20">
     <header class="bg-primary-orange shadow-lg sticky top-0 z-20">
         <div class="flex  justify-between items-center p-4">
@@ -65,7 +68,26 @@
                     <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
                     <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
                     <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
-                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                    <div class = "relative " id = "dropdown-parent">
+                        <button 
+                            class="Drop-Down-Menu-Icon-BTN"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            onclick="toggleDropdown(event)"
+                            >
+                            &#9776;
+                        </button>
+                        <div
+                         id = "dropdown-menu"
+                         class = "absolute right-0 mt-3 w-40 bg-white border border-gray-200 rounded-lg shadow-xl hidden origin-top-right transform transition duration-200 ease-out z-30 overflow-hidden">
+                        <a href="add-friends.html" class="block px-4 py-2 text-gray-700 hover:bg-orange-100 hover:text-primary-orange transition duration-150 whitespace-nowrap">
+                            Add Friends
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition duration-150 whitespace-nowrap">
+                            Logout
+                        </a>
+                        </div>
+                    </div>
                 </nav>
             </div>
         </div>
@@ -80,12 +102,14 @@
     >
     
 </main>
-       <!-- Creation of the current reads -->
-         <!-- TODO: Update for the backend-->
+<!-- Creation of the current reads -->
+<!-- TODO: Update for the backend-->
 <div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
     <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
         <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
-        <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lgt">
+
+        <!--Book 1-->
+        <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
             <img
                 src = "76713323._SY180_.jpg"
                 alt = "Cover of Empire of Storms by Sarah J. Maas"
@@ -95,13 +119,26 @@
                 <p class = "font-bold text-base leading-tight">Empire of Storms</p>
                 <p class = "text-sm text-dark-text/80">Sarah J. Maas </p>
 
-                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
-                    <div class="bg-primary-orange h-2 rounded-full" id="progress-bar" 
-                    style="width: 20.6%"></div>
+                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
+                    <div
+                    id="progress-bar-1" 
+                    class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                    style="width: 25%">
+                        <span 
+                        id="progress-text-1" 
+                        class="text-white font-bold text-xs" 
+                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);"></span>
+                    </div>
                 </div>
-                <button class=" mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress</div>
+
+                <button 
+                id = "update-progress-btn-1"
+                onclick="openModal(1)"
+                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
                 </button>
-        </div>
+            </div>
+        </div> 
+        <!--Book 2-->
         <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
             <img
                 src = "222946916._SY180_.jpg"
@@ -113,14 +150,26 @@
                 <p class = "text-sm text-dark-brown/80">Jaysea Lynn </p>
 
                 <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
-                    <div class="bg-primary-orange h-2 rounded-full" id="progress-bar" 
-                    style="width: 57.6%"></div>   
+                    <div
+                    id="progress-bar-1" 
+                    class="bg-primary-orange h-full rounded-full" 
+                    style="width: 57.6%">
+                        <span 
+                        id="progress-text-2" 
+                        class="text-white font-bold text-xs" 
+                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">57.6%</span>
+                    </div>   
                 </div>
-                <button class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress
+
+                <button 
+                id = "update-progress-btn-2"
+                onclick="openModal(2)"
+                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
                 </button>
             </div>
         </div>
     </section>
+
 
 <!-- Recommendation Panel -->
     <div class ="lg:col-span-6 space-y-6" >
@@ -259,6 +308,49 @@
 
         </aside>
 </div>  
+
+<div 
+    id="progress-modal" 
+    class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex items-center justify-center transition-opacity duration-300"
+    onclick="closeModalOnOutsideClick(event)"
+>
+    <div 
+        class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm m-4 transform scale-100 transition-transform duration-300" 
+        onclick="event.stopPropagation()"
+    >
+        <h3 class="text-xl font-bold mb-4">Update Reading Percentage</h3>
+        <p class="text-sm text-gray-600 mb-4">Enter the new total percentage of the book you have completed.</p>
+            
+        <label for="percentage-input" class="block text-sm font-medium text-gray-700 mb-2">New Percentage (0 - 100)</label>
+        <input 
+            type="number" 
+            id="percentage-input" 
+            name="percentage-input" 
+            min="0" 
+            max="100" 
+            step="1" 
+            value="25"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-orange focus:border-primary-orange text-lg mb-4"
+        >
+
+        <div id="error-message" class="text-red-500 text-sm mb-4 hidden"></div>
+
+        <div class="flex justify-end space-x-3">
+            <button 
+                onclick="closeModal()" 
+                class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-150"
+            >
+                Cancel
+            </button>
+            <button 
+                onclick="updateProgress()" 
+                class="px-4 py-2 text-white bg-primary-orange rounded-lg hover:bg-dark-brown font-semibold transition duration-150"
+            >
+                Submit Update
+            </button>
+        </div>
+    </div>
+</div>
 
 <footer class="bg-dark-brown text-white py-4 mt-auto">
     <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
