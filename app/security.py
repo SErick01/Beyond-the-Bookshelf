@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 
-bearer = HTTPBearer(auto_error=True)
+bearer = HTTPBearer(auto_error=False)
 
 def get_environment(name: str) -> str:
     val = os.getenv(name)
@@ -31,13 +31,23 @@ def decode_supabase_jwt(token: str) -> dict:
     return claims
 
 
-def get_current_user(creds:HTTPAuthorizationCredentials = Depends(bearer)) -> dict:
-    if not creds or creds.scheme.lower() != "bearer":
-        raise HTTPException(status_code=401, detail="Missing bearer token")
-    
-    claims = decode_supabase_jwt(creds.credentials)
-    uid = claims.get("sub")
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
+    if not credentials:
+        raise HTTPException(status_code=403, detail="Not authenticated")
 
-    if not uid:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
-    return {"id":uid, "email":claims.get("email"), "role":claims.get("role")}
+    token = credentials.credentials
+    jwt_secret = os.environ.get("SUPABASE_JWT_SECRET")
+    jwt_iss = os.environ.get("SUPABASE_URL")
+
+    if not jwt_secret or not jwt_iss:
+        raise HTTPException(status_code=500, detail="Auth not configured")
+
+    try:
+        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"], options={"verify_aud": False})
+        if not str(payload.get("iss", "")).startswith(jwt_iss):
+            raise HTTPException(status_code=401, detail="Invalid token issuer")
+
+        return {"id": payload.get("sub"), "email": payload.get("email"), "role": payload.get("role")}
+    
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
