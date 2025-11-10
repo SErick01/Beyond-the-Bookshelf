@@ -7,6 +7,7 @@
     <script src = "https://cdn.tailwindcss.com"></script>
     <script src ="hp.js"> </script>
     <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script>
         tailwind.config = {
             theme: {
@@ -36,11 +37,74 @@
         text-decoration: none;
         font-weight: bold;
         transition: color 0.2s ease;
-    }
+        }  
     
-    .nav-link:hover {
+        .nav-link:hover {
         color: #51200F;
-    }
+        }
+        .calendar-box {
+            background-color: var(--tw-colors-sidebar-bg);
+            color: var(--tw-colors-dark-brown);
+        }
+
+        .calendar .Weeks {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            list-style: none;
+            padding: 0;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(81, 32, 15, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .calendar .Days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        .calendar .Days li {
+            padding: 0.5rem 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+            border-radius: 9999px; /* full rounded */
+        }
+
+        .calendar .Days li.inactive {
+            color: rgba(81, 32, 15, 0.5); /* lighter dark-brown */
+            cursor: default;
+        }
+
+        .calendar .Days li.active {
+            background-color: var(--tw-colors-primary-orange);
+            color: #EB7F50;
+            font-weight: bold;
+        }
+
+        .calendar .icons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar .icons span {
+            cursor: pointer;
+            color: var(--tw-colors-dark-brown);
+            padding: 0.25rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+        }
+
+        .calendar .icons span:hover {
+            background-color: rgba(81, 32, 15, 0.1);
+        }
+
     </style>
 </head>
 
@@ -151,7 +215,7 @@
 
                 <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
                     <div
-                    id="progress-bar-1" 
+                    id="progress-bar-2" 
                     class="bg-primary-orange h-full rounded-full" 
                     style="width: 57.6%">
                         <span 
@@ -277,11 +341,25 @@
 
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
-                <p class="text-center font-bold text-xl mb-2">October 2025</p>
-                <div class="w-full h-40 bg-white/70 flex items-center justify-center text-dark-text/50 mt-2 rounded-lg border border-dark-text/10">
-                    Event Calendar Placeholder
-                </div>
+            <div class="icons flex justify-between items-center mb-2">
+                <span class="material-symbols-rounded cursor-pointer" onclick="navigateCalendar(-1)">chevron_left</span>
+                <p id="current-date" class="font-bold text-xl">November 2025</p>
+                <span class="material-symbols-rounded cursor-pointer" onclick="navigateCalendar(1)">chevron_right</span>
+             </div>
+            <div class = "calendar">
+                <ul class ="Weeks"> 
+                    <li>Sun</li>
+                    <li>Mon</li>
+                    <li>Tue</li>
+                    <li>Wed</li>
+                    <li>Thu</li>
+                    <li>Fri</li>
+                    <li>Sat</li>
+                </ul>
+                <ul class ="Days"> </ul>
             </div>
+                
+        </div>
         <section class="bg-[#BAAF6F]">
             <h2 class="text-xl font-bold mb-4">Reading Challenge (2025)</h2>
             <div class="Challenge-box flex items-center">
@@ -361,6 +439,57 @@
         <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
     </div>
 </footer>
+<script>
+    let date = new Date();
+    let currYear = date.getFullYear();
+    let currMonth = date.getMonth(); 
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July",
+                    "August", "September", "October", "November", "December"];
+
+    // --- DOM Elements (Accessed via DOMContentLoaded) ---
+    const currentDateEl = document.getElementById("current-date");
+    const daysContainer = document.querySelector(".Days");
+
+    function renderCalendar() {
+    let lastDayOfMonth = new Date(currYear, currMonth + 1, 0).getDate();
+    let firstDayOfMonthIndex = new Date(currYear, currMonth, 1).getDay();
+    let lastDayOfLastMonth = new Date(currYear, currMonth, 0).getDate();
+    let liTag = "";
+
+    for (let i = firstDayOfMonthIndex; i > 0; i--) {
+        liTag += `<li class="inactive">${lastDayOfLastMonth - i + 1}</li>`;
+    }
+
+    for (let i = 1; i <= lastDayOfMonth; i++) { 
+        let isToday = i === new Date().getDate() && currMonth === new Date().getMonth() 
+            && currYear === new Date().getFullYear() ? "active" : "";
+        liTag += `<li class="${isToday}">${i}</li>`;
+    }
+
+    const totalCells = firstDayOfMonthIndex + lastDayOfMonth;
+    const remainingCells = 42 - totalCells; 
+    const nextMonthStart = totalCells <= 35 ? (35 - totalCells) : (42 - totalCells);
+    for (let i = 1; i <= nextMonthStart; i++) {
+        liTag += `<li class="inactive">${i}</li>`;
+    }
+
+    currentDateEl.textContent = `${monthNames[currMonth]} ${currYear}`;
+    daysContainer.innerHTML = liTag;
+    }
+
+    function navigateCalendar(nav) {
+    currMonth += nav;
+    if (currMonth < 0 || currMonth > 11) {
+        date = new Date(currYear, currMonth);
+        currYear = date.getFullYear();
+        currMonth = date.getMonth();
+    } 
+    renderCalendar();
+    }
+
+    window.navigateCalendar = navigateCalendar;
+    renderCalendar();
+</script>
 
 </body>
 </html>

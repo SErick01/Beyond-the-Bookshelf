@@ -23,11 +23,6 @@ document.addEventListener('click', function(event) {
 });
 
 
-/**
- * Update Progress (Books)
- */ 
-
-
 let activeBookId = 1;
 
 function openModal(bookId){
@@ -97,3 +92,4 @@ function updateProgress() {
 
     closeModal();
 }
+
