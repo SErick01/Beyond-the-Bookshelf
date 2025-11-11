@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api.app.security import get_current_user
+from app.security import get_current_user
 
 app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
 
