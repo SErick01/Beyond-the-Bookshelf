@@ -5,9 +5,15 @@ from app.security import get_current_user
 app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
 api = APIRouter()
 
+ALLOWED_ORIGINS = [
+    "http://localhost:3000/",
+    "https://beyond-the-bookshelf.vercel.app/"
+]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
