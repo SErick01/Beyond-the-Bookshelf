@@ -1,9 +1,8 @@
-from fastapi import FastAPI, Depends, APIRouter
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.security import get_current_user
 
 app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
-api = APIRouter()
 
 app.add_middleware(
     CORSMiddleware, 
@@ -18,7 +17,11 @@ async def health():
     return {"status":"ok"}
 
 
-@api.get("/users/me")
+@app.get("/api/users/me")
 async def users_me(user=Depends(get_current_user)):
     return user
-app.include_router(api, prefix="/api")
+
+
+#Debug print here
+print("Loaded:", __file__)
+print("Routes:", [r.path for r in app.routes])
