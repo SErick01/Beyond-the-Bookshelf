@@ -7,7 +7,7 @@ api = APIRouter()
 
 ALLOWED_ORIGINS = [
     "http://localhost:3000/",
-    "https://beyond-the-bookshelf.vercel.app/"
+    "https://beyond-the-bookshelf.vercel.app"
 ]
 
 
