@@ -60,19 +60,23 @@
         <div class="flex flex-col items-center w-full max-w-lg">
             <h1 class="text-4xl sm:text-5xl font-extrabold text-white mb-8 drop-shadow-lg">Better Reads</h1>
             <div class="bg-[#EB7F50] p-8 sm:p-10 w-full max-w-sm rounded-xl shadow-2xl text-center bg-opacity-30">
-                <form action="" class="space-y-5"> 
+                <form id="login-form" class="space-y-5"> 
                     <h2 class="text-3xl font-bold text-white mb-6">Login</h2>
                     <div class="input-box">
                         <input 
-                            type="text" 
-                            placeholder="Username" 
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Email" 
                             required 
                             class="w-full p-3 rounded-full bg-white bg-opacity-70 border border-gray-300 placeholder-gray-700 focus:ring-2 focus:ring-[#EB7F50] focus:border-transparent outline-none text-gray-800"
                         >
                     </div>
                     <div class="input-box">
                         <input 
-                            type="password" 
+                            type="password"
+                            id="password"
+                            name="password"
                             placeholder="Password" 
                             required 
                             class="w-full p-3 rounded-full bg-white bg-opacity-70 border border-gray-300 placeholder-gray-700 focus:ring-2 focus:ring-[#EB7F50] focus:border-transparent outline-none text-gray-800"
@@ -96,6 +100,7 @@
                             Don't have an account? 
                             <a href="#" class="font-bold hover:underline">Sign Up</a>
                         </p>
+                        <p id="login-error" class="mt-2 text-sm text-red-200 hidden"></p>
                     </div>
                 </form>
             </div>
@@ -111,5 +116,56 @@
             <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://swfkspdirdzqotywgvop.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const form = document.getElementById("login-form");
+        const emailEl = document.getElementById("email");
+        const passEl = document.getElementById("password");
+        const errEl = document.getElementById("login-error");
+
+        function showError(msg) {
+            if (!errEl) return alert(msg);
+            errEl.textContent = msg;
+            errEl.classList.remove("hidden");
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errEl?.classList.add("hidden");
+
+            const btn = form.querySelector('button[type="submit"], button');
+            if (btn) btn.disabled = true;
+
+            try {
+                const email = emailEl.value.trim();
+                const password = passEl.value;
+
+                const {data, error} = await supabase.auth.signInWithPassword({email, password});
+                if (error) throw new Error(error.message);
+
+                const token = data.session?.access_token;
+                if (!token) throw new Error("No session token returned.");
+
+                const apiBase = "https://beyond-the-bookshelf.onrender.com";
+                const res = await fetch(`${apiBase}/api/users/me`, {
+                    headers: {Authorization: `Bearer ${token}` },
+                    credentials: "omit"
+                });
+
+                if (!res.ok) {
+                    const body = await res.text();
+                    throw new Error(`API error (${res.status}): ${body}`);
+                }
+                window.location.href = "better_reads_hp.html";
+            } catch (err) {
+                showError(err?.message || String(err));
+            } finally {
+                if (btn) btn.disabled = false;
+            }            
+        });
+    </script>
 </body>
 </html>
