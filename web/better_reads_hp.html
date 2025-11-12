@@ -490,6 +490,36 @@
     window.navigateCalendar = navigateCalendar;
     renderCalendar();
 </script>
+<script>
+    const apiBase = 'https://beyond-the-bookshelf.onrender.com';
+    const token = localStorage.getItem('btb_token');
+    
+    if (!token) {
+        window.location.href = 'index.html';
+    } else {
+        fetch(`${apiBase}/api/users/me`, {
+            headers: {Authorization: `Bearer ${token}` },
+            mode: 'cors'
+        })
 
+        .then(async (res) => {
+            if (!res.ok) {
+                const body = await res.text();
+                throw new Error(`API ${res.status}: ${body}`);
+            }
+            return res.json();
+        })
+
+        .then((me) => {
+            console.log('Welcome:', me.email);
+        })
+
+        .catch((err) => {
+            console.error(err);
+            localStorage.removeItem('btb_token');
+            window.location.href = 'index.html';
+        });
+    }
+</script>
 </body>
 </html>

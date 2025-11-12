@@ -148,6 +148,7 @@
 
                 const token = data.session?.access_token;
                 if (!token) throw new Error("No session token returned.");
+                localStorage.setItem("btb_token", token);
 
                 const apiBase = "https://beyond-the-bookshelf.onrender.com";
                 const res = await fetch(apiBase + "/api/users/me", {
