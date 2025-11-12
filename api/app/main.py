@@ -6,7 +6,7 @@ app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
 api = APIRouter()
 
 ALLOWED_ORIGINS = [
-    "http://localhost:3000/",
+    "http://localhost:3000",
     "https://beyond-the-bookshelf.vercel.app"
 ]
 
