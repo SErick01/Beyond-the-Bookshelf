@@ -142,25 +142,15 @@
             try {
                 const email = emailEl.value.trim();
                 const password = passEl.value;
-
                 const {data, error} = await supabase.auth.signInWithPassword({email, password});
+                
                 if (error) throw new Error(error.message);
-
                 const token = data.session?.access_token;
+                
                 if (!token) throw new Error("No session token returned.");
                 localStorage.setItem("btb_token", token);
-
-                const apiBase = "https://beyond-the-bookshelf.onrender.com";
-                const res = await fetch(apiBase + "/api/users/me", {
-                    headers: {"Authorization": `Bearer ${token}` },
-                    mode:"cors"
-                });
-
-                if (!res.ok) {
-                    const body = await res.text();
-                    throw new Error(`API error (${res.status}): ${body}`);
-                }
                 window.location.href = "better_reads_hp.html";
+            
             } catch (err) {
                 showError(err?.message || String(err));
             } finally {
