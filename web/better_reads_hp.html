@@ -497,7 +497,7 @@
     
     if (token) {
         fetch(`${apiBase}/api/users/me`, {
-            headers: {Authorization: 'Bearer ${token}'},
+            headers: { Authorization: `Bearer ${token}` },
             mode: 'cors'
         })
 
