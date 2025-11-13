@@ -522,5 +522,38 @@
         });
     }
 </script>
+<script>
+    (function () {
+        const loginLink = document.getElementById('nav-login');
+        const logoutLink = document.getElementById('nav-logout');
+
+        if (!loginLink || !logoutLink) return;
+        const token = localStorage.getItem('btb_token');
+
+        if (token) {
+            loginLink.style.display = 'none';
+            logoutLink.style.display = '';
+        } else {
+            loginLink.style.display = '';
+            logoutLink.style.display = 'none';
+        }
+
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            try {
+                if (window.supabase?.auth?.signOut) {
+                    await window.supabase.auth.signOut();
+                } else {
+                    Object.keys(localStorage).filter(k => k.includes('supabase')
+                    && k.includes('auth')).forEach(k => localStorage.removeItem(k));
+                }
+            } catch (_) {}
+
+            localStorage.removeItem('btb_token');
+            window.location.href = 'index.html';
+        });
+    })();
+</script>
 </body>
 </html>
