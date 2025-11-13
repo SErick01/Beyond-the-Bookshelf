@@ -186,31 +186,43 @@
         </div>
     </footer>
 <script>
-  (function () {
-    const loginLink  = document.getElementById('nav-login');
-    const logoutLink = document.getElementById('nav-logout');
-
-    if (!loginLink || !logoutLink) return;
-    const token = localStorage.getItem('btb_token');
-    if (token) {
-        loginLink.style.display = 'none';
+(async () => {
+  const loginLink  = document.getElementById('nav-login');
+  const logoutLink = document.getElementById('nav-logout');
+  
+  if (!loginLink || !logoutLink) return;
+  loginLink.style.display  = '';
+  logoutLink.style.display = 'none';
+  const token = localStorage.getItem('btb_token');
+  
+  if (token) {
+    try {
+      const res = await fetch('https://beyond-the-bookshelf.onrender.com/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+        mode: 'cors'
+      });
+      if (res.ok) {
+        loginLink.style.display  = 'none';
         logoutLink.style.display = '';
-    } else {
-        logoutLink.style.display = '';
-        loginLink.style.display = 'none';
-    }  
-
-    logoutLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      try {
-        if (window.supabase?.auth?.signOut) {
-          window.supabase.auth.signOut().catch(()=>{});
-        }
-      } catch (_) {}
+      } else {
+        localStorage.removeItem('btb_token');
+      }
+    } catch (_) {
+      localStorage.removeItem('btb_token');
+    }
+  }
+  logoutLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      if (window.supabase?.auth?.signOut) {
+        window.supabase.auth.signOut().catch(() => {});
+      }
+    } finally {
       localStorage.removeItem('btb_token');
       window.location.href = 'index.html';
-    });
-  })();
+    }
+  });
+})();
 </script>
 </body>
 </html>
