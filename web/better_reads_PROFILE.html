@@ -292,7 +292,7 @@
         try {
             const apiBase = 'https://beyond-the-bookshelf.onrender.com';
             const res = await fetch(`${apiBase}/api/users/me`, {
-                headers: { Authorization: 'Bearer ${token}' },
+                headers: { Authorization: `Bearer ${token}` },
                 mode: 'cors'
             });
             if (!res.ok) throw new Error('Auth check failed');
