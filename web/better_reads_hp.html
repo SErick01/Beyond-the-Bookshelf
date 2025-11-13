@@ -495,11 +495,9 @@
     const apiBase = 'https://beyond-the-bookshelf.onrender.com';
     const token = localStorage.getItem('btb_token');
     
-    if (!token) {
-        window.location.href = 'index.html';
-    } else {
+    if (token) {
         fetch(`${apiBase}/api/users/me`, {
-            headers: {Authorization: `Bearer ${token}` },
+            headers: {Authorization: 'Bearer ${token}'},
             mode: 'cors'
         })
 
@@ -518,7 +516,6 @@
         .catch((err) => {
             console.error(err);
             localStorage.removeItem('btb_token');
-            window.location.href = 'index.html';
         });
     }
 </script>
