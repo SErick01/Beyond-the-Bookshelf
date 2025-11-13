@@ -191,8 +191,14 @@
     const logoutLink = document.getElementById('nav-logout');
 
     if (!loginLink || !logoutLink) return;
-    loginLink.style.display = 'none';
-    logoutLink.style.display = '';
+    const token = localStorage.getItem('btb_token');
+    if (token) {
+        loginLink.style.display = 'none';
+        logoutLink.style.display = '';
+    } else {
+        logoutLink.style.display = '';
+        loginLink.style.display = 'none';
+    }  
 
     logoutLink.addEventListener('click', (e) => {
       e.preventDefault();
