@@ -191,25 +191,26 @@
   const logoutLink = document.getElementById('nav-logout');
   
   if (!loginLink || !logoutLink) return;
-  loginLink.style.display  = '';
-  logoutLink.style.display = 'none';
   const token = localStorage.getItem('btb_token');
-  
+
   if (token) {
+    loginLink.style.display  = 'none';
+    logoutLink.style.display = '';
+
     try {
       const res = await fetch('https://beyond-the-bookshelf.onrender.com/api/users/me', {
         headers: { Authorization: `Bearer ${token}` },
         mode: 'cors'
       });
-      if (res.ok) {
-        loginLink.style.display  = 'none';
-        logoutLink.style.display = '';
-      } else {
-        localStorage.removeItem('btb_token');
-      }
-    } catch (_) {
+      if (!res.ok) throw new Error();
+    } catch {
       localStorage.removeItem('btb_token');
+      loginLink.style.display  = '';
+      logoutLink.style.display = 'none';
     }
+  } else {
+    loginLink.style.display  = '';
+    logoutLink.style.display = 'none';
   }
   logoutLink.addEventListener('click', async (e) => {
     e.preventDefault();
