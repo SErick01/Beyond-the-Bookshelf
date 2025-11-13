@@ -280,5 +280,26 @@
     window.navigateCalendar = navigateCalendar;
     renderCalendar();    
 </script>
+<script>
+    (async () => {
+        const token = localStorage.getItem('btb_token');
+        if (!token) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        try {
+            const apiBase = 'https://beyond-the-bookshelf.onrender.com';
+            const res = await fetch(`${apiBase}/api/users/me`, {
+                headers: {Authorization: 'Bearer ${token}'},
+                mode: 'cors'
+            });
+            if (!res.ok) throw new Error('Auth check failed');
+        } catch (err) {
+            localStorage.removeItem('btb_token');
+            window.location.href = 'index.html';
+        }
+    })();
+</script>
 </body>
 </html>
