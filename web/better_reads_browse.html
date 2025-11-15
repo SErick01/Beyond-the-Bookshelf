@@ -226,7 +226,7 @@
 
     for (const row of rows) {
         const title = row?.works?.title ?? "Unknown title";
-        const imgSrc = (row.cover_url && row.cover_url.startWith("http"))
+        const imgSrc = (row.cover_url && row.cover_url.startsWith("http"))
             ? row.cover_url
             : "https://placehold.co/200x300?text=No+Cover";
         const a = document.createElement("a");
