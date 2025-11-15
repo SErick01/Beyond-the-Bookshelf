@@ -228,7 +228,7 @@
         const title = row?.works?.title ?? "Unknown title";
         const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
         
-        let imgSrc = "https://placehold.co/200x300?text=No+Cover";
+        let imgSrc = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/cover/placeholder.jpg";
         if (row.cover_url) {
         imgSrc = row.cover_url.startsWith("http")
             ? row.cover_url
