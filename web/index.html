@@ -291,6 +291,25 @@
                 if (btn) btn.disabled = false;
             }            
         });
+
+    supabase.auth.onAuthStateChange(async (event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+        const newPass = window.prompt('Enter a new password (8+ characters):') || '';
+        if (newPass.length < 8) {
+        showError('Password must be at least 8 characters.');
+        return;
+        }
+        const { error } = await supabase.auth.updateUser({ password: newPass });
+        if (error) {
+        showError(error.message || 'Could not update password.');
+        return;
+        }
+        window.location.hash = '';
+        await supabase.auth.signOut();
+        showError('Password updated. Please log in with your new password.');
+    }
+    });
+
     </script>
 </body>
 </html>
