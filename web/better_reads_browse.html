@@ -241,6 +241,19 @@
         const img = document.createElement("img");
 
         img.src = imgSrc;
+        const PLACEHOLDER = `${STORAGE_BASE}cover/placeholder.jpg`;
+        img.onerror = () => {
+        img.onerror = null;
+        img.src = PLACEHOLDER;
+        if (!/placeholder\.jpg$/i.test(PLACEHOLDER)) return;
+        if (!a.querySelector("p")) {
+            const p = document.createElement("p");
+            p.textContent = title;
+            p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
+            a.appendChild(p);
+        }
+        };
+
         img.alt = title;
         img.className = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
         a.appendChild(img);
