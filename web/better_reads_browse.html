@@ -184,19 +184,6 @@
         </div>
     </footer>
 <script>
-        const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        (async () => {
-            try {
-                const {data, error} = await sb
-                    .from('editions')
-                    .select()
-            }
-        })
-</script>
-<script>
 (async () => {
   const loginLink  = document.getElementById('nav-login');
   const logoutLink = document.getElementById('nav-logout');
