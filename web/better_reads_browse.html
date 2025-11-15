@@ -226,11 +226,16 @@
 
     for (const row of rows) {
         const title = row?.works?.title ?? "Unknown title";
-        const imgSrc = (row.cover_url && row.cover_url.startsWith("http"))
+        const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+        
+        let imgSrc = "https://placehold.co/200x300?text=No+Cover";
+        if (row.cover_url) {
+        imgSrc = row.cover_url.startsWith("http")
             ? row.cover_url
-            : "https://placehold.co/200x300?text=No+Cover";
-        const a = document.createElement("a");
+            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
+        }
 
+        const a = document.createElement("a");
         a.href = `View-book.html?work_id=${encodeURIComponent(row.work_id)}&edition_id=${encodeURIComponent(row.edition_id)}`;
         a.className = "block";
         const img = document.createElement("img");
