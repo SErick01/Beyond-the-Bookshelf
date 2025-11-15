@@ -253,48 +253,5 @@
     grid.appendChild(frag);
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
-    const sb = window.supabase?.createClient? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY): null;
-
-    function coverPublicUrl(path) {
-        const from = sb.storage.from('covers');
-        if (!path) return from.getPublicUrl('placeholder.jpg').data.publicUrl;
-        return from.getPublicUrl(path).data.publicUrl;
-    }
-    async function loadRecommended() {
-        if (!sb) return;
-
-        const { data, error } = await sb
-        .from('editions')
-        .select('edition_id, cover_url, works!inner(work_id, title)')
-        .order('pub_date', { ascending: false })
-        .limit(12);
-
-        if (error) {
-        console.error('Supabase error:', error);
-        return;
-        }
-
-        const rowEl = document.getElementById('row-recommended');
-        if (!rowEl) return;
-
-        rowEl.innerHTML = (data || []).map(({ edition_id, cover_url, works }) => {
-            const title = works?.title || 'Unknown title';
-            const img = coverPublicUrl(cover_url);
-            const showTitle = !cover_url;
-            const href = `View-book.html?edition=${encodeURIComponent(edition_id)}`;
-      
-        return `
-            <a class="book-card" href="${href}" title="${title}">
-                <img src="${img}" alt="${title}">
-                ${showTitle ? `<div class="book-title">${title}</div>` : ''}
-            </a>`;
-        }).join('');
-    }
-    loadRecommended();
-</script>
 </body>
 </html>
