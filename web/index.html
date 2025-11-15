@@ -195,33 +195,33 @@
         })();
 
         const forgotLink = document.getElementById('forgot-link');
+        let sendingReset = false;
         forgotLink?.addEventListener('click', async (e) => {
         e.preventDefault();
-        errEl?.classList.add('hidden');
-        const email = emailEl?.value.trim();
 
-        if (!email) {
+        if (sendingReset) return;
+        sendingReset = true;
+        errEl?.classList.add('hidden');
+
+        try {
+            const email = emailEl.value.trim();
+            if (!email) {
             if (errEl) {
-            errEl.textContent = 'Enter your email above to reset your password.';
-            errEl.classList.remove('hidden');
+                errEl.textContent = 'Enter your email first, then click “Forgot Password”.';
+                errEl.classList.remove('hidden');
             }
             return;
-        }
-        try {
+            }
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/index.html#recovery'
+            redirectTo: window.location.origin + '/index.html',
             });
-            if (error) throw error;
-            if (errEl) {
-            errEl.textContent = 'Password reset email sent. Check your inbox.';
-            errEl.classList.remove('hidden');
+            
+            if (error) {
+            showError(error.message || 'Could not send reset email.');
+            return;
             }
-        } catch (err) {
-            if (errEl) {
-            errEl.textContent = err?.message || 'Could not send reset email.';
-            errEl.classList.remove('hidden');
-            }
-        }
+            showError('Check your inbox for a reset link.');
+        } finally {sendingReset = false;}
         });
 
         (() => {
