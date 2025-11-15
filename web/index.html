@@ -98,7 +98,7 @@
                     <div class="register-link pt-4">
                         <p class="text-white text-sm">
                             Don't have an account? 
-                            <a href="#" class="font-bold hover:underline">Sign Up</a>
+                            <a id="signup-link" href="#" class="font-bold hover:underline" role="button">Sign Up</a>
                         </p>
                         <p id="login-error" class="mt-2 text-sm text-red-200 hidden"></p>
                     </div>
@@ -125,6 +125,46 @@
         const emailEl = document.getElementById("email");
         const passEl = document.getElementById("password");
         const errEl = document.getElementById("login-error");
+        const signupLink = document.getElementById('signup-link');
+
+        signupLink?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            errEl.classList.add('hidden');
+
+            if (errEl) errEl.textContent = '';
+            const email = emailEl.value.trim();
+            const password = passEl.value;
+
+            if (!email || !password) {
+                if (errEl) {
+                    errEl.textContent = 'Enter email and password to sign up.';
+                    errEl.classList.remove('hidden');
+                }
+                return;
+            }
+            try {
+                const { data, error } = await supabase.auth.signup({
+                    email, password, options: {emailRedirectTo: window.location.origin + '/index.html' }
+                });
+                if (error) throw error;
+
+                if (!data.session) {
+                    if (errEl) {
+                        errEl.textContent = 'Check your email to confirm your account, then return to log in.';
+                        errEl.classList.remove('hidden');
+                    }
+                    return;
+                }
+                const token = data.session.access_token;
+                localStorage.setItem('btb_token', token);
+                window.location.href = 'better_reads_hp.html';
+            } catch (err) {
+                if (errEl) {
+                    errEl.textContent = err?.message || 'Sign up failed.';
+                    errEl.classList.remove('hidden');
+                }
+            }
+        })
 
         function showError(msg) {
             if (!errEl) return alert(msg);
