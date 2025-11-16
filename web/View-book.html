@@ -81,15 +81,16 @@
         <div class="flex flex-col md:flex-row gap-8">
             <div class="flex-shrink-0 mx-auto md:mx-0">
                 <img 
+                    id="book-cover-img"
                     src="redrising.jpg" 
-                    alt="Red Rising Cover" 
+                    alt="Book cover" 
                     class="w-56 h-auto object-cover shadow-2xl rounded-lg"
                 >
             </div>
             
             <div class="flex-grow">
-                <h1 class="text-3xl font-extrabold text-black">Red Rising</h1>
-                <p class="text-lg text-gray-700 mb-4">Pierce Brown</p>
+                <h1 id="book-title" class="text-3xl font-extrabold text-black">Red Rising</h1>
+                <p id="book-author" class="text-lg text-gray-700 mb-4">Pierce Brown</p>
                 
                 <div class="flex items-center justify-between mb-6">
                     <div>
@@ -111,14 +112,14 @@
                     </div>
                 </div>
                 
-                <p class="text-gray-800 mb-4 leading-relaxed">
+                <p class="text-gray-800 mb-4 leading-relaxed js-book-description">
                     Darrow is a Red, a member of the lowest caste in the color-coded society of the future. Like his fellow Reds, he works all day, believing that he and his people are making the surface of Mars livable for future generations. Yet he toils willingly, trusting that his blood and sweat will one day result in a better world for his children.
                 </p>
-                <p class="text-gray-800 leading-relaxed">
+                <p class="text-gray-800 leading-relaxed js-book-description">
                     But Darrow and his kind have been betrayed. Soon he discovers that humanity reached the surface generations ago. Vast cities and lush wilds spread across the planet. Darrow—and Reds like him—are nothing more than slaves to a decadent ruling class.
                 </p>
 
-                <p class="text-gray-800 leading-relaxed">
+                <p class="text-gray-800 leading-relaxed js-book-description">
                     <br>Inspired by a longing for justice, and driven by the memory of lost love, Darrow sacrifices everything to infiltrate the legendary Institute, a proving ground for the dominant Gold caste, where the next generation of humanity’s overlords struggle for power. He will be forced to compete for his life and the very future of civilization against the best and most brutal of Society’s ruling class. There, he will stop at nothing to bring down his enemies . . . even if it means he has to become one of them to do so.
                 </p>
                 <div class="flex justify-center flex-wrap space-x-8 text-lg font-bold text-dark-brown p-3  ">
@@ -141,5 +142,86 @@
         <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
     </div>
 </footer>
+<script>
+    (async () => {
+        const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
+        const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+        const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+        const params = new URLSearchParams(window.location.search);
+        const editionId = params.get("edition_id");
+        const workId = params.get("work_id");
+
+        if (!editionId && !workId) {
+            console.error("No edition_id or work_id in URL");
+            return;
+        }
+        const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
+
+        if (editionId) {
+            url.searchParams.set("edition_id", `eq.${editionId}`);
+        } else if (workId) {
+            url.searchParams.set("work_id", `eq.${workId}`);
+        }
+        url.searchParams.set("select", "*,works(*)");
+        url.searchParams.set("limit", "1");
+
+        const res = await fetch(url.toString(), {
+            headers: {
+                apikey: `Bearer ${SUPABASE_ANON_KEY}`,
+            },
+        });
+
+        if (!res.ok) {
+            console.error("Failed to load book", res.status);
+            return;
+        }
+        const data = await res.json();
+        const book = data[0];
+
+        if (!book) {
+            console.error("No book found for that id");
+            return;
+        }
+        const work = book.works || {};
+        const title = work.title || book.title || "Unknown title";
+        const author = work.author || book.author || "Author information coming soon";
+        const description = work.description || work.summary || work.blurb || "Description soming soon";
+
+        let coverSrc = PLACEHOLDER;
+        if (book.cover_url) {
+            coverSrc = book.cover_url.startsWith("http")
+                ? book.cover_url
+                : STORAGE_BASE + book.cover_url.replace(/^\/+/, "");
+        }
+        const coverEl = document.getElementById("book-cover-img");
+        const titleEl = document.getElementById("book-title");
+        const authorEl = document.getElementById("book-author");
+        const descEls = document.querySelectorAll(".js-book-description");
+
+        if (coverEl) {
+            coverEl.src = coverSrc;
+            coverEl.alt = title;
+            coverEl.onerror = () => {
+                coverEl.onerror = null;
+                coverEl.src = PLACEHOLDER;
+            };
+        }
+
+        if (titleEl) {
+            titleEl.textContent = title;
+            document.title = `Better Reads - ${title}`;
+        }
+
+        if (authorEl) {authorEl.textContent = author;}
+
+        if (descEls.length) {
+            descEls[0].textContent = description;
+            for (let i = 1; i < descEls.length; i++) {
+                descEls[i].style.display = "none";
+            }
+        }
+    })();
+</script>
 </body>
 </html>
