@@ -80,12 +80,7 @@
     <div class = "container mx-auto px-4 mt-8 py-9 bg-card-background rounded-xl">
         <div class="flex flex-col md:flex-row gap-8">
             <div class="flex-shrink-0 mx-auto md:mx-0">
-                <img 
-                    id="book-cover-img"
-                    src="redrising.jpg" 
-                    alt="Book cover" 
-                    class="w-56 h-auto object-cover shadow-2xl rounded-lg"
-                >
+                <img id="book-cover-img" src="redrising.jpg" alt="Book cover" class="w-56 h-auto object-cover shadow-2xl rounded-lg">
             </div>
             
             <div class="flex-grow">
@@ -145,9 +140,9 @@
         const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
         const params = new URLSearchParams(window.location.search);
         const editionId = params.get("edition_id");
-        const workId = params.get("work_id");
+        const workIdParam = params.get("work_id");
 
-        if (!editionId && !workId) {
+        if (!editionId && !workIdParam) {
             console.error("No edition_id or work_id in URL");
             return;
         }
@@ -155,8 +150,8 @@
 
         if (editionId) {
             url.searchParams.set("edition_id", `eq.${editionId}`);
-        } else if (workId) {
-            url.searchParams.set("work_id", `eq.${workId}`);
+        } else if (workIdParam) {
+            url.searchParams.set("work_id", `eq.${workIdParam}`);
         }
         url.searchParams.set("select", "*,works(*)");
         url.searchParams.set("limit", "1");
@@ -180,9 +175,10 @@
             return;
         }
         const work = book.works || {};
+        const workId = book.work_id || workIdParam;
         const title = work.title || book.title || "Unknown title";
         const author = work.author || book.author || "Author information coming soon";
-        const description = work.description || work.summary || work.blurb || "Description soming soon";
+        const description = work.summary || "Description coming soon";
 
         let coverSrc = PLACEHOLDER;
         if (book.cover_url) {
