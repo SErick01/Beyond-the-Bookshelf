@@ -222,7 +222,7 @@
   }
   async function fetchBooks({ limit = 30, searchTerm = "" } = {}) {
     const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
-    url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title),work_genres!left(genres(name,slug))");
+    url.searchParams.set("select","edition_id,work_id,cover_url,works!inner(title)");
     url.searchParams.set("order", "pub_date.desc");
     url.searchParams.set("limit", String(limit));
 
