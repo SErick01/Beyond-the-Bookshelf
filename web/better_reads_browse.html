@@ -238,10 +238,7 @@
           url.searchParams.set("isbn13", `eq.${isbnCandidate}`);
         } else {
           const titlePattern = `${clean}*`;
-          url.searchParams.set("or",
-            `(works.title.ilike.${titlePattern},
-            genres.name.ilike.${clean},
-            genres.slug.ilike.${clean})`);
+          url.searchParams.set("works.title", `ilike.${clean}*`);
         }
     }
     const res = await fetch(url.toString(), {
