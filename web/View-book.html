@@ -65,7 +65,25 @@
                     <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
                     <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
                     <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
-                    <button class="Drop-Down-Menu-Icon">&#9776;</button>
+                    <div class = "relative " id = "dropdown-parent">
+                        <button 
+                            class="Drop-Down-Menu-Icon-BTN"
+                            aria-expanded="false"
+                            aria-haspopup="true"
+                            onclick="toggleDropdown(event)"
+                            >
+                            &#9776;
+                        </button>
+                        <div
+                         id = "dropdown-menu"
+                         class = "absolute right-0 mt-3 w-40 bg-white border border-gray-200 rounded-lg shadow-xl hidden origin-top-right transform transition duration-200 ease-out z-30 overflow-hidden">
+                        <a href="add-friends.html" class="block px-4 py-2 text-gray-700 hover:bg-orange-100 hover:text-primary-orange transition duration-150 whitespace-nowrap">
+                            Add Friends
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition duration-150 whitespace-nowrap">
+                            Logout
+                        </a>
+                        </div>
                 </nav>
             </div>
         </div>
