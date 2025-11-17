@@ -228,7 +228,7 @@
 
     if (searchTerm) {
       const clean = searchTerm.replace(/[%*]/g, "").trim();
-      const isbnCondidate = clean.replace(/-/g, "");
+      const isbnCandidate = clean.replace(/-/g, "");
       const isLikelyIsbn = 
         /^[0-9Xx]+$/.test(isbnCandidate) &&
         isbnCandidate.length >= 10 &&
@@ -242,10 +242,7 @@
     }
 
     const res = await fetch(url.toString(), {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
+      headers: {apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,},
     });
 
     if (!res.ok) {
