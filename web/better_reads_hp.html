@@ -169,71 +169,52 @@
     
 </main>
 <!-- Creation of the current reads -->
-<!-- TODO: Update for the backend-->
 <div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
     <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
         <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
 
         <!--Book 1-->
         <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src = "76713323._SY180_.jpg"
-                alt = "Cover of Empire of Storms by Sarah J. Maas"
-                class = "w-16 h-24 object-cover shadow-md rounded"
-            >
+            <img id="current-cover-1" src = "76713323._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
             <div class = "flex-grow">
-                <p class = "font-bold text-base leading-tight">Empire of Storms</p>
-                <p class = "text-sm text-dark-text/80">Sarah J. Maas </p>
-
+                <p id="current-title-1" class = "font-bold text-base leading-tight">Empire of Storms</p>
+                <p id="current-author-1" class = "text-sm text-dark-text/80">Sarah J. Maas </p>
                 <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
-                    <div
-                    id="progress-bar-1" 
-                    class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
-                    style="width: 25%">
-                        <span 
-                        id="progress-text-1" 
-                        class="text-white font-bold text-xs" 
-                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);"></span>
+                    <div id="progress-bar-1" 
+                        class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                        style="width: 25%">
+                        <span id="progress-text-1" class="text-white font-bold text-xs" 
+                            style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                        </span>
                     </div>
                 </div>
-
-                <button 
-                id = "update-progress-btn-1"
-                onclick="openModal(1)"
-                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
+                <button id = "update-progress-btn-1" onclick="openModal(1)"
+                    class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                    Update Progress
                 </button>
             </div>
         </div> 
         <!--Book 2-->
         <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src = "222946916._SY180_.jpg"
-                alt = "Cover of For Whom the Belle Tolls by Jaysea Lynn"
-                class = "w-16 h-24 object-cover shadow-md rounded"
-            >
+            <img id="current-cover-2" src = "222946916._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
             <div class = "flex-grow">
-                <p class = "font-bold text-lg leading-tight">For Whom the Belle Tolls</p>
-                <p class = "text-sm text-dark-brown/80">Jaysea Lynn </p>
-
-                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
-                    <div
-                    id="progress-bar-2" 
-                    class="bg-primary-orange h-full rounded-full" 
-                    style="width: 57.6%">
-                        <span 
-                        id="progress-text-2" 
-                        class="text-white font-bold text-xs" 
-                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">57.6%</span>
-                    </div>   
+                <p id="current-title-2" class = "font-bold text-base leading-tight">For Whom the Belle Tolls</p>
+                <p id="current-author-2" class = "text-sm text-dark-text/80">Jaysea Lynn</p>
+                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
+                    <div id="progress-bar-2" 
+                        class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                        style="width: 25%">
+                        <span id="progress-text-2" class="text-white font-bold text-xs" 
+                            style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                        </span>
+                    </div>
                 </div>
-
-                <button 
-                id = "update-progress-btn-2"
-                onclick="openModal(2)"
-                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
+                <button id = "update-progress-btn-2" onclick="openModal(2)"
+                    class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                    Update Progress
                 </button>
             </div>
-        </div>
+        </div> 
     </section>
 
 
@@ -241,7 +222,7 @@
     <div class ="lg:col-span-6 space-y-6" >
         <section class = "bg-card-background">
             <h2 id="recommended-heading" class = "text-2xl font-bold text-dark-text mb-6">Recommended for you</h2>
-            <div id="row-recommended" class = "grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
+            <div id="row-recommended" class = "Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E"></div>
         </section>
 
         <section class = "bg-card-background rounded-lg">
@@ -563,133 +544,222 @@
     })();
 </script>
 <script>
-    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
-    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-    const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
+  const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
 
-    async function fetchReadingChallenge() {
-        const token = localStorage.getItem('btb_token');
-        if (!token) {
-            console.warn('User not logged in. Cannot fetch reading challenge.');
-            return;
-        }
-        const booksCompletedEl = document.getElementById('books-completed');
-        const targetCountEl = document.getElementById('target-count');
-        const challengeYearEl = document.getElementById('challenge-year');
-        
-        if (challengeYearEl) {
-            challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;
-        }
+  async function fetchReadingChallenge() {
+    const token = localStorage.getItem('btb_token');
+    const booksCompletedEl = document.getElementById('books-completed');
+    const targetCountEl = document.getElementById('target-count');
+    const challengeYearEl = document.getElementById('challenge-year');
 
-        try {
-            const res = await fetch(`${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`, {
-                headers: { Authorization: `Bearer ${token}` }, mode: 'cors'});
+    if (challengeYearEl) {challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;}
 
-            if (!res.ok) {
-                console.warn(`API failed to fetch challenge data: ${res.status}`);
-                throw new Error('Challenge data unavailable.');
-            }
-
-            const challengeData = await res.json();
-            
-            const completed = challengeData.completed_count || 0;
-            const target = challengeData.target_count;
-            if (booksCompletedEl) {
-                booksCompletedEl.textContent = completed;
-            }
-            if (targetCountEl) {
-                targetCountEl.textContent = target;
-            }
-
-        } catch (error) {
-            console.error('Error fetching reading challenge:', error);
-            if (booksCompletedEl) booksCompletedEl.textContent = '0';
-            if (targetCountEl) targetCountEl.textContent = '??';
-        }
+    if (!token) {
+      console.log('[ReadingChallenge] No token found');
+      if (booksCompletedEl) booksCompletedEl.textContent = '0';
+      if (targetCountEl) targetCountEl.textContent = '--';
+      return;
     }
 
-    window.addEventListener('load', fetchReadingChallenge);
+    try {
+      const res = await fetch(
+        `${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`,
+        {headers: { Authorization: `Bearer ${token}` }, mode: 'cors',}
+      );
+
+      if (!res.ok) {
+        console.warn('[ReadingChallenge] API error', res.status);
+        if (booksCompletedEl) booksCompletedEl.textContent = '0';
+        if (targetCountEl) targetCountEl.textContent = '--';
+        return;
+      }
+      const data = await res.json();
+      const completed = data.completed_count ?? 0;
+      const target = data.target_count ?? '--';
+
+      if (booksCompletedEl) booksCompletedEl.textContent = completed;
+      if (targetCountEl) targetCountEl.textContent = target;
+
+    } catch (err) {
+      console.error('[ReadingChallenge] Fetch failed', err);
+      if (booksCompletedEl) booksCompletedEl.textContent = '0';
+      if (targetCountEl) targetCountEl.textContent = '--';
+    }
+  }
+  fetchReadingChallenge();
 </script>
 <script>
-    (async () => {
-        const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-        const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
-        const recHeading = document.getElementById("recommended-heading");
-        const rowContainer = document.getElementById("row-recommended");
+  (async () => {
+    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
 
-        function renderRecommended(rows) {
-            if (!rowContainer) return;
-            const frag = document.createDocumentFragment();
+    function setCurrentSlot(slot, data) {
+      if (!data) return;
 
-            for (const row of rows) {
-            const title = row.title ?? "Unknown title";
-            let imgSrc = PLACEHOLDER;
+      const coverEl  = document.getElementById(`current-cover-${slot}`);
+      const titleEl  = document.getElementById(`current-title-${slot}`);
+      const authorEl = document.getElementById(`current-author-${slot}`);
+      const barEl    = document.getElementById(`progress-bar-${slot}`);
+      const textEl   = document.getElementById(`progress-text-${slot}`);
 
-            if (row.cover_url) {
-                imgSrc = row.cover_url.startsWith("http")
-                ? row.cover_url
-                : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
-            }
+      if (coverEl) {
+        let imgSrc = PLACEHOLDER;
+        if (data.cover_url) {
+          imgSrc = data.cover_url.startsWith("http")
+            ? data.cover_url
+            : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
+        }
+        coverEl.src = imgSrc;
+        coverEl.alt = data.title ?? "Current read";
+      }
 
-            const a = document.createElement("a");
-            a.href =
-                `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
-                `&edition_id=${encodeURIComponent(row.edition_id)}`;
-            a.className = "block";
-        
-            const img = document.createElement("img");
-            img.src = imgSrc;
-            img.alt = title;
-            img.className =
-                "w-full h-auto object-cover shadow-xl rounded " +
-                "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
+      if (titleEl)  titleEl.textContent  = data.title  ?? "Untitled";
+      if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
 
-            img.onerror = () => {
-                img.onerror = null;
-                img.src = PLACEHOLDER;
-            };
-            a.appendChild(img);
+      if (barEl) {
+        const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
+        barEl.style.width = pct + "%";
+        if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
+      }
+    }
+    const token = localStorage.getItem("btb_token");
+    if (!token) {
+      console.log("[CurrentReads] No token, leaving sample books");
+      return;
+    }
 
-            if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
+    try {
+      const res = await fetch(
+        `${apiBase}/api/home/current-reads?limit=2`,
+        {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
+      );
+
+      if (!res.ok) {
+        console.warn("[CurrentReads] API error", res.status);
+        return;
+      }
+      const rows = await res.json();
+      setCurrentSlot(1, rows[0]);
+      setCurrentSlot(2, rows[1]);
+
+    } catch (err) {
+      console.error("[CurrentReads] Fetch failed", err);
+    }
+  })();
+</script>
+<script>
+  (async () => {
+    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
+    const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/`;
+    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+    const recHeading   = document.getElementById("recommended-heading");
+    const rowContainer = document.getElementById("row-recommended");
+
+    if (!rowContainer) {
+      console.warn("[Recommended] Missing #row-recommended container");
+      return;
+    }
+
+    rowContainer.innerHTML =
+      `<p class="col-span-3 text-center text-sm text-[#51200F]">
+         Loading recommendations…
+       </p>`;
+
+    function renderRow(rows) {
+      if (!rows || !rows.length) {
+        rowContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-[#51200F]">
+             No recommendations yet.
+           </p>`;
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      for (const row of rows) {
+        const title = row?.works?.title ?? "Unknown title";
+        let imgSrc = PLACEHOLDER;
+
+        if (row.cover_url) {
+          imgSrc = row.cover_url.startsWith("http")
+            ? row.cover_url
+            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
+        }
+        const a = document.createElement("a");
+        a.href =
+          `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
+          `&edition_id=${encodeURIComponent(row.edition_id)}`;
+        a.className = "block";
+
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.alt = title;
+        img.className = "w-full h-auto object-cover shadow-xl rounded " +
+        "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
+
+        img.onerror = () => {
+            img.onerror = null;
+            img.src = PLACEHOLDER;
+
+            if (!a.querySelector("p")) {
                 const p = document.createElement("p");
                 p.textContent = title;
                 p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
                 a.appendChild(p);
             }
+        };
 
-            const wrap = document.createElement("div");
-            wrap.className = "book-card";
-            wrap.appendChild(a);
-            frag.appendChild(wrap);
+        a.appendChild(img);
+        if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
+            const p = document.createElement("p");
+            p.textContent = title;
+            p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
+            a.appendChild(p);
         }
-        rowContainer.innerHTML = "";
-        rowContainer.appendChild(frag);
-    }
-    
-    async function loadRecommended() {
-        const token = localStorage.getItem("btb_token");
-        if (!token || !rowContainer) return;
 
-        try {
-            const res = await fetch(`${apiBase}/api/home/recommended?limit=7`,{
-                headers: {Authorization: `Bearer ${token}`}, mode: "cors",
-            });
-
-            if (!res.ok) {
-                console.warn("Recommended API failed:", res.status);
-                return;
-            }
-            const rows = await res.json();
-            renderRecommended(rows);
-            
-            if (recHeading) recHeading.textContent = "Recommended for you";
-        } catch (err) {
-            console.error("Error loading recommended:", err);
-        }
+        const wrap = document.createElement("div");
+        wrap.className = "book-card";
+        wrap.appendChild(a);
+        frag.appendChild(wrap);
+      }
+      rowContainer.innerHTML = "";
+      rowContainer.appendChild(frag);
     }
-    window.addEventListener("load", loadRecommended);
-    })();
+
+    async function fetchBooks(limit = 21) {
+      const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
+      url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
+      url.searchParams.set("order", "pub_date.desc");
+      url.searchParams.set("limit", String(limit));
+
+      const res = await fetch(url.toString(), {
+        headers: {apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,},
+      });
+
+      if (!res.ok) {
+        console.error("[Recommended] Supabase error", res.status);
+        rowContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-red-700">
+             Error loading recommendations (Supabase ${res.status}).
+           </p>`;
+        return [];
+      }
+      return await res.json();
+    }
+
+    try {
+      const rows = await fetchBooks(21);
+      renderRow(rows);
+      if (recHeading) recHeading.textContent = "Recommended for you";
+
+    } catch (err) {
+      console.error("[Recommended] Fetch failed", err);
+      rowContainer.innerHTML =
+        `<p class="col-span-3 text-center text-sm text-red-700">
+           Error loading recommendations. See console for details.
+         </p>`;
+    }
+  })();
 </script>
 </body>
 </html>
