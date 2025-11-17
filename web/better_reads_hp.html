@@ -544,190 +544,190 @@
     })();
 </script>
 <script>
-    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
-    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-    const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
+  const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
 
-    async function fetchReadingChallenge() {
-        const token = localStorage.getItem('btb_token');
-        if (!token) {
-            console.warn('User not logged in. Cannot fetch reading challenge.');
-            return;
-        }
-        const booksCompletedEl = document.getElementById('books-completed');
-        const targetCountEl = document.getElementById('target-count');
-        const challengeYearEl = document.getElementById('challenge-year');
-        
-        if (challengeYearEl) {
-            challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;
-        }
+  async function fetchReadingChallenge() {
+    const token = localStorage.getItem('btb_token');
+    const booksCompletedEl = document.getElementById('books-completed');
+    const targetCountEl = document.getElementById('target-count');
+    const challengeYearEl = document.getElementById('challenge-year');
 
-        try {
-            const res = await fetch(`${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`, {
-                headers: { Authorization: `Bearer ${token}` }, mode: 'cors'});
+    if (challengeYearEl) {challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;}
 
-            if (!res.ok) {
-                console.warn(`API failed to fetch challenge data: ${res.status}`);
-                throw new Error('Challenge data unavailable.');
-            }
-
-            const challengeData = await res.json();
-            
-            const completed = challengeData.completed_count || 0;
-            const target = challengeData.target_count;
-            if (booksCompletedEl) {
-                booksCompletedEl.textContent = completed;
-            }
-            if (targetCountEl) {
-                targetCountEl.textContent = target;
-            }
-
-        } catch (error) {
-            console.error('Error fetching reading challenge:', error);
-            if (booksCompletedEl) booksCompletedEl.textContent = '0';
-            if (targetCountEl) targetCountEl.textContent = '??';
-        }
+    if (!token) {
+      console.log('[ReadingChallenge] No token found');
+      if (booksCompletedEl) booksCompletedEl.textContent = '0';
+      if (targetCountEl) targetCountEl.textContent = '--';
+      return;
     }
 
-    window.addEventListener('load', fetchReadingChallenge);
+    try {
+      const res = await fetch(
+        `${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`,
+        {headers: { Authorization: `Bearer ${token}` }, mode: 'cors',}
+      );
+
+      if (!res.ok) {
+        console.warn('[ReadingChallenge] API error', res.status);
+        if (booksCompletedEl) booksCompletedEl.textContent = '0';
+        if (targetCountEl) targetCountEl.textContent = '--';
+        return;
+      }
+      const data = await res.json();
+      const completed = data.completed_count ?? 0;
+      const target = data.target_count ?? '--';
+
+      if (booksCompletedEl) booksCompletedEl.textContent = completed;
+      if (targetCountEl) targetCountEl.textContent = target;
+
+    } catch (err) {
+      console.error('[ReadingChallenge] Fetch failed', err);
+      if (booksCompletedEl) booksCompletedEl.textContent = '0';
+      if (targetCountEl) targetCountEl.textContent = '--';
+    }
+  }
+  fetchReadingChallenge();
 </script>
 <script>
-    (async () => {
+  (async () => {
     const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
     const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
 
     function setCurrentSlot(slot, data) {
-        if (!data) return;
-        const coverEl = document.getElementById(`current-cover-${slot}`);
-        const titleEl = document.getElementById(`current-title-${slot}`);
-        const authorEl = document.getElementById(`current-author-${slot}`);
-        const barEl = document.getElementById(`progress-bar-${slot}`);
-        const textEl = document.getElementById(`progress-text-${slot}`);
+      if (!data) return;
 
-        if (coverEl) {
-            let imgSrc = PLACEHOLDER;
-            if (data.cover_url) {
-                imgSrc = data.cover_url.startsWith("http")
-                ? data.cover_url
-                : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
-            }
-            coverEl.src = imgSrc;
-            coverEl.alt = data.title ?? "Current read";
+      const coverEl  = document.getElementById(`current-cover-${slot}`);
+      const titleEl  = document.getElementById(`current-title-${slot}`);
+      const authorEl = document.getElementById(`current-author-${slot}`);
+      const barEl    = document.getElementById(`progress-bar-${slot}`);
+      const textEl   = document.getElementById(`progress-text-${slot}`);
+
+      if (coverEl) {
+        let imgSrc = PLACEHOLDER;
+        if (data.cover_url) {
+          imgSrc = data.cover_url.startsWith("http")
+            ? data.cover_url
+            : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
         }
+        coverEl.src = imgSrc;
+        coverEl.alt = data.title ?? "Current read";
+      }
 
-        if (titleEl) titleEl.textContent = data.title ?? "Untitled";
-        if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
+      if (titleEl)  titleEl.textContent  = data.title  ?? "Untitled";
+      if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
 
-        if (barEl) {
-            const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
-            barEl.style.width = pct + "%";
-            if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
-        }
+      if (barEl) {
+        const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
+        barEl.style.width = pct + "%";
+        if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
+      }
+    }
+    const token = localStorage.getItem("btb_token");
+    if (!token) {
+      console.log("[CurrentReads] No token, leaving sample books");
+      return;
     }
 
-    async function loadCurrentReads() {
-        const token = localStorage.getItem("btb_token");
-        if (!token) return;
+    try {
+      const res = await fetch(
+        `${apiBase}/api/home/current-reads?limit=2`,
+        {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
+      );
 
-        try {
-            const res = await fetch(
-                `${apiBase}/api/home/current-reads?limit=2`,
-                {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
-            );
+      if (!res.ok) {
+        console.warn("[CurrentReads] API error", res.status);
+        return;
+      }
+      const rows = await res.json();
+      setCurrentSlot(1, rows[0]);
+      setCurrentSlot(2, rows[1]);
 
-            if (!res.ok) {
-                console.warn("Current reads API failed:", res.status);
-                return;
-            }
-            const rows = await res.json();
-            setCurrentSlot(1, rows[0]);
-            setCurrentSlot(2, rows[1]);
-
-        } catch (err) {console.error("Error loading current reads:", err);}
+    } catch (err) {
+      console.error("[CurrentReads] Fetch failed", err);
     }
-    window.addEventListener("load", loadCurrentReads);
-    })();
+  })();
 </script>
 <script>
-    (async () => {
-        const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-        const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
-        const recHeading = document.getElementById("recommended-heading");
-        const rowContainer = document.getElementById("row-recommended");
+  (async () => {
+    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+    const recHeading   = document.getElementById("recommended-heading");
+    const rowContainer = document.getElementById("row-recommended");
 
-        function renderRecommended(rows) {
-            if (!rowContainer) return;
-            const frag = document.createDocumentFragment();
-
-            for (const row of rows) {
-            const title = row.title ?? "Unknown title";
-            let imgSrc = PLACEHOLDER;
-
-            if (row.cover_url) {
-                imgSrc = row.cover_url.startsWith("http")
-                ? row.cover_url
-                : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
-            }
-
-            const a = document.createElement("a");
-            a.href =
-                `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
-                `&edition_id=${encodeURIComponent(row.edition_id)}`;
-            a.className = "block";
-        
-            const img = document.createElement("img");
-            img.src = imgSrc;
-            img.alt = title;
-            img.className =
-                "w-full h-auto object-cover shadow-xl rounded " +
-                "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
-
-            img.onerror = () => {
-                img.onerror = null;
-                img.src = PLACEHOLDER;
-            };
-            a.appendChild(img);
-
-            if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
-                const p = document.createElement("p");
-                p.textContent = title;
-                p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
-                a.appendChild(p);
-            }
-
-            const wrap = document.createElement("div");
-            wrap.className = "book-card";
-            wrap.appendChild(a);
-            frag.appendChild(wrap);
-        }
-        rowContainer.innerHTML = "";
-        rowContainer.appendChild(frag);
+    if (!rowContainer) {
+      console.warn("[Recommended] Missing #row-recommended container");
+      return;
     }
+
+    function renderRecommended(rows) {
+      const frag = document.createDocumentFragment();
+
+      for (const row of rows) {
+        const title = row.title ?? "Unknown title";
+        let imgSrc = PLACEHOLDER;
+
+        if (row.cover_url) {
+          imgSrc = row.cover_url.startsWith("http")
+            ? row.cover_url
+            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
+        }
+
+        const a = document.createElement("a");
+        a.href = `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
+          `&edition_id=${encodeURIComponent(row.edition_id)}`;
+        a.className = "block";
+
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.alt = title;
+        img.className = "w-full h-auto object-cover shadow-xl rounded " +
+          "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
+
+        img.onerror = () => {
+          img.onerror = null;
+          img.src = PLACEHOLDER;
+        };
+        a.appendChild(img);
+
+        if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
+          const p = document.createElement("p");
+          p.textContent = title;
+          p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
+          a.appendChild(p);
+        }
+        const wrap = document.createElement("div");
+        wrap.className = "book-card";
+        wrap.appendChild(a);
+        frag.appendChild(wrap);
+      }
+      rowContainer.innerHTML = "";
+      rowContainer.appendChild(frag);
+    }
+    const token = localStorage.getItem("btb_token");
     
-    async function loadRecommended() {
-        const token = localStorage.getItem("btb_token");
-        if (!token || !rowContainer) return;
-
-        try {
-            const res = await fetch(`${apiBase}/api/home/recommended?limit=7`,{
-                headers: {Authorization: `Bearer ${token}`}, mode: "cors",
-            });
-
-            if (!res.ok) {
-                console.warn("Recommended API failed:", res.status);
-                return;
-            }
-            const rows = await res.json();
-            renderRecommended(rows);
-            
-            if (recHeading) recHeading.textContent = "Recommended for you";
-        } catch (err) {
-            console.error("Error loading recommended:", err);
-        }
+    if (!token) {
+      console.log("[Recommended] No token, skipping API call");
+      return;
     }
-    window.addEventListener("load", loadRecommended);
-    })();
+
+    try {
+      const res = await fetch(
+        `${apiBase}/api/home/recommended?limit=7`,
+        {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
+      );
+
+      if (!res.ok) {
+        console.warn("[Recommended] API error", res.status);
+        return;
+      }
+      const rows = await res.json();
+      renderRecommended(rows);
+      if (recHeading) recHeading.textContent = "Recommended for you";
+
+    } catch (err) {
+      console.error("[Recommended] Fetch failed", err);
+    }
+  })();
 </script>
 </body>
 </html>
