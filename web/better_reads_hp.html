@@ -169,71 +169,52 @@
     
 </main>
 <!-- Creation of the current reads -->
-<!-- TODO: Update for the backend-->
 <div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
     <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
         <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
 
         <!--Book 1-->
         <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src = "76713323._SY180_.jpg"
-                alt = "Cover of Empire of Storms by Sarah J. Maas"
-                class = "w-16 h-24 object-cover shadow-md rounded"
-            >
+            <img id="current-cover-1" src = "76713323._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
             <div class = "flex-grow">
-                <p class = "font-bold text-base leading-tight">Empire of Storms</p>
-                <p class = "text-sm text-dark-text/80">Sarah J. Maas </p>
-
+                <p id="current-title-1" class = "font-bold text-base leading-tight">Empire of Storms</p>
+                <p id="current-author-1" class = "text-sm text-dark-text/80">Sarah J. Maas </p>
                 <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
-                    <div
-                    id="progress-bar-1" 
-                    class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
-                    style="width: 25%">
-                        <span 
-                        id="progress-text-1" 
-                        class="text-white font-bold text-xs" 
-                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);"></span>
+                    <div id="progress-bar-1" 
+                        class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                        style="width: 25%">
+                        <span id="progress-text-1" class="text-white font-bold text-xs" 
+                            style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                        </span>
                     </div>
                 </div>
-
-                <button 
-                id = "update-progress-btn-1"
-                onclick="openModal(1)"
-                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
+                <button id = "update-progress-btn-1" onclick="openModal(1)"
+                    class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                    Update Progress
                 </button>
             </div>
         </div> 
         <!--Book 2-->
         <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src = "222946916._SY180_.jpg"
-                alt = "Cover of For Whom the Belle Tolls by Jaysea Lynn"
-                class = "w-16 h-24 object-cover shadow-md rounded"
-            >
+            <img id="current-cover-2" src = "222946916._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
             <div class = "flex-grow">
-                <p class = "font-bold text-lg leading-tight">For Whom the Belle Tolls</p>
-                <p class = "text-sm text-dark-brown/80">Jaysea Lynn </p>
-
-                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden">
-                    <div
-                    id="progress-bar-2" 
-                    class="bg-primary-orange h-full rounded-full" 
-                    style="width: 57.6%">
-                        <span 
-                        id="progress-text-2" 
-                        class="text-white font-bold text-xs" 
-                        style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">57.6%</span>
-                    </div>   
+                <p id="current-title-2" class = "font-bold text-base leading-tight">For Whom the Belle Tolls</p>
+                <p id="current-author-2" class = "text-sm text-dark-text/80">Jaysea Lynn</p>
+                <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
+                    <div id="progress-bar-2" 
+                        class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                        style="width: 25%">
+                        <span id="progress-text-2" class="text-white font-bold text-xs" 
+                            style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                        </span>
+                    </div>
                 </div>
-
-                <button 
-                id = "update-progress-btn-2"
-                onclick="openModal(2)"
-                class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> Update Progress
+                <button id = "update-progress-btn-2" onclick="openModal(2)"
+                    class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                    Update Progress
                 </button>
             </div>
-        </div>
+        </div> 
     </section>
 
 
@@ -610,6 +591,63 @@
     }
 
     window.addEventListener('load', fetchReadingChallenge);
+</script>
+<script>
+    (async () => {
+    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+
+    function setCurrentSlot(slot, data) {
+        if (!data) return;
+        const coverEl = document.getElementById(`current-cover-${slot}`);
+        const titleEl = document.getElementById(`current-title-${slot}`);
+        const authorEl = document.getElementById(`current-author-${slot}`);
+        const barEl = document.getElementById(`progress-bar-${slot}`);
+        const textEl = document.getElementById(`progress-text-${slot}`);
+
+        if (coverEl) {
+            let imgSrc = PLACEHOLDER;
+            if (data.cover_url) {
+                imgSrc = data.cover_url.startsWith("http")
+                ? data.cover_url
+                : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
+            }
+            coverEl.src = imgSrc;
+            coverEl.alt = data.title ?? "Current read";
+        }
+
+        if (titleEl) titleEl.textContent = data.title ?? "Untitled";
+        if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
+
+        if (barEl) {
+            const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
+            barEl.style.width = pct + "%";
+            if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
+        }
+    }
+
+    async function loadCurrentReads() {
+        const token = localStorage.getItem("btb_token");
+        if (!token) return;
+
+        try {
+            const res = await fetch(
+                `${apiBase}/api/home/current-reads?limit=2`,
+                {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
+            );
+
+            if (!res.ok) {
+                console.warn("Current reads API failed:", res.status);
+                return;
+            }
+            const rows = await res.json();
+            setCurrentSlot(1, rows[0]);
+            setCurrentSlot(2, rows[1]);
+
+        } catch (err) {console.error("Error loading current reads:", err);}
+    }
+    window.addEventListener("load", loadCurrentReads);
+    })();
 </script>
 <script>
     (async () => {
