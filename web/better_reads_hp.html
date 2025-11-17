@@ -658,10 +658,22 @@
       console.warn("[Recommended] Missing #row-recommended container");
       return;
     }
+    rowContainer.innerHTML = `<p class="col-span-3 text-center text-sm text-[#51200F]">Loading recommendations…</p>`;
+    const token = localStorage.getItem("btb_token");
+
+    if (!token) {
+      if (recHeading) recHeading.textContent = "Recommended for you";
+      rowContainer.innerHTML = `<p class="col-span-3 text-center text-sm text-[#51200F]">Log in to see your recommendations.</p>`;
+      console.log("[Recommended] No token in localStorage (btb_token).");
+      return;
+    }
 
     function renderRecommended(rows) {
+      if (!rows || !rows.length) {
+        rowContainer.innerHTML = `<p class="col-span-3 text-center text-sm text-[#51200F]">No recommendations yet. Try rating or finishing a few books!</p>`;
+        return;
+      }
       const frag = document.createDocumentFragment();
-
       for (const row of rows) {
         const title = row.title ?? "Unknown title";
         let imgSrc = PLACEHOLDER;
@@ -671,15 +683,15 @@
             ? row.cover_url
             : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
         }
-
         const a = document.createElement("a");
         a.href = `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
           `&edition_id=${encodeURIComponent(row.edition_id)}`;
-        a.className = "block";
-
+        
+          a.className = "block";
         const img = document.createElement("img");
         img.src = imgSrc;
         img.alt = title;
+        
         img.className = "w-full h-auto object-cover shadow-xl rounded " +
           "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
 
@@ -703,12 +715,6 @@
       rowContainer.innerHTML = "";
       rowContainer.appendChild(frag);
     }
-    const token = localStorage.getItem("btb_token");
-    
-    if (!token) {
-      console.log("[Recommended] No token, skipping API call");
-      return;
-    }
 
     try {
       const res = await fetch(
@@ -717,15 +723,19 @@
       );
 
       if (!res.ok) {
-        console.warn("[Recommended] API error", res.status);
+        const body = await res.text().catch(() => "");
+        console.warn("[Recommended] API error", res.status, body);
+        rowContainer.innerHTML = `<p class="col-span-3 text-center text-sm text-red-700">Error loading recommendations (status ${res.status}).Check console for details.</p>`;
         return;
       }
       const rows = await res.json();
       renderRecommended(rows);
+
       if (recHeading) recHeading.textContent = "Recommended for you";
 
     } catch (err) {
       console.error("[Recommended] Fetch failed", err);
+      rowContainer.innerHTML = `<p class="col-span-3 text-center text-sm text-red-700">Error loading recommendations. See console for details.</p>`;
     }
   })();
 </script>
