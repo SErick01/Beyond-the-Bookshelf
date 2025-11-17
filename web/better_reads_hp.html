@@ -7,6 +7,7 @@
     <script src = "https://cdn.tailwindcss.com"></script>
     <script src ="hp.js"> </script>
     <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script>
         tailwind.config = {
@@ -362,7 +363,9 @@
                 
         </div>
         <section class="bg-[#BAAF6F]">
-            <h2 class="text-xl font-bold mb-4">Reading Challenge (2025)</h2>
+            <h2 id ="challenge-year" 
+                class="text-xl font-bold mb-4">Reading Challenge (2025)
+            </h2>
             <div class="Challenge-box flex items-center">
                 <div class="mr-4">
                     <svg class="w-12 h-12 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -370,9 +373,16 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-4xl font-extrabold text-primary">38</p>
-                    <p class="text-dark-text/80">books completed of 50</p>
+                    <p id ="books-completed" class="text-4xl font-extrabold text-primary">--</p>
+                    <p class="text-dark-text/80">books completed of <span id ="target-count">--</span></p>
                 </div>
+                <button 
+                    id="set-goal-btn"
+                    onclick="openGoalModal()"
+                    class="bg-dark-brown text-white text-sm px-4 py-2 rounded-full shadow hover:bg-dark-brown/80 transition duration-200 whitespace-nowrap"
+                >
+                    Set Goal
+                </button>
             </div>
         </section>  
     
@@ -551,6 +561,57 @@
             window.location.href = 'index.html';
         });
     })();
+</script>
+<script>
+    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
+    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+    const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
+
+    async function fetchReadingChallenge() {
+        const token = localStorage.getItem('btb_token');
+        if (!token) {
+            console.warn('User not logged in. Cannot fetch reading challenge.');
+            return;
+        }
+
+        const booksCompletedEl = document.getElementById('books-completed');
+        const targetCountEl = document.getElementById('target-count');
+        const challengeYearEl = document.getElementById('challenge-year');
+        if (challengeYearEl) {
+            challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE})`;
+        }
+
+        try {
+            const res = await fetch(`${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE}`, {
+                headers: { Authorization: `Bearer ${token}` },
+                mode: 'cors'
+            });
+
+            if (!res.ok) {
+                console.warn(`API failed to fetch challenge data: ${res.status}`);
+                throw new Error('Challenge data unavailable.');
+            }
+
+            const challengeData = await res.json();
+            
+            const completed = challengeData.completed_count || 0;
+            const target = challengeData.target_count;
+            if (booksCompletedEl) {
+                booksCompletedEl.textContent = completed;
+            }
+            if (targetCountEl) {
+                targetCountEl.textContent = target;
+            }
+
+        } catch (error) {
+            console.error('Error fetching reading challenge:', error);
+            if (booksCompletedEl) booksCompletedEl.textContent = '0';
+            if (targetCountEl) targetCountEl.textContent = '??';
+        }
+    }
+
+    window.addEventListener('load', fetchReadingChallenge);
 </script>
 </body>
 </html>
