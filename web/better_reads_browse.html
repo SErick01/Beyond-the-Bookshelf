@@ -222,7 +222,7 @@
   }
   async function fetchBooks({ limit = 30, searchTerm = "" } = {}) {
     const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
-    url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
+    url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title),work_genres!left(genres(name,slug))");
     url.searchParams.set("order", "pub_date.desc");
     url.searchParams.set("limit", String(limit));
 
@@ -237,10 +237,13 @@
         if (isLikelyIsbn) {
           url.searchParams.set("isbn13", `eq.${isbnCandidate}`);
         } else {
-          url.searchParams.set("works.title", `ilike.${clean}*`);
+          const titlePattern = `${clean}*`;
+          url.searchParams.set("or",
+            `(works.title.ilike.${titlePattern},
+            genres.name.ilike.${clean},
+            genres.slug.ilike.${clean})`);
         }
     }
-
     const res = await fetch(url.toString(), {
       headers: {apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,},
     });
