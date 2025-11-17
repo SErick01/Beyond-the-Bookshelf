@@ -237,7 +237,7 @@
         if (isLikelyIsbn) {
           url.searchParams.set("isbn13", `eq.${isbnCandidate}`);
         } else {
-          url.searchParams.set("works.title", `ilike.*${clean}*`);
+          url.searchParams.set("works.title", `ilike.${clean}*`);
         }
     }
 
