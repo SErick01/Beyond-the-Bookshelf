@@ -597,19 +597,17 @@
             console.warn('User not logged in. Cannot fetch reading challenge.');
             return;
         }
-
         const booksCompletedEl = document.getElementById('books-completed');
         const targetCountEl = document.getElementById('target-count');
         const challengeYearEl = document.getElementById('challenge-year');
+        
         if (challengeYearEl) {
-            challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE})`;
+            challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;
         }
 
         try {
-            const res = await fetch(`${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE}`, {
-                headers: { Authorization: `Bearer ${token}` },
-                mode: 'cors'
-            });
+            const res = await fetch(`${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`, {
+                headers: { Authorization: `Bearer ${token}` }, mode: 'cors'});
 
             if (!res.ok) {
                 console.warn(`API failed to fetch challenge data: ${res.status}`);
