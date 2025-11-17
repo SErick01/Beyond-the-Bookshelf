@@ -708,7 +708,7 @@
                 a.appendChild(p);
             }
         };
-        
+
         a.appendChild(img);
         if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
             const p = document.createElement("p");
@@ -726,7 +726,7 @@
       rowContainer.appendChild(frag);
     }
 
-    async function fetchBooks(limit = 14) {
+    async function fetchBooks(limit = 21) {
       const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
       url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
       url.searchParams.set("order", "pub_date.desc");
