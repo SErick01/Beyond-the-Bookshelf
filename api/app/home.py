@@ -1,5 +1,5 @@
-from typing import List, Optional
-from fastapi import APIRouter
+from typing import List, Optional, Any, Dict
+from fastapi import APIRouter, Body
 from pydantic import BaseModel
 
 router = APIRouter(
@@ -39,11 +39,6 @@ async def get_current_reads(limit: int = 2):
     ]
     return sample_books[:limit]
 
-class ProgressUpdate(BaseModel):
-    work_id: str
-    pages_read: int
-    page_count: int
-
 @router.post("/progress")
-async def update_progress(payload: ProgressUpdate):
+async def update_progress(payload: Dict[str, Any] = Body(...)):
     return {"status": "ok"}
