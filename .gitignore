@@ -2,5 +2,5 @@
 venv/
 __pycache__/
 *.py[cod]
-.env
+api/.env
 .DS_Store

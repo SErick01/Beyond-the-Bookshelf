@@ -11,7 +11,6 @@ ALLOWED_ORIGINS = [
     "https://beyond-the-bookshelf.vercel.app"
 ]
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -28,6 +27,17 @@ async def health():
 @api.get("/users/me")
 async def users_me(user=Depends(get_current_user)):
     return user
+
+@api.get("/reading-challenge/current")
+async def reading_challenge_current(
+    year: int,
+    user=Depends(get_current_user),
+):
+    return {
+        "year": year,
+        "target_count": 20,
+        "completed_count": 0,
+    }
 
 app.include_router(api, prefix="/api")
 app.include_router(home.router)
