@@ -15,7 +15,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "https://swfkspdirzdqotywgvop.supabase.
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
 
 class CurrentRead(BaseModel):
-    work_id: int
+    work_id: str
     edition_id: Optional[str] = None
     title: str
     author: Optional[str] = None
