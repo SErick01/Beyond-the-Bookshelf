@@ -179,7 +179,7 @@
         </div>
     </div>
 </main>
-<div id="list-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden-modal transition-opacity duration-300">
+<div id="list-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden transition-opacity duration-300">
         
     <div class="bg-white p-8 rounded-lg shadow-xl w-11/12 max-w-md transform transition-transform duration-300 scale-100">
         <h2 class="text-2xl font-semibold mb-4 text-gray-800">Create New List</h2>
@@ -188,14 +188,14 @@
         <input 
             type="text" 
             id="list-name-input" 
-            placeholder="e.g., Sci-Fi Favorites, To Read Next"
+            placeholder="e.g., Sci-Fi Favorites, Favorites"
             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150"
         />
         
         <div class="flex justify-end space-x-3">
             <button 
                 id="close-modal-btn"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
             >
                 Cancel
             </button>
@@ -259,6 +259,55 @@
       window.location.href = 'index.html';
     });
   })();
+</script>
+<script>
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const fabButton = document.getElementById('new-list-btn');
+        const modal = document.getElementById('list-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const createListBtn = document.getElementById('create-list-btn');
+        const listNameInput = document.getElementById('list-name-input');
+        const toggleModal = (show) => {
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+                listNameInput.value = ''
+            }
+        };
+
+        // 1. Open the modal when the NLB button is clicked
+        fabButton.addEventListener('click', () => {
+            toggleModal(true);
+        });
+
+        // 2. Close the modal when the 'Cancel' button is clicked
+        closeModalBtn.addEventListener('click', () => {
+            toggleModal(false);
+        });
+
+        // 3. Close the modal when the user clicks the dark backdrop
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                toggleModal(false);
+            }
+        });
+
+        // 4. Handle the 'Create' action
+        createListBtn.addEventListener('click', () => {
+            const listName = listNameInput.value.trim();
+
+            if (listName) {
+                console.log(`New List Created: "${listName}"`);
+                alert(`List "${listName}" created successfully! (Check console for full action)`);
+                toggleModal(false);
+            } else {
+                alert("Please enter a name for your new list.");
+                listNameInput.focus(); 
+            }
+        });
+    });
 </script>
 </body>
 </html>
