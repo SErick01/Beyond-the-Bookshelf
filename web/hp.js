@@ -1,6 +1,4 @@
-/** 
- * Drop down in nav bar
- */
+//Drop Down in the Nav Bar
 
 function toggleDropdown(event) { 
     const menu = document.getElementById('dropdown-menu');
@@ -22,6 +20,7 @@ document.addEventListener('click', function(event) {
     }
 });
 
+// Progress Bar Updates
 
 let activeBookId = 1;
 function getBookData(bookId) {
@@ -29,14 +28,9 @@ function getBookData(bookId) {
     return window.currentReads[bookId] || null;
 }
 
-/**
- * Helper function to safely get the current percentage from the progress bar style.
- * Uses parseFloat() for non-integer percentages (like 57.6%).
- */
 function getCurrentProgress(bookId) {
     const progressBar = document.getElementById('progress-bar-' + bookId);
     if (progressBar && progressBar.style.width) {
-        // Use parseFloat to handle decimals (like 57.6%)
         return parseFloat(progressBar.style.width.replace('%', ''));
     }
     return 0;
