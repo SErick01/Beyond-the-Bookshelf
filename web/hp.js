@@ -24,6 +24,10 @@ document.addEventListener('click', function(event) {
 
 
 let activeBookId = 1;
+function getBookData(bookId) {
+    if (!window.currentReads) return null;
+    return window.currentReads[bookId] || null;
+}
 
 /**
  * Helper function to safely get the current percentage from the progress bar style.
@@ -39,20 +43,32 @@ function getCurrentProgress(bookId) {
 }
 
 
-function openModal(bookId){
+function openModal(bookId) {
     activeBookId = bookId;
     const modal = document.getElementById('progress-modal');
-    const input = document.getElementById('percentage-input');
+    const input = document.getElementById('page-input');
     const error = document.getElementById('error-message');
+    const totalPagesLabel = document.getElementById('total-pages-label');
     const currentPercent = getCurrentProgress(bookId);
-
-    input.value = currentPercent; 
+    const bookData = getBookData(bookId);
+    const totalPages = bookData?.page_count;
     error.classList.add('hidden');
-    
-    if(modal){
+
+    if (totalPages && totalPagesLabel) {
+        totalPagesLabel.textContent = `Total pages: ${totalPages}`;
+        const approxPage = Math.round((currentPercent / 100) * totalPages);
+        input.value = approxPage || '';
+        input.max = totalPages;
+    } else {
+        if (totalPagesLabel) totalPagesLabel.textContent = '';
+        input.value = '';
+        input.removeAttribute('max');
+    }
+
+    if (modal) {
         modal.classList.remove('hidden');
     } else {
-        console.error("Modal element with ID 'progress-modal' not found")
+        console.error("Modal element with ID 'progress-modal' not found");
     }
 }
 
@@ -85,34 +101,40 @@ function saveRating() {
     closeRatingModal();
 }
 
-
 function updateProgress() {
-    const input = document.getElementById('percentage-input');
+    const input = document.getElementById('page-input');
     const error = document.getElementById('error-message');
-    const newPercentage = parseFloat(input.value); 
-    const currentPercent = getCurrentProgress(activeBookId);
+    const pagesRead = parseInt(input.value, 10);
+    const bookData = getBookData(activeBookId);
+    const totalPages = bookData?.page_count;
 
-    // 1. Validation Check
-    if (isNaN(newPercentage) || newPercentage < 0 || newPercentage > 100) {
-        error.textContent = 'Please enter a valid percentage between 0 and 100.';
+    if (!bookData || !totalPages) {
+        error.textContent = 'Sorry, this book is missing a total page count.';
         error.classList.remove('hidden');
-        return; 
+        return;
     }
+
+    if (isNaN(pagesRead) || pagesRead < 0 || pagesRead > totalPages) {
+        error.textContent = `Please enter a page between 0 and ${totalPages}.`;
+        error.classList.remove('hidden');
+        return;
+    }
+
+    const newPercentage = (pagesRead / totalPages) * 100;
+    const currentPercent = getCurrentProgress(activeBookId);
     const progressBar = document.getElementById('progress-bar-' + activeBookId);
     const progressText = document.getElementById('progress-text-' + activeBookId);
 
-    // 2. Update Progress Bar and Text
     if (progressBar) {
         const displayPercentage = newPercentage.toFixed(newPercentage % 1 !== 0 ? 1 : 0);
-        
         progressBar.style.width = displayPercentage + '%';
-        
+
         if (progressText) {
             progressText.textContent = displayPercentage + '%';
-                    
+
             if (newPercentage < 25) {
                 progressText.classList.remove('text-white');
-                progressText.classList.add('text-dark-brown'); 
+                progressText.classList.add('text-dark-brown');
                 progressText.style.textShadow = 'none';
             } else {
                 progressText.classList.remove('text-dark-brown');
@@ -121,9 +143,6 @@ function updateProgress() {
             }
         }
     }
-
     closeModal();
-    if (newPercentage === 100 && currentPercent < 100) {
-        openRatingModal();
-    }
+    if (newPercentage >= 100 && currentPercent < 100) {openRatingModal();}
 }

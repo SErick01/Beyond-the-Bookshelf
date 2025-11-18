@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from app.security import get_current_user
+from . import home
 
 app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
 api = APIRouter()
@@ -29,3 +30,4 @@ async def users_me(user=Depends(get_current_user)):
     return user
 
 app.include_router(api, prefix="/api")
+app.include_router(home.router)

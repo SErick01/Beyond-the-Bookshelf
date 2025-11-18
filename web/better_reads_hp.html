@@ -365,20 +365,15 @@
         class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm m-4 transform scale-100 transition-transform duration-300" 
         onclick="event.stopPropagation()"
     >
-        <h3 class="text-xl font-bold mb-4">Update Reading Percentage</h3>
-        <p class="text-sm text-gray-600 mb-4">Enter the new total percentage of the book you have completed.</p>
-            
-        <label for="percentage-input" class="block text-sm font-medium text-gray-700 mb-2">New Percentage (0 - 100)</label>
+        <h3 class="text-xl font-bold mb-4">Update Reading Progress</h3>
+        <p class="text-sm text-gray-600 mb-2">Enter the page you’re currently on.</p>
+        <p id="total-pages-label" class="text-xs text-gray-500 mb-4"></p>
+
+        <label for="page-input" class="block text-sm font-medium text-gray-700 mb-2">Current page number</label>
         <input 
-            type="number" 
-            id="percentage-input" 
-            name="percentage-input" 
-            min="0" 
-            max="100" 
-            step="1" 
-            value="25"
+            type="number" id="page-input" name="page-input" min="0" step="1"
             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-orange focus:border-primary-orange text-lg mb-4"
-        >
+        />
 
         <div id="error-message" class="text-red-500 text-sm mb-4 hidden"></div>
 
@@ -589,63 +584,71 @@
   fetchReadingChallenge();
 </script>
 <script>
-  (async () => {
-    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+    (async () => {
+        const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+        const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
 
-    function setCurrentSlot(slot, data) {
-      if (!data) return;
+        function setCurrentSlot(slot, data) {
+            if (!data) return;
 
-      const coverEl  = document.getElementById(`current-cover-${slot}`);
-      const titleEl  = document.getElementById(`current-title-${slot}`);
-      const authorEl = document.getElementById(`current-author-${slot}`);
-      const barEl    = document.getElementById(`progress-bar-${slot}`);
-      const textEl   = document.getElementById(`progress-text-${slot}`);
+            const coverEl  = document.getElementById(`current-cover-${slot}`);
+            const titleEl  = document.getElementById(`current-title-${slot}`);
+            const authorEl = document.getElementById(`current-author-${slot}`);
+            const barEl    = document.getElementById(`progress-bar-${slot}`);
+            const textEl   = document.getElementById(`progress-text-${slot}`);
 
-      if (coverEl) {
-        let imgSrc = PLACEHOLDER;
-        if (data.cover_url) {
-          imgSrc = data.cover_url.startsWith("http")
-            ? data.cover_url
-            : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
+            if (coverEl) {
+                let imgSrc = PLACEHOLDER;
+                if (data.cover_url) {
+                    imgSrc = data.cover_url.startsWith("http")
+                        ? data.cover_url
+                        : STORAGE_BASE + data.cover_url.replace(/^\/+/, "");
+                }
+                coverEl.src = imgSrc;
+                coverEl.alt = data.title ?? "Current read";
+            }
+
+            if (titleEl)  titleEl.textContent  = data.title  ?? "Untitled";
+            if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
+
+            if (barEl) {
+                const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
+                barEl.style.width = pct + "%";
+                if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
+            }
         }
-        coverEl.src = imgSrc;
-        coverEl.alt = data.title ?? "Current read";
-      }
 
-      if (titleEl)  titleEl.textContent  = data.title  ?? "Untitled";
-      if (authorEl) authorEl.textContent = data.author ?? "Unknown author";
+        const token = localStorage.getItem("btb_token");
+        if (!token) {
+            console.log("[CurrentReads] No token, leaving sample books");
+            return;
+        }
 
-      if (barEl) {
-        const pct = Math.max(0, Math.min(100, data.progress_percent ?? 0));
-        barEl.style.width = pct + "%";
-        if (textEl) textEl.textContent = pct.toFixed(1).replace(/\.0$/, "") + "%";
-      }
-    }
-    const token = localStorage.getItem("btb_token");
-    if (!token) {
-      console.log("[CurrentReads] No token, leaving sample books");
-      return;
-    }
+        try {
+            const res = await fetch(
+                `${apiBase}/api/home/current-reads?limit=2`,
+                {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
+            );
 
-    try {
-      const res = await fetch(
-        `${apiBase}/api/home/current-reads?limit=2`,
-        {headers: { Authorization: `Bearer ${token}` }, mode: "cors",}
-      );
+            if (!res.ok) {
+                console.warn("[CurrentReads] API error", res.status);
+                return;
+            }
 
-      if (!res.ok) {
-        console.warn("[CurrentReads] API error", res.status);
-        return;
-      }
-      const rows = await res.json();
-      setCurrentSlot(1, rows[0]);
-      setCurrentSlot(2, rows[1]);
+            const rows = await res.json();
+            window.currentReads = {};
+            if (rows[0]) {
+                window.currentReads[1] = rows[0];
+                setCurrentSlot(1, rows[0]);
+            }
 
-    } catch (err) {
-      console.error("[CurrentReads] Fetch failed", err);
-    }
-  })();
+            if (rows[1]) {
+                window.currentReads[2] = rows[1];
+                setCurrentSlot(2, rows[1]);
+            }
+
+        } catch (err) {console.error("[CurrentReads] Fetch failed", err);}
+    })();
 </script>
 <script>
   (async () => {
