@@ -85,7 +85,17 @@ async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
             )
         return books or _stub_current_reads(limit)
     except Exception as exc:
-        return _stub_current_reads(limit)
+        return [
+            CurrentRead(
+                work_id=0,
+                edition_id=None,
+                title=f"ERROR: {type(exc).__name__}",
+                author=str(exc),
+                cover_url=None,
+                page_count=None,
+                progress_percent=0.0,
+            )
+        ]
 
 @router.post("/progress")
 async def update_progress(payload: Dict[str, Any] = Body(...)):
