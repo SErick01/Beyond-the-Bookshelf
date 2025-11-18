@@ -66,20 +66,60 @@ function openModal(bookId) {
     }
 }
 
-function closeModal() {
-    const modal = document.getElementById('progress-modal');
-    modal.classList.add('hidden')
+let currentRating = 0;
+const starContainer = document.getElementById('star-rating-container');
+const stars = starContainer.querySelectorAll('span[data-rating]');
+const selectedRatingText = document.getElementById('selected-rating');
+
+function updateStarDisplay(rating, isHover) {
+    stars.forEach(star => {
+        const starValue = parseInt(star.dataset.rating);
+        
+        // Highlight stars up to the given rating value
+        if (starValue <= rating) {
+            star.classList.add('highlighted-star');
+        } else {
+            star.classList.remove('highlighted-star');
+        }
+    });
+
+    // Update the explanatory text
+    if (rating > 0) {
+        selectedRatingText.textContent = isHover 
+            ? `Preview: ${rating} Star${rating > 1 ? 's' : ''}` 
+            : `Selected: ${rating} Star${rating > 1 ? 's' : ''}`;
+    } else {
+        selectedRatingText.textContent = "Click a star to rate";
+    }
 }
+
+starContainer.addEventListener('mouseover', (event) => {
+        const star = event.target.closest('span[data-rating]');
+        if (star) {
+            const hoverRating = parseInt(star.dataset.rating);
+            updateStarDisplay(hoverRating, true);
+        }
+    });
+
+    starContainer.addEventListener('mouseout', () => {
+        updateStarDisplay(currentRating, false); 
+    });
+
+    starContainer.addEventListener('click', (event) => {
+        const star = event.target.closest('span[data-rating]');
+        if (star) {
+            currentRating = parseInt(star.dataset.rating);
+            updateStarDisplay(currentRating, false); 
+        }
+    });
+
+    updateStarDisplay(currentRating, false);
 
 function closeRatingModal() {
     const modal = document.getElementById('rating-modal');
     modal.classList.add('hidden');
-}
-
-function closeModalOnOutsideClick(event) {
-    if (event.target.id === 'progress-modal') {
-        closeModal();
-    }
+    currentRating = 0;
+    updateStarDisplay(currentRating,false);
 }
 
 function openRatingModal() {
@@ -90,9 +130,25 @@ function openRatingModal() {
 }
 
 function saveRating() {
+    if (currentRating === 0){
+        alert("Please select a star rating");
+        return;
+    }
     // where the rating data is sent to db
     alert(`Rating submitted for book ${activeBookId}!`);
     closeRatingModal();
+}
+
+
+function closeModal() {
+    const modal = document.getElementById('progress-modal');
+    modal.classList.add('hidden')
+}
+
+function closeModalOnOutsideClick(event) {
+    if (event.target.id === 'progress-modal') {
+        closeModal();
+    }
 }
 
 function updateProgress() {
