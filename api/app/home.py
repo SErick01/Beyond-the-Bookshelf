@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel
+from app.security import get_current_user
 import os
 import json
 import urllib.request
@@ -22,6 +23,18 @@ class CurrentRead(BaseModel):
     cover_url: Optional[str] = None
     page_count: Optional[int] = None
     progress_percent: float
+
+def compute_progress_percent(current_page: int, page_count: Optional[int]) -> float:
+    if not page_count or page_count <= 0:
+        return 0.0
+
+    pct = (current_page / page_count) * 100.0
+    if pct < 0:
+        pct = 0.0
+    if pct > 100:
+        pct = 100.0
+
+    return round(pct, 1)
 
 def _stub_current_reads(limit: int) -> List[CurrentRead]:
     sample_books = [
@@ -88,5 +101,73 @@ async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
         return _stub_current_reads(limit)
 
 @router.post("/progress")
-async def update_progress(payload: Dict[str, Any] = Body(...)):
-    return {"status": "ok"}
+async def update_progress(
+    payload: Dict[str, Any] = Body(...),
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    if not SUPABASE_KEY:
+        return {"status": "ok", "saved": False}
+
+    work_id = payload.get("work_id")
+    if not work_id:
+        raise HTTPException(status_code=400, detail="work_id is required")
+
+    current_page = (
+        payload.get("current_page")
+        or payload.get("page")
+        or payload.get("pages_read")
+    )
+
+    if current_page is None:
+        raise HTTPException(status_code=400, detail="current_page is required")
+
+    page_count = payload.get("page_count")
+
+    try:
+        current_page = int(current_page)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="current_page must be an integer")
+
+    if "progress_percent" in payload and payload["progress_percent"] is not None:
+        try:
+            progress_percent = float(payload["progress_percent"])
+        except (TypeError, ValueError):
+            progress_percent = compute_progress_percent(current_page, page_count)
+    else:
+        progress_percent = compute_progress_percent(current_page, page_count)
+
+    if isinstance(user, dict):
+        user_id = user.get("id") or user.get("user_id")
+    else:
+        user_id = getattr(user, "id", None) or getattr(user, "user_id", None)
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Could not determine user id")
+
+    user_id = str(user_id)
+    work_id = str(work_id)
+
+    base = SUPABASE_URL.rstrip("/")
+    url = f"{base}/rest/v1/reading_progress?on_conflict=user_id,work_id"
+
+    row = {
+        "user_id": user_id,
+        "work_id": work_id,
+        "progress_percent": progress_percent,
+    }
+
+    data = json.dumps(row).encode("utf-8")
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
+
+    try:
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            resp.read()
+    
+    except Exception: return {"status": "error", "saved": False}
+    return {"status": "ok", "saved": True, "progress_percent": progress_percent,}
