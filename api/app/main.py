@@ -11,7 +11,6 @@ ALLOWED_ORIGINS = [
     "https://beyond-the-bookshelf.vercel.app"
 ]
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,

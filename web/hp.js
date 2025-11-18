@@ -42,7 +42,6 @@ function getCurrentProgress(bookId) {
     return 0;
 }
 
-
 function openModal(bookId) {
     activeBookId = bookId;
     const modal = document.getElementById('progress-modal');
@@ -145,4 +144,33 @@ function updateProgress() {
     }
     closeModal();
     if (newPercentage >= 100 && currentPercent < 100) {openRatingModal();}
+    saveProgressToBackend(bookData.work_id, pagesRead, totalPages);
+}
+
+async function saveProgressToBackend(workId, pagesRead, totalPages) {
+    try {
+        const token = localStorage.getItem("btb_token");
+
+        if (!token) {
+            console.warn("[Progress] No auth token; skipping backend update");
+            return;
+        }
+
+        const res = await fetch(`${apiBase}/api/home/progress`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+                work_id: workId,
+                pages_read: pagesRead,
+                page_count: totalPages,}),
+        });
+
+        if (!res.ok) {
+            console.warn("[Progress] Backend update failed", res.status);
+        }
+    } catch (err) {console.error("[Progress] Backend update error", err);}
 }

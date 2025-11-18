@@ -38,3 +38,12 @@ async def get_current_reads(limit: int = 2):
         ),
     ]
     return sample_books[:limit]
+
+class ProgressUpdate(BaseModel):
+    work_id: str
+    pages_read: int
+    page_count: int
+
+@router.post("/progress")
+async def update_progress(payload: ProgressUpdate):
+    return {"status": "ok"}
