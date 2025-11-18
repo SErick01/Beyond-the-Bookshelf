@@ -23,9 +23,7 @@ class CurrentRead(BaseModel):
     page_count: Optional[int] = None
     progress_percent: float
 
-@router.get("/current-reads", response_model=List[CurrentRead])
 def _stub_current_reads(limit: int) -> List[CurrentRead]:
-    # Fallback data if Supabase isn't configured or errors out
     sample_books = [
         CurrentRead(
             work_id=1,
@@ -48,10 +46,8 @@ def _stub_current_reads(limit: int) -> List[CurrentRead]:
     ]
     return sample_books[:limit]
 
-
 @router.get("/current-reads", response_model=List[CurrentRead])
 async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
-    # If we don't have a key configured, just use the stub data
     if not SUPABASE_KEY:
         return _stub_current_reads(limit)
 
