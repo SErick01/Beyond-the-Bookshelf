@@ -125,8 +125,9 @@ async def update_progress(
 
     try:
         current_page = int(current_page)
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=400, detail="current_page must be an integer")
+    except Exception as e:
+        print("[home.progress] error:", repr(e))
+        return {"status": "error", "saved": False, "detail": str(e),}
 
     if "progress_percent" in payload and payload["progress_percent"] is not None:
         try:
