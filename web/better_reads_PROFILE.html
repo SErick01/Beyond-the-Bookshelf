@@ -189,31 +189,10 @@
 
  <!-- Favorites -->
    <div class ="lg:col-span-6 space-y-6" >
-        <section class = "bg-[#E5C09E]">
-            <!-- TODO: Fill in the src's with the backend later-->
-            <h2 class = "text-2xl font-bold mb-6">My Favorites</h2>
-            <div class = "Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
-                <div class ="book-card-1">
-                    <img src="spark.jpg" alt = "Spark" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-2">
-                    <img src="redrising.jpg" alt = "Red Rising" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-3">
-                    <img src="thedevils.jpg" alt = "The Devils" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-4">
-                    <img src="tod.jpg" alt = "Tower of Dawn" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-5">
-                    <img src="phantasma.jpg" alt = "Phantasma" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-6">
-                    <img src="hotwax.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
-                <div class ="book-card-7">
-                    <img src="hollowheathens.jpg" alt = "Hot Wax" class = "w-full h-auto object-cover shadow-xl rounded hover:scale-[1.03] transition-transform duration-300 cursor-pointer">
-                </div>
+        <section class="bg-[#E5C09E]">
+            <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
+            <div id="row-favorites"
+                class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
             </div>
         </section>
 
@@ -339,6 +318,134 @@
       localStorage.removeItem('btb_token');
       window.location.href = 'index.html';
     });
+  })();
+</script>
+<script>
+  (async () => {
+    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
+    const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/`;
+    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+
+    const favHeading   = document.getElementById("favorites-heading");
+    const favContainer = document.getElementById("row-favorites");
+
+    if (!favContainer) {
+      console.warn("[Favorites] Missing #row-favorites container");
+      return;
+    }
+
+    // Initial loading message
+    favContainer.innerHTML =
+      `<p class="col-span-3 text-center text-sm text-[#51200F]">
+         Loading favorites…
+       </p>`;
+
+    function renderRow(rows) {
+      if (!rows || !rows.length) {
+        favContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-[#51200F]">
+             No favorites yet.
+           </p>`;
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+
+      for (const row of rows) {
+        const title = row?.works?.title ?? "Unknown title";
+        let imgSrc = PLACEHOLDER;
+
+        if (row.cover_url) {
+          imgSrc = row.cover_url.startsWith("http")
+            ? row.cover_url
+            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
+        }
+
+        const a = document.createElement("a");
+        a.href =
+          `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
+          `&edition_id=${encodeURIComponent(row.edition_id)}`;
+        a.className = "block";
+
+        const img = document.createElement("img");
+        img.src = imgSrc;
+        img.alt = title;
+        img.className =
+          "w-full h-auto object-cover shadow-xl rounded " +
+          "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
+
+        img.onerror = () => {
+          img.onerror = null;
+          img.src = PLACEHOLDER;
+
+          if (!a.querySelector("p")) {
+            const p = document.createElement("p");
+            p.textContent = title;
+            p.className =
+              "mt-1 text-xs font-semibold text-center text-[#51200F]";
+            a.appendChild(p);
+          }
+        };
+
+        a.appendChild(img);
+
+        // If we have no real cover (or using placeholder), also show title text
+        if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
+          const p = document.createElement("p");
+          p.textContent = title;
+          p.className =
+            "mt-1 text-xs font-semibold text-center text-[#51200F]";
+          a.appendChild(p);
+        }
+
+        const wrap = document.createElement("div");
+        wrap.className = "book-card";
+        wrap.appendChild(a);
+        frag.appendChild(wrap);
+      }
+
+      favContainer.innerHTML = "";
+      favContainer.appendChild(frag);
+    }
+
+    async function fetchFavorites(limit = 21) {
+      const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
+      url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
+      url.searchParams.set("order", "pub_date.desc");
+      url.searchParams.set("limit", String(limit));
+      
+      const res = await fetch(url.toString(), {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      });
+
+      if (!res.ok) {
+        console.error("[Favorites] Supabase error", res.status);
+        favContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-red-700">
+             Error loading favorites (Supabase ${res.status}).
+           </p>`;
+        return [];
+      }
+      return await res.json();
+    }
+
+    try {
+      const rows = await fetchFavorites(21);
+      renderRow(rows);
+      
+      if (favHeading) favHeading.textContent = "My Favorites";
+    
+    } catch (err) {
+      console.error("[Favorites] Fetch failed", err);
+      favContainer.innerHTML =
+        `<p class="col-span-3 text-center text-sm text-red-700">
+           Error loading favorites. See console for details.
+         </p>`;
+    }
   })();
 </script>
 </body>
