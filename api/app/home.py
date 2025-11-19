@@ -169,6 +169,8 @@ async def update_progress(
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         with urllib.request.urlopen(req, timeout=10) as resp:
             resp.read()
-    
-    except Exception: return {"status": "error", "saved": False}
-    return {"status": "ok", "saved": True, "progress_percent": progress_percent,}
+        return {"status": "ok", "saved": True, "progress_percent": progress_percent,}
+
+    except Exception as e:
+        print("[home.progress] error:", repr(e))
+        return {"status": "error", "saved": False, "detail": str(e),}
