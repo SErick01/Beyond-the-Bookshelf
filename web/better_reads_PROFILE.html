@@ -123,15 +123,16 @@
                             &#9776;
                         </button>
                         <div
-                         id = "dropdown-menu"
-                         class = "absolute right-0 mt-3 w-40 bg-white border border-gray-200 rounded-lg shadow-xl hidden origin-top-right transform transition duration-200 ease-out z-30 overflow-hidden">
-                        <a href="add-friends.html" class="block px-4 py-2 text-gray-700 hover:bg-orange-100 hover:text-primary-orange transition duration-150 whitespace-nowrap">
-                            Add Friends
-                        </a>
-                        <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition duration-150 whitespace-nowrap">
-                            Logout
-                        </a>
+                            id = "dropdown-menu"
+                            class = "absolute right-0 mt-3 w-40 bg-white border border-gray-200 rounded-lg shadow-xl hidden origin-top-right transform transition duration-200 ease-out z-30 overflow-hidden">
+                            <a href="add-friends.html" class="block px-4 py-2 text-gray-700 hover:bg-orange-100 hover:text-primary-orange transition duration-150 whitespace-nowrap">
+                                Add Friends
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition duration-150 whitespace-nowrap">
+                                Logout
+                            </a>
                         </div>
+                    </div>
                 </nav>
             </div>
         </div>
@@ -164,7 +165,9 @@
                     <div class="bg-[#EB7F50] h-2 rounded-full" id="progress-bar" 
                     style="width: 20.6%"></div>
                 </div>
-                <button class=" mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> Update Progress</div>
+                <button 
+                    class=" mt-3 bg-[#EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-text transition duration-200"> 
+                    Update Progress
                 </button>
         </div>
         <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
@@ -195,16 +198,15 @@
                 class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
             </div>
         </section>
-
-<body>
-  
+    </div>
+    
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
             <div class="icons flex justify-between items-center mb-2">
                 <span class="material-symbols-rounded cursor-pointer" onclick="navigateCalendar(-1)">chevron_left</span>
                 <p id="current-date" class="font-bold text-xl">November 2025</p>
                 <span class="material-symbols-rounded cursor-pointer" onclick="navigateCalendar(1)">chevron_right</span>
-             </div>
+            </div>
             <div class = "calendar">
                 <ul class ="Weeks"> 
                     <li>Sun</li>
@@ -216,8 +218,10 @@
                     <li>Sat</li>
                 </ul>
                 <ul class ="Days"> </ul>
-            </div> 
-  
+            </div>
+        </div>
+    </aside>
+
 <footer class="bg-[#51200F] text-white py-4 mt-auto">
     <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
         <div class="footer-links space-x-4 mb-2 sm:mb-0">
@@ -322,38 +326,41 @@
 </script>
 <script>
   (async () => {
-    const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
-    const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/`;
-    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+    const favoritesHeading  = document.getElementById("favorites-heading");
+    const favoritesContainer = document.getElementById("row-favorites");
+    
+    if (!favoritesContainer) return;
 
-    const favHeading   = document.getElementById("favorites-heading");
-    const favContainer = document.getElementById("row-favorites");
+    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+    const PLACEHOLDER  = STORAGE_BASE + "cover/placeholder.jpg";
 
-    if (!favContainer) {
-      console.warn("[Favorites] Missing #row-favorites container");
-      return;
-    }
-
-    // Initial loading message
-    favContainer.innerHTML =
+    favoritesContainer.innerHTML =
       `<p class="col-span-3 text-center text-sm text-[#51200F]">
          Loading favorites…
        </p>`;
 
-    function renderRow(rows) {
+    const token = localStorage.getItem("btb_token");
+    if (!token) {
+      favoritesContainer.innerHTML =
+        `<p class="col-span-3 text-center text-sm text-[#51200F]">
+           Please log in to see your favorites.
+         </p>`;
+      return;
+    }
+
+    const apiBase = "https://beyond-the-bookshelf.onrender.com";
+    function renderFavorites(rows) {
       if (!rows || !rows.length) {
-        favContainer.innerHTML =
+        favoritesContainer.innerHTML =
           `<p class="col-span-3 text-center text-sm text-[#51200F]">
-             No favorites yet.
+             You don't have any favorites yet.
            </p>`;
         return;
       }
-
       const frag = document.createDocumentFragment();
 
       for (const row of rows) {
-        const title = row?.works?.title ?? "Unknown title";
+        const title = row.title || "Unknown title";
         let imgSrc = PLACEHOLDER;
 
         if (row.cover_url) {
@@ -361,13 +368,11 @@
             ? row.cover_url
             : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
         }
-
-        const a = document.createElement("a");
-        a.href =
+        const link = document.createElement("a");
+        link.href =
           `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
-          `&edition_id=${encodeURIComponent(row.edition_id)}`;
-        a.className = "block";
-
+          `&edition_id=${encodeURIComponent(row.edition_id ?? "")}`;
+        link.className = "block";
         const img = document.createElement("img");
         img.src = imgSrc;
         img.alt = title;
@@ -378,72 +383,54 @@
         img.onerror = () => {
           img.onerror = null;
           img.src = PLACEHOLDER;
-
-          if (!a.querySelector("p")) {
+          if (!link.querySelector("p")) {
             const p = document.createElement("p");
             p.textContent = title;
             p.className =
               "mt-1 text-xs font-semibold text-center text-[#51200F]";
-            a.appendChild(p);
+            link.appendChild(p);
           }
         };
 
-        a.appendChild(img);
-
-        // If we have no real cover (or using placeholder), also show title text
-        if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
+        if (!row.cover_url) {
           const p = document.createElement("p");
           p.textContent = title;
           p.className =
             "mt-1 text-xs font-semibold text-center text-[#51200F]";
-          a.appendChild(p);
+          link.appendChild(p);
         }
-
-        const wrap = document.createElement("div");
-        wrap.className = "book-card";
-        wrap.appendChild(a);
-        frag.appendChild(wrap);
+        link.appendChild(img);
+        const wrapper = document.createElement("div");
+        wrapper.className = "book-card";
+        wrapper.appendChild(link);
+        frag.appendChild(wrapper);
       }
-
-      favContainer.innerHTML = "";
-      favContainer.appendChild(frag);
-    }
-
-    async function fetchFavorites(limit = 21) {
-      const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
-      url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
-      url.searchParams.set("order", "pub_date.desc");
-      url.searchParams.set("limit", String(limit));
-      
-      const res = await fetch(url.toString(), {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-      });
-
-      if (!res.ok) {
-        console.error("[Favorites] Supabase error", res.status);
-        favContainer.innerHTML =
-          `<p class="col-span-3 text-center text-sm text-red-700">
-             Error loading favorites (Supabase ${res.status}).
-           </p>`;
-        return [];
-      }
-      return await res.json();
+      favoritesContainer.innerHTML = "";
+      favoritesContainer.appendChild(frag);
     }
 
     try {
-      const rows = await fetchFavorites(21);
-      renderRow(rows);
-      
-      if (favHeading) favHeading.textContent = "My Favorites";
-    
+      const res = await fetch(`${apiBase}/api/home/favorites?limit=21`, {
+        headers: { Authorization: `Bearer ${token}` },
+        mode: "cors",
+      });
+
+      if (!res.ok) {
+        console.warn("[Favorites] API error", res.status);
+        favoritesContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-red-700">
+             Error loading favorites (${res.status}).
+           </p>`;
+        return;
+      }
+      const data = await res.json();
+      renderFavorites(data);
+
     } catch (err) {
       console.error("[Favorites] Fetch failed", err);
-      favContainer.innerHTML =
+      favoritesContainer.innerHTML =
         `<p class="col-span-3 text-center text-sm text-red-700">
-           Error loading favorites. See console for details.
+           Error loading favorites.
          </p>`;
     }
   })();

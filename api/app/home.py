@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
-from app.security import get_current_user
+from .security import get_current_user
 import os
 import json
 import urllib.request
@@ -9,10 +9,7 @@ import urllib.parse
 import urllib.error
 import datetime as dt
 
-router = APIRouter(
-    prefix="/api/home",
-    tags=["home"],
-)
+router = APIRouter(prefix="/api/home", tags=["home"],)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
@@ -69,6 +66,157 @@ def _stub_current_reads(limit: int) -> List[CurrentRead]:
     ]
     return sample_books[:limit]
 
+
+@router.get("/favorites")
+async def get_favorites(
+    limit: int = Query(21, ge=1, le=50),
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+
+    shelf_params = {
+        "select": "shelf_id",
+        "user_id": f"eq.{user['id']}",
+        "name": "favorites",
+        "limit": "1",
+    }
+    shelf_url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(shelf_params)}"
+
+    try:
+        s_req = urllib.request.Request(shelf_url, headers=headers, method="GET")
+        with urllib.request.urlopen(s_req, timeout=10) as s_resp:
+            s_body = s_resp.read().decode("utf-8")
+        shelf_rows = json.loads(s_body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.favorites] shelves HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading shelves ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.favorites] shelves error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load favorites shelf")
+
+    if not shelf_rows:
+        return []
+
+    shelf_id = shelf_rows[0].get("shelf_id")
+    if shelf_id is None:
+        return []
+
+    si_params = {
+        "select": "work_id,added_at",
+        "shelf_id": f"eq.{shelf_id}",
+        "order": "added_at.desc",
+        "limit": str(limit),
+    }
+    si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
+
+    try:
+        si_req = urllib.request.Request(si_url, headers=headers, method="GET")
+        with urllib.request.urlopen(si_req, timeout=10) as si_resp:
+            si_body = si_resp.read().decode("utf-8")
+        si_rows = json.loads(si_body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.favorites] shelf_items HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading shelf_items ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.favorites] shelf_items error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load favorites")
+
+    if not si_rows:
+        return []
+
+    work_ids: List[str] = []
+    shelf_order: Dict[str, int] = {}
+
+    for idx, row in enumerate(si_rows):
+        wid = row.get("work_id")
+        if not wid:
+            continue
+        
+        wid_str = str(wid)
+        if wid_str not in shelf_order:
+            shelf_order[wid_str] = idx
+            work_ids.append(wid_str)
+
+    if not work_ids:
+        return []
+
+    ed_params = {
+        "select": "edition_id,work_id,cover_url,works!inner(title)",
+        "work_id": f"in.({','.join(work_ids)})",
+        "order": "pub_date.desc",
+    }
+    ed_url = f"{SUPABASE_URL}/rest/v1/editions?{urllib.parse.urlencode(ed_params)}"
+
+    try:
+        ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+        with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+            ed_body = ed_resp.read().decode("utf-8")
+        ed_rows = json.loads(ed_body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.favorites] editions HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading editions ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.favorites] editions error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load favorite books")
+
+    if not ed_rows:
+        return [
+            {
+                "work_id": wid,
+                "edition_id": None,
+                "title": f"Work {wid}",
+                "cover_url": None,
+            }
+            for wid in work_ids
+        ][:limit]
+
+    favorites: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for row in ed_rows:
+        wid = row.get("work_id")
+        if not wid:
+            continue
+        
+        wid_str = str(wid)
+        if wid_str in seen:
+            continue
+        seen.add(wid_str)
+
+        title = (row.get("works") or {}).get("title") or f"Work {wid_str}"
+        favorites.append(
+            {
+                "work_id": wid_str,
+                "edition_id": row.get("edition_id"),
+                "title": title,
+                "cover_url": row.get("cover_url"),
+            }
+        )
+    favorites.sort(key=lambda r: shelf_order.get(str(r["work_id"]), 0))
+    return favorites[:limit]
+
+
 @router.get("/current-reads", response_model=List[CurrentRead])
 async def get_current_reads(
     limit: int = 2,
@@ -115,13 +263,14 @@ async def get_current_reads(
         
         if not work_id:
             continue
-
         work_id_str = str(work_id)
+
         page_count = row.get("page_count")
         progress_percent = row.get("progress_percent")
-
         if progress_percent is not None:
             progress_percent = max(0.0, min(100.0, float(progress_percent)))
+        else:
+            progress_percent = 0.0
 
         title: str = f"Work {work_id_str}"
         author: Optional[str] = "Unknown author"
