@@ -86,7 +86,6 @@ async def get_current_reads(
         }
         url = f"{base_url}?{urllib.parse.urlencode(params)}"
         req = urllib.request.Request(url, headers=headers, method="GET")
-        
         with urllib.request.urlopen(req, timeout=10) as resp:
             body = resp.read().decode("utf-8")
         progress_rows = json.loads(body)
