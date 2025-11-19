@@ -150,7 +150,6 @@ async def update_progress(
         "Prefer": "resolution=merge-duplicates",
     }
 
-
     try:
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         with urllib.request.urlopen(req, timeout=10) as resp:
