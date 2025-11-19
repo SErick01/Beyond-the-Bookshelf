@@ -111,7 +111,6 @@ async def get_current_reads(
 
         page_count = 0
         progress_percent = float(row.get("progress_percent") or 0.0)
-
         edition_id: Optional[str] = None
         title: Optional[str] = None
         author: str = "Unknown author"
@@ -122,12 +121,15 @@ async def get_current_reads(
             ed_params = {
                 "select": "edition_id,page_count,cover_url,author",
                 "work_id": f"eq.{work_id}",
+                "page_count": "gt.0",
+                "cover_url": "not.is.null",
                 "order": "pub_date.desc",
                 "limit": "1",
             }
-            ed_url = f"{ed_base}?{urllib.parse.urlencode(ed_params)}"
 
+            ed_url = f"{ed_base}?{urllib.parse.urlencode(ed_params)}"
             ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+            
             with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
                 ed_body = ed_resp.read().decode("utf-8")
             ed_rows = json.loads(ed_body)
