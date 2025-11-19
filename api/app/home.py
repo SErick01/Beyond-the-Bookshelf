@@ -112,13 +112,6 @@ async def update_progress(
     payload: ProgressUpdate,
     user: dict = Depends(get_current_user),
 ):
-    ...
-
-@router.post("/progress")
-async def update_progress(
-    payload: ProgressUpdate,
-    user: dict = Depends(get_current_user),
-):
     if not user:
         raise HTTPException(status_code=403, detail="Not authenticated")
 
