@@ -140,6 +140,7 @@ async def get_current_reads(
                 author = ed.get("author") or author
                 if not page_count:
                     page_count = ed.get("page_count") or page_count
+        
         except Exception as e:
             print("[home.current_reads] Warning: editions fetch failed:", repr(e))
 
@@ -209,9 +210,17 @@ async def update_progress(
         progress_percent = int(round(progress_percent))
 
     supabase_row = {
-        "user_id": user["id"], "work_id": payload.work_id,
-        "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),}
+        "user_id": user["id"],
+        "work_id": payload.work_id,
+        "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+    }
+
+    if current_page is not None:
+        supabase_row["current_page"] = current_page
     
+    if page_count is not None:
+        supabase_row["page_count"] = page_count
+
     if progress_percent is not None:
         supabase_row["progress_percent"] = progress_percent
 
