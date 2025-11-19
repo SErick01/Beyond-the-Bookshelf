@@ -79,11 +79,12 @@ async def get_current_reads(
     try:
         base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
         params = {
-            "select": "work_id,current_page,page_count,progress_percent,updated_at",
+            "select": "work_id,progress_percent,updated_at",
             "user_id": f"eq.{user['id']}",
             "order": "updated_at.desc",
             "limit": str(limit),
         }
+
         url = f"{base_url}?{urllib.parse.urlencode(params)}"
         req = urllib.request.Request(url, headers=headers, method="GET")
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -108,8 +109,8 @@ async def get_current_reads(
         if not work_id:
             continue
 
-        current_page = row.get("current_page") or 0
-        page_count = row.get("page_count") or 0
+        current_page = 0
+        page_count = 0
         progress_percent = float(row.get("progress_percent") or 0.0)
 
         edition_id: Optional[str] = None
