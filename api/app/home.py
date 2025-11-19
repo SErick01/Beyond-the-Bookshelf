@@ -81,7 +81,7 @@ async def get_current_reads(
     headers = supabase_headers()
     base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
     params = {
-        "select": "work_id,current_page,page_count,progress_percent,updated_at",
+        "select": "work_id,page_count,progress_percent,updated_at",
         "user_id": f"eq.{user['id']}",
         "order": "updated_at.desc",
         "limit": str(limit),
@@ -117,17 +117,8 @@ async def get_current_reads(
             continue
 
         work_id_str = str(work_id)
-
-        current_page = row.get("current_page")
         page_count = row.get("page_count")
         progress_percent = row.get("progress_percent")
-
-        if progress_percent is None and current_page is not None and page_count:
-            
-            try:
-                progress_percent = (float(current_page) / float(page_count)) * 100.0
-            except ZeroDivisionError:
-                progress_percent = 0.0
 
         if progress_percent is not None:
             progress_percent = max(0.0, min(100.0, float(progress_percent)))
@@ -233,7 +224,6 @@ async def update_progress(
     supabase_row = {
         "user_id": user["id"],
         "work_id": payload.work_id,
-        "current_page": current_page,
         "page_count": page_count,
         "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
