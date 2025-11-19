@@ -81,7 +81,7 @@ async def get_current_reads(
     headers = supabase_headers()
     base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
     params = {
-        "select": "work_id,current_page,page_count,progress_percent,updated_at",
+        "select": "work_id,pages_read,page_count,progress_percent,updated_at",
         "user_id": f"eq.{user['id']}",
         "order": "updated_at.desc",
         "limit": str(limit),
@@ -117,7 +117,8 @@ async def get_current_reads(
             continue
 
         work_id_str = str(work_id)
-        current_page = row.get("current_page")
+
+        current_page = row.get("pages_read")
         page_count = row.get("page_count")
         progress_percent = row.get("progress_percent")
 
