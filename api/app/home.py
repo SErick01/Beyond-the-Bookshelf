@@ -79,7 +79,7 @@ async def get_current_reads(
     try:
         base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
         params = {
-            "select": "work_id,current_page,page_count,progress_percent,updated_at",
+            "select": "work_id,progress_percent,updated_at",
             "user_id": f"eq.{user['id']}",
             "order": "updated_at.desc",
             "limit": str(limit),
@@ -109,8 +109,7 @@ async def get_current_reads(
         if not work_id:
             continue
 
-        current_page = int(row.get("current_page") or 0)
-        page_count = int(row.get("page_count") or 0)
+        page_count = 0
         progress_percent = float(row.get("progress_percent") or 0.0)
 
         edition_id: Optional[str] = None
@@ -213,15 +212,7 @@ async def update_progress(
         "user_id": user["id"],
         "work_id": payload.work_id,
         "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "current_page": current_page,
-        "page_count": page_count,
     }
-
-    if current_page is not None:
-        supabase_row["current_page"] = current_page
-    
-    if page_count is not None:
-        supabase_row["page_count"] = page_count
 
     if progress_percent is not None:
         supabase_row["progress_percent"] = progress_percent
