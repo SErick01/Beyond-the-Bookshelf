@@ -123,11 +123,12 @@ async def update_progress(
     page_count = payload.page_count
     progress_percent = payload.progress_percent
 
-    if progress_percent is None:
-        progress_percent = compute_progress_percent(current_page, page_count)
+    if progress_percent is None and current_page is not None and page_count is not None:
+        progress_percent = (current_page / page_count) * 100
 
     if progress_percent is not None:
         progress_percent = max(0.0, min(100.0, float(progress_percent)))
+        progress_percent = int(round(progress_percent))
 
     supabase_row = {
         "user_id": user["id"], "work_id": payload.work_id,
