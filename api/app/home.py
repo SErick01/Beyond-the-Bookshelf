@@ -80,7 +80,7 @@ async def get_favorites(
     shelf_params = {
         "select": "shelf_id",
         "user_id": f"eq.{user['id']}",
-        "name": "favorites",
+        "name": "eq.favorites",
         "limit": "1",
     }
     shelf_url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(shelf_params)}"
