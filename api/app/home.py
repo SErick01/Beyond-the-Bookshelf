@@ -104,8 +104,9 @@ async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
 
 class ProgressUpdate(BaseModel):
     work_id: str
-    pages_read: int
+    current_page: int
     page_count: int
+    progress_percent: Optional[float] = None
 
 @router.post("/progress")
 async def update_progress(
