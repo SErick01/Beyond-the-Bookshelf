@@ -6,6 +6,8 @@ import os
 import json
 import urllib.request
 import urllib.parse
+import urllib.error
+import datetime as dt
 
 router = APIRouter(
     prefix="/api/home",
@@ -100,64 +102,52 @@ async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
     except Exception:
         return _stub_current_reads(limit)
 
+class ProgressUpdate(BaseModel):
+    work_id: str
+    pages_read: int
+    page_count: int
+
 @router.post("/progress")
 async def update_progress(
-    payload: Dict[str, Any] = Body(...),
-    user: Dict[str, Any] = Depends(get_current_user),
+    payload: ProgressUpdate,
+    user: dict = Depends(get_current_user),
 ):
-    if not SUPABASE_KEY:
-        return {"status": "ok", "saved": False}
+    ...
 
-    work_id = payload.get("work_id")
-    if not work_id:
+@router.post("/progress")
+async def update_progress(
+    payload: ProgressUpdate,
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    if not payload.work_id:
         raise HTTPException(status_code=400, detail="work_id is required")
 
-    current_page = (
-        payload.get("current_page")
-        or payload.get("page")
-        or payload.get("pages_read")
-    )
+    current_page = payload.current_page
+    page_count = payload.page_count
+    progress_percent = payload.progress_percent
 
-    if current_page is None:
-        raise HTTPException(status_code=400, detail="current_page is required")
-
-    page_count = payload.get("page_count")
-
-    try:
-        current_page = int(current_page)
-    except Exception as e:
-        print("[home.progress] error:", repr(e))
-        return {"status": "error", "saved": False, "detail": str(e),}
-
-    if "progress_percent" in payload and payload["progress_percent"] is not None:
-        try:
-            progress_percent = float(payload["progress_percent"])
-        except (TypeError, ValueError):
-            progress_percent = compute_progress_percent(current_page, page_count)
-    else:
+    if progress_percent is None:
         progress_percent = compute_progress_percent(current_page, page_count)
 
-    if isinstance(user, dict):
-        user_id = user.get("id") or user.get("user_id")
-    else:
-        user_id = getattr(user, "id", None) or getattr(user, "user_id", None)
+    if progress_percent is not None:
+        progress_percent = max(0.0, min(100.0, float(progress_percent)))
 
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Could not determine user id")
+    supabase_row = {
+        "user_id": user["id"], "work_id": payload.work_id,
+        "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),}
+    
+    if progress_percent is not None:
+        supabase_row["progress_percent"] = progress_percent
 
-    user_id = str(user_id)
-    work_id = str(work_id)
+    base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
+    query = urllib.parse.urlencode({"on_conflict": "user_id,work_id"})
+    url = f"{base_url}?{query}"
 
-    base = SUPABASE_URL.rstrip("/")
-    url = f"{base}/rest/v1/reading_progress?on_conflict=user_id,work_id"
+    data = json.dumps(supabase_row).encode("utf-8")
 
-    row = {
-        "user_id": user_id,
-        "work_id": work_id,
-        "progress_percent": progress_percent,
-    }
-
-    data = json.dumps(row).encode("utf-8")
     headers = {
         "apikey": SUPABASE_KEY,
         "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -165,12 +155,22 @@ async def update_progress(
         "Prefer": "resolution=merge-duplicates",
     }
 
+
     try:
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
         with urllib.request.urlopen(req, timeout=10) as resp:
-            resp.read()
-        return {"status": "ok", "saved": True, "progress_percent": progress_percent,}
+            body = resp.read().decode("utf-8", errors="ignore")
+            print("[home.progress] Supabase OK:", resp.status, body)
+
+        return {"status": "ok", "saved": True,
+            "progress_percent": progress_percent,}
+
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="ignore")
+        print("[home.progress] Supabase HTTPError:", e.code, error_body)
+        return {"status": "error", "saved": False,
+            "detail": f"Supabase {e.code}: {error_body}",}
 
     except Exception as e:
-        print("[home.progress] error:", repr(e))
+        print("[home.progress] Unexpected error:", repr(e))
         return {"status": "error", "saved": False, "detail": str(e),}
