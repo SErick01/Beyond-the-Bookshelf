@@ -233,6 +233,8 @@ async def update_progress(
     supabase_row = {
         "user_id": user["id"],
         "work_id": payload.work_id,
+        "current_page": current_page,
+        "page_count": page_count,
         "updated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
     }
 
