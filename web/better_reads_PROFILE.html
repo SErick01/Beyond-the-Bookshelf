@@ -190,10 +190,12 @@
  <!-- Favorites -->
    <div class ="lg:col-span-6 space-y-6" >
         <section class="bg-[#E5C09E]">
-            <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
-            <div id="row-favorites"
-                class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
-            </div>
+        <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
+        <div
+            id="row-favorites"
+            class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E"
+        >
+        </div>
         </section>
 
 <body>
@@ -318,123 +320,6 @@
       localStorage.removeItem('btb_token');
       window.location.href = 'index.html';
     });
-  })();
-</script>
-<script>
-  (async () => {
-    const favoritesHeading  = document.getElementById("favorites-heading");
-    const favoritesContainer = document.getElementById("row-favorites");
-    if (!favoritesContainer) return;
-
-    const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
-    const PLACEHOLDER  = STORAGE_BASE + "cover/placeholder.jpg";
-
-    favoritesContainer.innerHTML =
-      `<p class="col-span-3 text-center text-sm text-[#51200F]">
-         Loading favorites…
-       </p>`;
-
-    const token = localStorage.getItem("btb_token");
-    if (!token) {
-      favoritesContainer.innerHTML =
-        `<p class="col-span-3 text-center text-sm text-[#51200F]">
-           Please log in to see your favorites.
-         </p>`;
-      return;
-    }
-
-    const apiBase = "https://beyond-the-bookshelf.onrender.com";
-
-    function renderFavorites(rows) {
-      if (!rows || !rows.length) {
-        favoritesContainer.innerHTML =
-          `<p class="col-span-3 text-center text-sm text-[#51200F]">
-             You don't have any favorites yet.
-           </p>`;
-        return;
-      }
-
-      const frag = document.createDocumentFragment();
-
-      for (const row of rows) {
-        const title = row.title || "Unknown title";
-        let imgSrc = PLACEHOLDER;
-
-        if (row.cover_url) {
-          imgSrc = row.cover_url.startsWith("http")
-            ? row.cover_url
-            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
-        }
-
-        const link = document.createElement("a");
-        link.href =
-          `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
-          `&edition_id=${encodeURIComponent(row.edition_id ?? "")}`;
-        link.className = "block";
-
-        const img = document.createElement("img");
-        img.src = imgSrc;
-        img.alt = title;
-        img.className =
-          "w-full h-auto object-cover shadow-xl rounded " +
-          "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
-
-        img.onerror = () => {
-          img.onerror = null;
-          img.src = PLACEHOLDER;
-          if (!link.querySelector("p")) {
-            const p = document.createElement("p");
-            p.textContent = title;
-            p.className =
-              "mt-1 text-xs font-semibold text-center text-[#51200F]";
-            link.appendChild(p);
-          }
-        };
-
-        if (!row.cover_url) {
-          const p = document.createElement("p");
-          p.textContent = title;
-          p.className =
-            "mt-1 text-xs font-semibold text-center text-[#51200F]";
-          link.appendChild(p);
-        }
-
-        link.appendChild(img);
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "book-card";
-        wrapper.appendChild(link);
-        frag.appendChild(wrapper);
-      }
-
-      favoritesContainer.innerHTML = "";
-      favoritesContainer.appendChild(frag);
-    }
-
-    try {
-      const res = await fetch(`${apiBase}/api/home/favorites?limit=21`, {
-        headers: { Authorization: `Bearer ${token}` },
-        mode: "cors",
-      });
-
-      if (!res.ok) {
-        console.warn("[Favorites] API error", res.status);
-        favoritesContainer.innerHTML =
-          `<p class="col-span-3 text-center text-sm text-red-700">
-             Error loading favorites (${res.status}).
-           </p>`;
-        return;
-      }
-
-      const data = await res.json();
-      renderFavorites(data);
-    } catch (err) {
-      console.error("[Favorites] Fetch failed", err);
-      favoritesContainer.innerHTML =
-        `<p class="col-span-3 text-center text-sm text-red-700">
-           Error loading favorites.
-         </p>`;
-    }
   })();
 </script>
 </body>
