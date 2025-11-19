@@ -62,12 +62,17 @@ def _stub_current_reads(limit: int) -> List[CurrentRead]:
     return sample_books[:limit]
 
 @router.get("/current-reads", response_model=List[CurrentRead])
-async def get_current_reads(limit: int = 2, 
-                            user: dict = Depends(get_current_user),
-                            ) -> List[CurrentRead]:
-    
+async def get_current_reads(
+    limit: int = 2,
+    user: dict = Depends(get_current_user),
+) -> List[CurrentRead]:
+
     if not user:
         raise HTTPException(status_code=403, detail="Not authenticated")
+
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print("[home.current_reads] Missing SUPABASE_URL or SUPABASE_KEY")
+        raise HTTPException(status_code=500, detail="Supabase config missing")
 
     headers = {
         "apikey": SUPABASE_KEY,
@@ -84,28 +89,47 @@ async def get_current_reads(limit: int = 2,
             "limit": str(limit),
         }
         url = f"{base_url}?{urllib.parse.urlencode(params)}"
-        req = urllib.request.Request(url, headers=headers, method="GET")
+        print("[home.current_reads] Fetching reading_progress:", url)
 
+        req = urllib.request.Request(url, headers=headers, method="GET")
         with urllib.request.urlopen(req, timeout=10) as resp:
             body = resp.read().decode("utf-8")
-        progress_rows = json.loads(body)
+            print("[home.current_reads] reading_progress status:", resp.status, "body:", body)
+            progress_rows = json.loads(body)
 
     except Exception as e:
         print("[home.current_reads] Error fetching reading_progress:", repr(e))
-        return _stub_current_reads(limit)
-    current_reads: list[CurrentRead] = []
+        raise HTTPException(status_code=500, detail="Failed to fetch reading progress")
+
+    if not isinstance(progress_rows, list):
+        print("[home.current_reads] Unexpected payload from reading_progress:", progress_rows)
+        raise HTTPException(status_code=500, detail="Bad data from reading_progress")
+
+    if not progress_rows:
+        print("[home.current_reads] No rows in reading_progress for user", user["id"])
+        return []
+
+    current_reads: List[CurrentRead] = []
 
     for row in progress_rows:
-        work_id = str(row.get("work_id"))
+        work_id = str(row.get("work_id") or "").strip()
+        
         if not work_id:
             continue
 
-        progress_percent = float(row.get("progress_percent") or 0.0)
-        page_count = row.get("page_count")
-        edition_id: str | None = None
-        title = f"Work {work_id}"
-        author = "Unknown author"
-        cover_url: str | None = None
+        current_page = row.get("current_page") or 0
+        page_count = row.get("page_count") or 0
+        progress_percent = row.get("progress_percent")
+
+        if progress_percent is None and page_count:
+            progress_percent = (current_page / page_count) * 100.0
+        if progress_percent is None:
+            progress_percent = 0.0
+        
+        progress_percent = int(round(max(0.0, min(100.0, float(progress_percent)))))
+        edition_id: Optional[str] = None
+        author: str = "Unknown author"
+        cover_url: Optional[str] = None
 
         try:
             ed_base = f"{SUPABASE_URL}/rest/v1/editions"
@@ -120,35 +144,39 @@ async def get_current_reads(limit: int = 2,
             
             with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
                 ed_body = ed_resp.read().decode("utf-8")
-            ed_rows = json.loads(ed_body)
+                ed_rows = json.loads(ed_body)
 
-            if ed_rows:
+            if isinstance(ed_rows, list) and ed_rows:
                 ed = ed_rows[0]
                 edition_id = ed.get("edition_id") or edition_id
                 cover_url = ed.get("cover_url") or cover_url
-                
                 if not page_count:
-                    page_count = ed.get("page_count")
+                    page_count = ed.get("page_count") or page_count
                 author = ed.get("author") or author
 
         except Exception as e:
-            print("[home.current_reads] Warning: editions fetch failed:", repr(e))
+            print("[home.current_reads] Warning: editions fetch failed for", work_id, ":", repr(e))
 
+        title = f"Work {work_id}"
         try:
             w_base = f"{SUPABASE_URL}/rest/v1/works"
-            w_params = {"select": "title", "work_id": f"eq.{work_id}", "limit": "1",}
+            w_params = {
+                "select": "title",
+                "work_id": f"eq.{work_id}",
+                "limit": "1",
+            }
             w_url = f"{w_base}?{urllib.parse.urlencode(w_params)}"
             w_req = urllib.request.Request(w_url, headers=headers, method="GET")
             
             with urllib.request.urlopen(w_req, timeout=10) as w_resp:
                 w_body = w_resp.read().decode("utf-8")
-            w_rows = json.loads(w_body)
+                w_rows = json.loads(w_body)
 
-            if w_rows:
+            if isinstance(w_rows, list) and w_rows:
                 title = w_rows[0].get("title") or title
 
         except Exception as e:
-            print("[home.current_reads] Warning: works fetch failed:", repr(e))
+            print("[home.current_reads] Warning: works fetch failed for", work_id, ":", repr(e))
 
         current_reads.append(
             CurrentRead(
@@ -161,8 +189,7 @@ async def get_current_reads(limit: int = 2,
                 progress_percent=progress_percent,
             )
         )
-    if not current_reads:
-        return _stub_current_reads(limit)
+    print("[home.current_reads] Built", len(current_reads), "entries")
     return current_reads
 
 class ProgressUpdate(BaseModel):
