@@ -19,12 +19,12 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANO
 
 class CurrentRead(BaseModel):
     work_id: str
-    edition_id: Optional[str] = None
+    edition_id: str | None = None
     title: str
-    author: Optional[str] = None
-    cover_url: Optional[str] = None
-    page_count: Optional[int] = None
-    progress_percent: float
+    author: str | None = None
+    cover_url: str | None = None
+    page_count: int | None = None
+    progress_percent: float = 0.0
 
 def compute_progress_percent(current_page: int, page_count: Optional[int]) -> float:
     if not page_count or page_count <= 0:
@@ -41,66 +41,129 @@ def compute_progress_percent(current_page: int, page_count: Optional[int]) -> fl
 def _stub_current_reads(limit: int) -> List[CurrentRead]:
     sample_books = [
         CurrentRead(
-            work_id=1,
-            edition_id=None,
+            work_id="stub-1",
+            edition_id="stub-ed-1",
             title="Stub Book One",
             author="Demo Author",
             cover_url=None,
             page_count=400,
-            progress_percent=30.0,
+            progress_percent=30,
         ),
         CurrentRead(
-            work_id=2,
-            edition_id=None,
+            work_id="stub-2",
+            edition_id="stub-ed-2",
             title="Stub Book Two",
             author="Another Author",
             cover_url=None,
             page_count=250,
-            progress_percent=60.0,
+            progress_percent=60,
         ),
     ]
     return sample_books[:limit]
 
 @router.get("/current-reads", response_model=List[CurrentRead])
-async def get_current_reads(limit: int = 2) -> List[CurrentRead]:
-    if not SUPABASE_KEY:
-        return _stub_current_reads(limit)
+async def get_current_reads(limit: int = 2, 
+                            user: dict = Depends(get_current_user),
+                            ) -> List[CurrentRead]:
+    
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+    }
 
     try:
-        base = SUPABASE_URL.rstrip("/")
-        url = f"{base}/rest/v1/editions"
-
+        base_url = f"{SUPABASE_URL}/rest/v1/reading_progress"
         params = {
-            "select": "edition_id,work_id,page_count,cover_url,works!inner(title)",
-            "order": "pub_date.desc",
+            "select": "work_id,current_page,page_count,progress_percent,updated_at",
+            "user_id": f"eq.{user['id']}",
+            "order": "updated_at.desc",
             "limit": str(limit),
         }
+        url = f"{base_url}?{urllib.parse.urlencode(params)}"
+        req = urllib.request.Request(url, headers=headers, method="GET")
 
-        full_url = f"{url}?{urllib.parse.urlencode(params)}"
-        headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}",}
-        req = urllib.request.Request(full_url, headers=headers)
         with urllib.request.urlopen(req, timeout=10) as resp:
-            rows = json.loads(resp.read().decode("utf-8"))
+            body = resp.read().decode("utf-8")
+        progress_rows = json.loads(body)
 
-        books: List[CurrentRead] = []
-        for row in rows:
-            works = row.get("works") or {}
-            title = works.get("title") or "Unknown title"
-
-            books.append(
-                CurrentRead(
-                    work_id=row["work_id"],
-                    edition_id=row.get("edition_id"),
-                    title=title,
-                    author=None,
-                    cover_url=row.get("cover_url"),
-                    page_count=row.get("page_count"),
-                    progress_percent=30.0,
-                )
-            )
-        return books or _stub_current_reads(limit)
-    except Exception:
+    except Exception as e:
+        print("[home.current_reads] Error fetching reading_progress:", repr(e))
         return _stub_current_reads(limit)
+    current_reads: list[CurrentRead] = []
+
+    for row in progress_rows:
+        work_id = str(row.get("work_id"))
+        if not work_id:
+            continue
+
+        progress_percent = float(row.get("progress_percent") or 0.0)
+        page_count = row.get("page_count")
+        edition_id: str | None = None
+        title = f"Work {work_id}"
+        author = "Unknown author"
+        cover_url: str | None = None
+
+        try:
+            ed_base = f"{SUPABASE_URL}/rest/v1/editions"
+            ed_params = {
+                "select": "edition_id,page_count,cover_url,author",
+                "work_id": f"eq.{work_id}",
+                "order": "pub_date.desc",
+                "limit": "1",
+            }
+            ed_url = f"{ed_base}?{urllib.parse.urlencode(ed_params)}"
+            ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+            
+            with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+                ed_body = ed_resp.read().decode("utf-8")
+            ed_rows = json.loads(ed_body)
+
+            if ed_rows:
+                ed = ed_rows[0]
+                edition_id = ed.get("edition_id") or edition_id
+                cover_url = ed.get("cover_url") or cover_url
+                
+                if not page_count:
+                    page_count = ed.get("page_count")
+                author = ed.get("author") or author
+
+        except Exception as e:
+            print("[home.current_reads] Warning: editions fetch failed:", repr(e))
+
+        try:
+            w_base = f"{SUPABASE_URL}/rest/v1/works"
+            w_params = {"select": "title", "work_id": f"eq.{work_id}", "limit": "1",}
+            w_url = f"{w_base}?{urllib.parse.urlencode(w_params)}"
+            w_req = urllib.request.Request(w_url, headers=headers, method="GET")
+            
+            with urllib.request.urlopen(w_req, timeout=10) as w_resp:
+                w_body = w_resp.read().decode("utf-8")
+            w_rows = json.loads(w_body)
+
+            if w_rows:
+                title = w_rows[0].get("title") or title
+
+        except Exception as e:
+            print("[home.current_reads] Warning: works fetch failed:", repr(e))
+
+        current_reads.append(
+            CurrentRead(
+                work_id=work_id,
+                edition_id=edition_id,
+                title=title,
+                author=author,
+                cover_url=cover_url,
+                page_count=page_count,
+                progress_percent=progress_percent,
+            )
+        )
+    if not current_reads:
+        return _stub_current_reads(limit)
+    return current_reads
 
 class ProgressUpdate(BaseModel):
     work_id: str
