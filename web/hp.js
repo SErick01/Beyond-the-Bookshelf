@@ -215,7 +215,7 @@ async function saveProgressToBackend(workId, pagesRead, totalPages) {
 
             body: JSON.stringify({
                 work_id: workId,
-                pages_read: pagesRead,
+                current_page: pagesRead,
                 page_count: totalPages,}),
         });
 
