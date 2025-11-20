@@ -247,6 +247,77 @@
             }
         }
 
+        async function addToCurrentReads() {
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
+            if (!editionId) {
+                console.error("No edition id for current reads");
+                return;
+            }
+
+            const url = `${SUPABASE_URL}/rest/v1/reading_progress`;
+            const payload = {
+                user_id: CURRENT_USER_ID,
+                edition_id: editionId,
+                current_page: 0,
+            };
+
+            const resp = await fetch(url, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok && resp.status !== 409) {
+                const text = await resp.text();
+                console.error("Failed to add to current reads", resp.status, text);
+                alert("Sorry, could not add to All current reads.");
+
+            } else {console.log("Added to current reads");}
+        }
+
+        async function addToCompletions() {
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
+            if (!editionId) {
+                console.error("No edition id for completions");
+                return;
+            }
+
+            const url = `${SUPABASE_URL}/rest/v1/completions`;
+            const payload = {
+                user_id: CURRENT_USER_ID,
+                edition_id: editionId,
+            };
+
+            const resp = await fetch(url, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok && resp.status !== 409) {
+                const text = await resp.text();
+                console.error("Failed to add to completions", resp.status, text);
+                alert("Sorry, could not add to All completed books.");
+
+            } else {console.log("Added to completions");}
+        }
+
         if (!editionId && !workIdParam) {
             console.error("No edition_id or work_id in URL");
             return;
@@ -379,39 +450,40 @@
                     console.log("Shelves data:", shelves);
                     menu.innerHTML = "";
 
-                    if (!shelves.length) {
-                        const empty = document.createElement("div");
-                        empty.className = "px-4 py-2 text-gray-500";
-                        empty.textContent = "No lists yet.";
-                        menu.appendChild(empty);
+                    function makeMenuButton(label, onClick) {
+                        const btn = document.createElement("button");
+                        btn.type = "button";
+                        btn.className = "block w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-background-light";
+                        btn.textContent = label;
+                        
+                        btn.addEventListener("click", async (event) => {
+                            event.stopPropagation();
 
-                    } else {
-                        for (const shelf of shelves) {
-                            const itemBtn = document.createElement("button");
-                            itemBtn.type = "button";
-                            itemBtn.dataset.shelfId = shelf.shelf_id;
-                            itemBtn.className =
-                                "block w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-background-light";
-                            itemBtn.textContent = shelf.name;
-                            menu.appendChild(itemBtn);
-                        }
-
-                        menu.addEventListener("click", async (event) => {
-                            const item = event.target.closest("button[data-shelf-id]");
-                            if (!item) return;
-
-                            const shelfId = item.dataset.shelfId;
-                            try {
-                                await addBookToShelf(shelfId);
-                                menu.classList.add("hidden");
-                                console.log(`Added to list: ${item.textContent}`);
-
-                            } catch (err) {
-                                console.error(err);
-                                alert("Sorry, could not add to that list.");
-                            }
+                            try {await onClick();} 
+                            finally {menu.classList.add("hidden");}
                         });
+                        return btn;
                     }
+
+                    menu.appendChild(
+                        makeMenuButton("All current reads", () => addToCurrentReads())
+                    );
+                    menu.appendChild(
+                        makeMenuButton("All completed books", () => addToCompletions())
+                    );
+
+                    if (shelves.length) {
+                        const divider = document.createElement("div");
+                        divider.className = "border-t border-gray-200 my-1";
+                        menu.appendChild(divider);
+
+                        for (const shelf of shelves) {
+                            menu.appendChild(
+                                makeMenuButton(shelf.name, () => addBookToShelf(shelf.shelf_id))
+                            );
+                        }
+                    }
+
                 } else {
                     console.error("Failed to load shelves", sRes.status);
                 }
