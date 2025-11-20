@@ -22,6 +22,15 @@ def supabase_headers() -> dict:
         "Content-Type": "application/json",
     }
 
+def normalize_cover_url(raw: Optional[str]) -> Optional[str]:
+    if not raw:
+        return None
+    if raw.startswith("http://") or raw.startswith("https://"):
+        return raw
+    if raw.startswith("cover/"):
+        return raw
+    return None
+
 class CurrentRead(BaseModel):
     work_id: str
     edition_id: str | None = None
@@ -461,15 +470,16 @@ async def get_shelves(
 
         for row in ed_rows:
             wid = row.get("work_id")
-            
             if wid is None:
                 continue
             wid_str = str(wid)
-            
+
             if wid_str in cover_by_work:
                 continue
-            cover = row.get("cover_url")
-            
+
+            raw_cover = row.get("cover_url")
+            cover = normalize_cover_url(raw_cover)
+
             if cover:
                 cover_by_work[wid_str] = cover
 
@@ -644,7 +654,7 @@ def pick_cover_for_table(
         return None
 
     for row in ed_rows:
-        cover = row.get("cover_url")
+        cover = normalize_cover_url(row.get("cover_url"))
         if cover:
             return cover
 
