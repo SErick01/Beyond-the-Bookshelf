@@ -104,29 +104,27 @@
 
     <div class = "container mx-auto px-4 mt-8">
 
-        <form class="w-full max-w-2xl mx-auto mb-10">
-        
-            <div class="relative flex items-center">
-                <i class="fa-solid fa-magnifying-glass pl-4 absolute"></i> 
-                <input
-                    type="text"
-                    placeholder="Search Lists"
-                    aria-label="Search field"
-                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-    
-                <button
-                    type="button"
-                    aria-label="Clear search"
-                    class="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                    onclick="document.querySelector('input[type=text]').value = '';"
-                >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                </button>
-            </div>
-        </form>
+    <form id="lists-search-form" class="w-full max-w-2xl mx-auto mb-10">
+        <div class="relative flex items-center">
+            <i class="fa-solid fa-magnifying-glass pl-4 absolute"></i> 
+            <input
+                id="lists-search-input"
+                type="text"
+                placeholder="Search Lists"
+                aria-label="Search field"
+                class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+
+            <button
+                type="button"
+                aria-label="Clear search"
+                class="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onclick="const el = document.getElementById('lists-search-input'); el.value = ''; if (window._betterReadsFilterLists) window._betterReadsFilterLists();"
+            >
+                ...
+            </button>
+        </div>
+    </form>
         <div class = "space-y-8 pb-12">
             <div id="shelves-grid" class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <!--Create New List-->
@@ -471,6 +469,44 @@
       if (tries > 10) clearInterval(timer);
     }, 500);
   });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchForm  = document.getElementById('lists-search-form');
+        const searchInput = document.getElementById('lists-search-input');
+
+        if (!searchForm || !searchInput) return;
+
+        function filterLists() {
+            const term = searchInput.value.trim().toLowerCase();
+            const sections = document.querySelectorAll('main section.bg-[#E5C09E]');
+
+            sections.forEach((section) => {
+                if (section.querySelector('#new-list-btn')) {
+                    section.classList.remove('hidden');
+                    return;
+                }
+
+                const heading = section.querySelector('h2');
+                const title   = heading ? heading.textContent.toLowerCase() : '';
+                if (!term || title.includes(term)) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+        }
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            filterLists();
+        });
+
+        searchInput.addEventListener('input', () => {
+            if (!searchInput.value.trim()) {filterLists();}
+        });
+        window._betterReadsFilterLists = filterLists;
+    });
 </script>
 </body>
 </html>
