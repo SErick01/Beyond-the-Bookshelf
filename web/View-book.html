@@ -307,6 +307,7 @@
             const payload = {
                 user_id: CURRENT_USER_ID,
                 work_id: workId,
+                finished_at: new Date().toISOString(),
             };
 
             const resp = await fetch(url, {
