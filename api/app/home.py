@@ -356,26 +356,26 @@ async def get_shelves(
         raise HTTPException(status_code=403, detail="Not authenticated")
 
     headers = supabase_headers()
-    params = {
+    shelf_params = {
         "select": "shelf_id,name,is_default,visibility",
         "user_id": f"eq.{user['id']}",
         "order": "is_default.desc,name.asc",
         "limit": str(limit),
     }
-    url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(params)}"
+    shelf_url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(shelf_params)}"
 
     try:
-        req = urllib.request.Request(url, headers=headers, method="GET")
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            body = resp.read().decode("utf-8")
-        shelf_rows = json.loads(body)
+        s_req = urllib.request.Request(shelf_url, headers=headers, method="GET")
+        with urllib.request.urlopen(s_req, timeout=10) as s_resp:
+            s_body = s_resp.read().decode("utf-8")
+        shelf_rows = json.loads(s_body)
     
     except urllib.error.HTTPError as e:
-        error_body = e.read().decode("utf-8", errors="ignore")
-        print("[home.shelves] shelves HTTPError", e.code, error_body)
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelves] shelves HTTPError", e.code, body)
         raise HTTPException(
             status_code=500,
-            detail=f"Supabase error while reading shelves ({e.code}): {error_body}",
+            detail=f"Supabase error while reading shelves ({e.code}): {body}",
         )
     
     except Exception as e:
@@ -385,17 +385,21 @@ async def get_shelves(
     if not shelf_rows:
         return []
 
-    shelf_ids = [
-        str(row["shelf_id"])
-        for row in shelf_rows
-        if row.get("shelf_id") is not None
-    ]
+    shelf_ids: List[str] = []
+    for row in shelf_rows:
+        sid = row.get("shelf_id")
+        if sid is None:
+            continue
+        shelf_ids.append(str(sid))
 
     counts_by_id: Dict[str, int] = {}
+    sample_work_by_shelf: Dict[str, str] = {}
+
     if shelf_ids:
         si_params = {
-            "select": "shelf_id",
+            "select": "shelf_id,work_id,added_at",
             "shelf_id": f"in.({','.join(shelf_ids)})",
+            "order": "added_at.desc",
             "limit": "10000",
         }
         si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
@@ -405,31 +409,81 @@ async def get_shelves(
             with urllib.request.urlopen(si_req, timeout=10) as si_resp:
                 si_body = si_resp.read().decode("utf-8")
             si_rows = json.loads(si_body)
-
+        
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", errors="ignore")
             print("[home.shelves] shelf_items HTTPError", e.code, body)
             si_rows = []
-
+        
         except Exception as e:
             print("[home.shelves] shelf_items error:", repr(e))
-            print("[home.shelves] falling back to zero counts")
             si_rows = []
 
         for row in si_rows:
             sid = row.get("shelf_id")
-            if sid is None:
+            wid = row.get("work_id")
+            
+            if sid is None or wid is None:
                 continue
+
             sid_str = str(sid)
+            wid_str = str(wid)
             counts_by_id[sid_str] = counts_by_id.get(sid_str, 0) + 1
 
-    result = []
+            if sid_str not in sample_work_by_shelf:
+                sample_work_by_shelf[sid_str] = wid_str
+
+    cover_by_work: Dict[str, Optional[str]] = {}
+    sample_work_ids = list({wid for wid in sample_work_by_shelf.values() if wid})
+
+    if sample_work_ids:
+        ed_params = {
+            "select": "work_id,cover_url,pub_date",
+            "work_id": f"in.({','.join(sample_work_ids)})",
+            "order": "pub_date.desc",
+        }
+        ed_url = f"{SUPABASE_URL}/rest/v1/editions?{urllib.parse.urlencode(ed_params)}"
+
+        try:
+            ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+            with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+                ed_body = ed_resp.read().decode("utf-8")
+            ed_rows = json.loads(ed_body)
+        
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="ignore")
+            print("[home.shelves] editions HTTPError", e.code, body)
+            ed_rows = []
+        
+        except Exception as e:
+            print("[home.shelves] editions error:", repr(e))
+            ed_rows = []
+
+        for row in ed_rows:
+            wid = row.get("work_id")
+            
+            if wid is None:
+                continue
+            wid_str = str(wid)
+            
+            if wid_str in cover_by_work:
+                continue
+            cover = row.get("cover_url")
+            
+            if cover:
+                cover_by_work[wid_str] = cover
+
+    result: List[Dict[str, Any]] = []
     for row in shelf_rows:
         sid = row.get("shelf_id")
+        
         if sid is None:
             continue
-        sid_str = str(sid)
         
+        sid_str = str(sid)
+        sample_wid = sample_work_by_shelf.get(sid_str)
+        cover_url = cover_by_work.get(sample_wid) if sample_wid else None
+
         result.append(
             {
                 "shelf_id": sid,
@@ -437,6 +491,7 @@ async def get_shelves(
                 "visibility": row.get("visibility"),
                 "is_default": row.get("is_default", False),
                 "book_count": counts_by_id.get(sid_str, 0),
+                "cover_url": cover_url,
             }
         )
     return result
@@ -505,7 +560,7 @@ def count_user_rows(table: str, user_id: str, headers: Dict[str, str]) -> int:
         "limit": "10000",
     }
     url = f"{SUPABASE_URL}/rest/v1/{table}?{urllib.parse.urlencode(params)}"
-
+    
     try:
         req = urllib.request.Request(url, headers=headers, method="GET")
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -515,12 +570,85 @@ def count_user_rows(table: str, user_id: str, headers: Dict[str, str]) -> int:
     
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="ignore")
-        print(f"[home.list_summary] HTTPError for {table}", e.code, body)
+        print(f"[home.list_summary] HTTPError while counting {table}", e.code, body)
         return 0
     
     except Exception as e:
-        print(f"[home.list_summary] error for {table}:", repr(e))
+        print(f"[home.list_summary] error while counting {table}:", repr(e))
         return 0
+
+def pick_cover_for_table(
+    table: str,
+    order_column: str,
+    user_id: str,
+    headers: Dict[str, str],
+) -> Optional[str]:
+    base_url = f"{SUPABASE_URL}/rest/v1/{table}"
+    params = {
+        "select": f"work_id,{order_column}",
+        "user_id": f"eq.{user_id}",
+        "order": f"{order_column}.desc",
+        "limit": "20",
+    }
+    url = f"{base_url}?{urllib.parse.urlencode(params)}"
+
+    try:
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+        rows = json.loads(body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print(f"[home.list_summary] HTTPError while fetching {table}", e.code, body)
+        return None
+    
+    except Exception as e:
+        print(f"[home.list_summary] error while fetching {table}:", repr(e))
+        return None
+
+    work_ids: List[str] = []
+    for row in rows:
+        wid = row.get("work_id")
+        
+        if not wid:
+            continue
+        wid_str = str(wid)
+        
+        if wid_str not in work_ids:
+            work_ids.append(wid_str)
+
+    if not work_ids:
+        return None
+
+    ed_params = {
+        "select": "work_id,cover_url,pub_date",
+        "work_id": f"in.({','.join(work_ids)})",
+        "order": "pub_date.desc",
+    }
+    ed_url = f"{SUPABASE_URL}/rest/v1/editions?{urllib.parse.urlencode(ed_params)}"
+
+    try:
+        ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+        with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+            ed_body = ed_resp.read().decode("utf-8")
+        ed_rows = json.loads(ed_body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print(f"[home.list_summary] editions HTTPError for {table}", e.code, body)
+        return None
+    
+    except Exception as e:
+        print(f"[home.list_summary] editions error for {table}:", repr(e))
+        return None
+
+    for row in ed_rows:
+        cover = row.get("cover_url")
+        if cover:
+            return cover
+
+    return None
 
 @router.get("/list_summary")
 async def list_summary(user: dict = Depends(get_current_user)):
@@ -530,10 +658,18 @@ async def list_summary(user: dict = Depends(get_current_user)):
     headers = supabase_headers()
     reading_count = count_user_rows("reading_progress", user["id"], headers)
     completed_count = count_user_rows("completions", user["id"], headers)
+    reading_cover = pick_cover_for_table(
+        "reading_progress", "updated_at", user["id"], headers
+    )
+    completed_cover = pick_cover_for_table(
+        "completions", "finished_at", user["id"], headers
+    )
 
     return {
         "reading_count": reading_count,
         "completed_count": completed_count,
+        "reading_cover_url": reading_cover,
+        "completed_cover_url": completed_cover,
     }
 
 class ProgressUpdate(BaseModel):
