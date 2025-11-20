@@ -230,11 +230,10 @@
         }
 
         if (authorEl && workId) {
+            authorEl.textContent = "Author information coming soon";
             const authorsUrl = new URL(`${SUPABASE_URL}/rest/v1/work_authors`);
             authorsUrl.searchParams.set("work_id", `eq.${workId}`);
-            authorsUrl.searchParams.set("select", "order_index, role, authors(name)");
-            authorsUrl.searchParams.set("order", "order_index.asc");
-
+            authorsUrl.searchParams.set("select", "authors(name)");
             const aRes = await fetch(authorsUrl.toString(), {
                 headers: {
                     apikey: SUPABASE_ANON_KEY,
@@ -244,18 +243,14 @@
 
             if (aRes.ok) {
                 const aData = await aRes.json();
+                console.log("Authors data:", aData);
+
                 const names = aData
-                    .filter(row => !row.role || row.role === "author")
                     .map(row => row.authors && row.authors.name)
                     .filter(Boolean);
 
-                authorEl.textContent = names.length
-                    ? names.join(", ")
-                    : "Author information coming soon";
-            } else {
-                console.error("Failed to load authors", aRes.status);
-                authorEl.textContent = "Author information coming soon";
-            }
+                if (names.length) {authorEl.textContent = names.join(", ");}
+            } else {console.error("Failed to load authors", aRes.status);}
         }
 
         const genreContainer = document.getElementById("genre-list");
