@@ -394,9 +394,8 @@ async def get_shelves(
     counts_by_id: Dict[str, int] = {}
     if shelf_ids:
         si_params = {
-            "select": "shelf_id,count:work_id(count)",
+            "select": "shelf_id,book_count:count()",
             "shelf_id": f"in.({','.join(shelf_ids)})",
-            "group": "shelf_id",
         }
         si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
 
@@ -405,20 +404,21 @@ async def get_shelves(
             with urllib.request.urlopen(si_req, timeout=10) as si_resp:
                 si_body = si_resp.read().decode("utf-8")
             si_rows = json.loads(si_body)
-            
-            for row in si_rows:
-                sid = row.get("shelf_id")
-                
-                if sid is None:
-                    continue
-                counts_by_id[str(sid)] = row.get("count") or 0
         
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", errors="ignore")
             print("[home.shelves] shelf_items HTTPError", e.code, body)
-
+            si_rows = []
+        
         except Exception as e:
             print("[home.shelves] shelf_items error:", repr(e))
+            si_rows = []
+
+        for row in si_rows:
+            sid = row.get("shelf_id")
+            if sid is None:
+                continue
+            counts_by_id[str(sid)] = row.get("book_count") or 0
 
     result = []
     for row in shelf_rows:
@@ -426,6 +426,7 @@ async def get_shelves(
         if sid is None:
             continue
         sid_str = str(sid)
+        
         result.append(
             {
                 "shelf_id": sid,
