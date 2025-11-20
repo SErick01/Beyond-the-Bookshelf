@@ -117,12 +117,17 @@
                         </div>
                     </div>
                     
-                    <div class="relative">
-                        <button class="bg-primary-orange text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-primary-orange/90 transition-colors flex items-center space-x-2">
+                    <div class="relative js-add-to-list">
+                        <button type="button" id="add-to-list-button"
+                                class="bg-primary-orange text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-orange/90 transition-colors flex items-center space-x-2">
                             <span>Add to List</span>
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
+                        <div id="add-to-list-menu"
+                            class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 py-1 text-sm text-gray-800 hidden z-20">
+                        </div>
                     </div>
+
                 </div>
                 
                 <p class="text-gray-800 mb-4 leading-relaxed js-book-description">
@@ -159,6 +164,37 @@
         const params = new URLSearchParams(window.location.search);
         const editionId = params.get("edition_id");
         const workIdParam = params.get("work_id");
+        const CURRENT_USER_ID = localStorage.getItem("current_user_id");
+
+        async function addBookToShelf(shelfId) {
+            if (!editionId) {
+                console.error("No edition id for shelf item");
+                return;
+            }
+
+            const insertUrl = `${SUPABASE_URL}/rest/v1/shelf_items`;
+            const payload = {
+                shelf_id: shelfId,
+                edition_id: editionId,
+            };
+
+            const resp = await fetch(insertUrl, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                console.error("Failed to add to shelf", resp.status, text);
+                throw new Error("Failed to add to shelf");
+            }
+        }
 
         if (!editionId && !workIdParam) {
             console.error("No edition_id or work_id in URL");
@@ -251,6 +287,78 @@
 
                 if (names.length) {authorEl.textContent = names.join(", ");}
             } else {console.error("Failed to load authors", aRes.status);}
+        }
+
+        const addButton = document.getElementById("add-to-list-button");
+        const menu = document.getElementById("add-to-list-menu");
+
+        if (addButton && menu) {
+            addButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                menu.classList.toggle("hidden");
+            });
+
+            document.addEventListener("click", () => {
+                menu.classList.add("hidden");
+            });
+
+            if (!CURRENT_USER_ID) {
+                addButton.disabled = true;
+                addButton.classList.add("opacity-50", "cursor-not-allowed");
+                addButton.title = "Log in to add this book to a list";
+            } else {
+                const shelvesUrl = new URL(`${SUPABASE_URL}/rest/v1/shelves`);
+                shelvesUrl.searchParams.set("user_id", `eq.${CURRENT_USER_ID}`);
+                shelvesUrl.searchParams.set("select", "shelf_id,name");
+                shelvesUrl.searchParams.set("order", "name.asc");
+
+                const sRes = await fetch(shelvesUrl.toString(), {
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+
+                if (sRes.ok) {
+                    const shelves = await sRes.json();
+                    menu.innerHTML = "";
+
+                    if (!shelves.length) {
+                        const empty = document.createElement("div");
+                        empty.className = "px-4 py-2 text-gray-500";
+                        empty.textContent = "No lists yet.";
+                        menu.appendChild(empty);
+                    } else {
+
+                        for (const shelf of shelves) {
+                            const itemBtn = document.createElement("button");
+                            itemBtn.type = "button";
+                            itemBtn.dataset.shelfId = shelf.shelf_id;
+                            itemBtn.className =
+                                "block w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-background-light";
+                            itemBtn.textContent = shelf.name;
+                            menu.appendChild(itemBtn);
+                        }
+
+                        menu.addEventListener("click", async (event) => {
+                            const item = event.target.closest("button[data-shelf-id]");
+                            if (!item) return;
+
+                            const shelfId = item.dataset.shelfId;
+                            try {
+                                await addBookToShelf(shelfId);
+                                menu.classList.add("hidden");
+                                console.log(`Added to list: ${item.textContent}`);
+                            } catch (err) {
+                                console.error(err);
+                                alert("Sorry, could not add to that list.");
+                            }
+                        });
+                    }
+                } else {
+                    console.error("Failed to load shelves", sRes.status);
+                }
+            }
         }
 
         const genreContainer = document.getElementById("genre-list");
