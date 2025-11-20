@@ -241,6 +241,7 @@
       }
       return PLACEHOLDER_COVER;
     }
+
     const fabButton      = document.getElementById('new-list-btn');
     const modal          = document.getElementById('list-modal');
     const closeModalBtn  = document.getElementById('close-modal-btn');
@@ -248,6 +249,9 @@
     const listNameInput  = document.getElementById('list-name-input');
     const shelvesGrid    = document.getElementById('shelves-grid');
     const newListSection = document.getElementById('new-list-section');
+
+    let readingShelfId = null;
+    let completedShelfId = null;
 
     if (!shelvesGrid || !newListSection) return;
 
@@ -309,15 +313,17 @@
         const readingCount   = data.reading_count   ?? 0;
         const completedCount = data.completed_count ?? 0;
         const completedCard = renderShelfCard({
-          name: 'All completed books',
-          book_count: completedCount,
-          cover_url: data.completed_cover_url,
+            shelf_id: completedShelfId,
+            name: 'All completed books',
+            book_count: completedCount,
+            cover_url: data.completed_cover_url,
         });
         shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
         const readingCard = renderShelfCard({
-          name: 'All current reads',
-          book_count: readingCount,
-          cover_url: data.reading_cover_url,
+            shelf_id: readingShelfId,
+            name: 'All current reads',
+            book_count: readingCount,
+            cover_url: data.reading_cover_url,
         });
         shelvesGrid.insertBefore(readingCard, shelvesGrid.firstChild);
 
@@ -347,8 +353,14 @@
         }
 
         shelves.forEach((shelf) => {
-          const card = renderShelfCard(shelf);
-          shelvesGrid.insertBefore(card, newListSection);
+            const card = renderShelfCard(shelf);
+            shelvesGrid.insertBefore(card, newListSection);
+
+            if (shelf.is_default && shelf.name === 'reading') {
+                readingShelfId = shelf.shelf_id ?? shelf.id;}
+            
+            if (shelf.is_default && shelf.name === 'read') {
+                completedShelfId = shelf.shelf_id ?? shelf.id;}
         });
 
         if (!shelves.length) {
@@ -417,8 +429,7 @@
         alert('Something went wrong creating the list.');
       }
     });
-    loadSummary();
-    loadShelves();
+    loadShelves().then(loadSummary);
   });
 </script>
 </body>
