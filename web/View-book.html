@@ -165,18 +165,41 @@
         const params = new URLSearchParams(window.location.search);
         const editionId = params.get("edition_id");
         const workIdParam = params.get("work_id");
-        const CURRENT_USER_ID = localStorage.getItem("current_user_id");
+        const API_BASE = "https://beyond-the-bookshelf.onrender.com";
+        const token = localStorage.getItem("btb_token");
+
+        async function fetchCurrentUserId() {
+            if (!token) return null;
+            try {
+                const res = await fetch(`${API_BASE}/api/users/me`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    mode: "cors",
+                });
+
+                if (!res.ok) {
+                    console.warn("fetchCurrentUserId: /me", res.status);
+                    return null;
+                }
+                const me = await res.json();
+                console.log("Current user from /me:", me);
+                return me.user_id || me.id || null;
+
+            } catch (err) {
+                console.error("fetchCurrentUserId failed", err);
+                return null;
+            }
+        }
+        const CURRENT_USER_ID = await fetchCurrentUserId();
         const loginNavLink = document.querySelector('a.nav-link[href="index.html"]');
         const dropdownLogoutLink = document.querySelector('#dropdown-menu a[href="#"]');
 
         function handleLogout(event) {
             if (event) event.preventDefault();
-            localStorage.removeItem("current_user_id");
+            localStorage.removeItem("btb_token");
             window.location.href = "index.html";
         }
 
         if (CURRENT_USER_ID) {
-
             if (loginNavLink) {
                 loginNavLink.textContent = "LOGOUT";
                 loginNavLink.href = "#";
@@ -188,13 +211,12 @@
             }
 
         } else {
-
             if (loginNavLink) {
                 loginNavLink.textContent = "LOGIN";
                 loginNavLink.href = "index.html";
             }
         }
-        
+
         async function addBookToShelf(shelfId) {
             if (!editionId) {
                 console.error("No edition id for shelf item");
