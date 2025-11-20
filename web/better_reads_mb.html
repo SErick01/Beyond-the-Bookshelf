@@ -226,6 +226,21 @@
   document.addEventListener('DOMContentLoaded', () => {
     const apiBase = 'https://beyond-the-bookshelf.onrender.com';
     const token   = localStorage.getItem('btb_token');
+    const COVER_BASE = 'https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/';
+    const PLACEHOLDER_COVER = COVER_BASE + 'cover/placeholder.jpg';
+
+    function buildCoverUrl(relativeUrl) {
+      if (!relativeUrl) return PLACEHOLDER_COVER;
+      if (typeof relativeUrl !== 'string') return PLACEHOLDER_COVER;
+
+      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+        return relativeUrl;
+      }
+      if (relativeUrl.startsWith('cover/')) {
+        return COVER_BASE + relativeUrl;
+      }
+      return PLACEHOLDER_COVER;
+    }
     const fabButton      = document.getElementById('new-list-btn');
     const modal          = document.getElementById('list-modal');
     const closeModalBtn  = document.getElementById('close-modal-btn');
@@ -233,19 +248,6 @@
     const listNameInput  = document.getElementById('list-name-input');
     const shelvesGrid    = document.getElementById('shelves-grid');
     const newListSection = document.getElementById('new-list-section');
-    const COVER_BASE = 'https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/';
-    const PLACEHOLDER_COVER = COVER_BASE + 'cover/placeholder.jpg';
-
-    function buildCoverUrl(relativeUrl) {
-        if (!relativeUrl) return PLACEHOLDER_COVER;
-        
-        if (typeof relativeUrl !== 'string') return PLACEHOLDER_COVER;
-        
-        if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
-            return relativeUrl;
-        }
-        return COVER_BASE + relativeUrl;
-    }
 
     if (!shelvesGrid || !newListSection) return;
 
@@ -259,71 +261,75 @@
     };
 
     function renderShelfCard(shelf) {
-        const section = document.createElement('section');
-        section.className = 'bg-[#E5C09E]';
-        const shelfId   = shelf.shelf_id ?? shelf.id;
-        const name      = shelf.name ?? 'Unnamed list';
-        const count     = shelf.book_count ?? 0;
-        const countWord = count === 1 ? 'book' : 'books';
-        const coverSrc  = buildCoverUrl(shelf.cover_url);
-        const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
-        const linkClose = shelfId ? '</a>' : '';
+      const section = document.createElement('section');
+      section.className = 'bg-[#E5C09E]';
 
-        section.innerHTML = `
-            ${linkOpen}
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-                    <img
-                        src="${coverSrc}"
-                        alt="List cover"
-                        class="w-24 h-auto"
-                    >
-                    <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
-                        <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
-                        <span class="text-sm font-medium text-gray-500 block mb-4">
-                            <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
-                        </span>
-                    </div>
-                </div>
-            ${linkClose}
-        `;
-        return section;
+      const shelfId   = shelf.shelf_id ?? shelf.id;
+      const name      = shelf.name ?? 'Unnamed list';
+      const count     = shelf.book_count ?? 0;
+      const countWord = count === 1 ? 'book' : 'books';
+      const coverSrc  = buildCoverUrl(shelf.cover_url);
+      const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
+      const linkClose = shelfId ? '</a>' : '';
+
+      section.innerHTML = `
+        ${linkOpen}
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <img
+              src="${coverSrc}"
+              alt="List cover"
+              class="w-24 h-auto"
+            >
+            <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
+              <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
+              <span class="text-sm font-medium text-gray-500 block mb-4">
+                <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
+              </span>
+            </div>
+          </div>
+        ${linkClose}
+      `;
+      return section;
     }
 
     async function loadSummary() {
-        if (!token) return;
-        try {
-            const res = await fetch(`${apiBase}/api/home/list_summary`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-                mode: 'cors',
-            });
+      if (!token) return;
 
-            if (!res.ok) {
-                console.error('Failed to load list summary', await res.text());
-                return;
-            }
-            const data = await res.json();
-            const readingCount   = data.reading_count   ?? 0;
-            const completedCount = data.completed_count ?? 0;
+      try {
+        const res = await fetch(`${apiBase}/api/home/list_summary`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          mode: 'cors',
+        });
 
-            const completedCard = renderShelfCard({
-                name: 'All completed books',
-                book_count: completedCount,
-                cover_url: data.completed_cover_url,
-            });
-            shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
+        if (!res.ok) {
+          console.error('Failed to load list summary', await res.text());
+          return;
+        }
 
-            const readingCard = renderShelfCard({
-                name: 'All current reads',
-                book_count: readingCount,
-                cover_url: data.reading_cover_url,
-            });
-            shelvesGrid.insertBefore(readingCard, shelvesGrid.firstChild);
+        const data = await res.json();
+        const readingCount   = data.reading_count   ?? 0;
+        const completedCount = data.completed_count ?? 0;
+        const completedCard = renderShelfCard({
+          name: 'All completed books',
+          book_count: completedCount,
+          cover_url: data.completed_cover_url,
+        });
+        shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
+        const readingCard = renderShelfCard({
+          name: 'All current reads',
+          book_count: readingCount,
+          cover_url: data.reading_cover_url,
+        });
+        shelvesGrid.insertBefore(readingCard, shelvesGrid.firstChild);
 
-        } catch (err) {console.error('Error loading list summary', err);}
+      } catch (err) {
+        console.error('Error loading list summary', err);
+      }
     }
 
     async function loadShelves() {
       if (!token) return;
+
       try {
         const res = await fetch(`${apiBase}/api/home/shelves`, {
           headers: { 'Authorization': `Bearer ${token}` },
@@ -359,18 +365,23 @@
     }
 
     fabButton.addEventListener('click', () => toggleModal(true));
-    closeModalBtn.addEventListener('click', () => toggleModal(false));
+    closeModalBtn.addEventListener('click', () => {toggleModal(false);});
+
     modal.addEventListener('click', (event) => {
-      if (event.target === modal) toggleModal(false);
+      if (event.target === modal) {
+        toggleModal(false);
+      }
     });
 
     createListBtn.addEventListener('click', async () => {
       const listName = listNameInput.value.trim();
+
       if (!listName) {
         alert('Please enter a name for your new list.');
         listNameInput.focus();
         return;
       }
+
       if (!token) {
         window.location.href = 'index.html';
         return;
@@ -390,11 +401,13 @@
             is_default: false,
           }),
         });
+
         if (!res.ok) {
           console.error('Failed to create shelf', await res.text());
           alert('Something went wrong creating the list.');
           return;
         }
+
         const newShelf = await res.json();
         const card = renderShelfCard(newShelf);
         shelvesGrid.insertBefore(card, newListSection);
