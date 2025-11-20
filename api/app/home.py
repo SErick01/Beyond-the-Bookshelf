@@ -498,6 +498,44 @@ async def create_shelf(
         print("[home.shelves] create error:", repr(e))
         raise HTTPException(status_code=500, detail="Failed to create shelf")
 
+def count_user_rows(table: str, user_id: str, headers: Dict[str, str]) -> int:
+    params = {
+        "select": "work_id",
+        "user_id": f"eq.{user_id}",
+        "limit": "10000",
+    }
+    url = f"{SUPABASE_URL}/rest/v1/{table}?{urllib.parse.urlencode(params)}"
+
+    try:
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+        rows = json.loads(body)
+        return len(rows)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print(f"[home.list_summary] HTTPError for {table}", e.code, body)
+        return 0
+    
+    except Exception as e:
+        print(f"[home.list_summary] error for {table}:", repr(e))
+        return 0
+
+@router.get("/list_summary")
+async def list_summary(user: dict = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+    reading_count = count_user_rows("reading_progress", user["id"], headers)
+    completed_count = count_user_rows("completions", user["id"], headers)
+
+    return {
+        "reading_count": reading_count,
+        "completed_count": completed_count,
+    }
+
 class ProgressUpdate(BaseModel):
     work_id: str
     current_page: int
