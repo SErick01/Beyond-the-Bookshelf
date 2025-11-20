@@ -355,11 +355,12 @@
         shelves.forEach((shelf) => {
             const card = renderShelfCard(shelf);
             shelvesGrid.insertBefore(card, newListSection);
+            const nameLower = (shelf.name || '').toLowerCase();
 
-            if (shelf.is_default && shelf.name === 'reading') {
+            if (nameLower === 'reading') {
                 readingShelfId = shelf.shelf_id ?? shelf.id;}
-            
-            if (shelf.is_default && shelf.name === 'read') {
+
+            if (nameLower === 'read') {
                 completedShelfId = shelf.shelf_id ?? shelf.id;}
         });
 
