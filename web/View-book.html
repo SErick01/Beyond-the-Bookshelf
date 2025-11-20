@@ -352,11 +352,15 @@
             document.addEventListener("click", () => {
                 menu.classList.add("hidden");
             });
+            console.log("CURRENT_USER_ID in view-book:", CURRENT_USER_ID);
 
             if (!CURRENT_USER_ID) {
-                addButton.disabled = true;
-                addButton.classList.add("opacity-50", "cursor-not-allowed");
-                addButton.title = "Log in to add this book to a list";
+                menu.innerHTML = "";
+                const msg = document.createElement("div");
+                msg.className = "px-4 py-2 text-gray-500";
+                msg.textContent = "Log in to add this book to a list.";
+                menu.appendChild(msg);
+
             } else {
                 const shelvesUrl = new URL(`${SUPABASE_URL}/rest/v1/shelves`);
                 shelvesUrl.searchParams.set("user_id", `eq.${CURRENT_USER_ID}`);
@@ -372,6 +376,7 @@
 
                 if (sRes.ok) {
                     const shelves = await sRes.json();
+                    console.log("Shelves data:", shelves);
                     menu.innerHTML = "";
 
                     if (!shelves.length) {
@@ -379,8 +384,8 @@
                         empty.className = "px-4 py-2 text-gray-500";
                         empty.textContent = "No lists yet.";
                         menu.appendChild(empty);
-                    } else {
 
+                    } else {
                         for (const shelf of shelves) {
                             const itemBtn = document.createElement("button");
                             itemBtn.type = "button";
@@ -400,6 +405,7 @@
                                 await addBookToShelf(shelfId);
                                 menu.classList.add("hidden");
                                 console.log(`Added to list: ${item.textContent}`);
+
                             } catch (err) {
                                 console.error(err);
                                 alert("Sorry, could not add to that list.");
