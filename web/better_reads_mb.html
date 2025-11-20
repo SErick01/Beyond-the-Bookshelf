@@ -239,7 +239,6 @@
     const toggleModal = (show) => {
       if (show) {
         modal.classList.remove('hidden');
-
       } else {
         modal.classList.add('hidden');
         listNameInput.value = '';
@@ -276,9 +275,40 @@
       return section;
     }
 
+    async function loadSummary() {
+      if (!token) return;
+      try {
+        const res = await fetch(`${apiBase}/api/home/list_summary`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          mode: 'cors',
+        });
+
+        if (!res.ok) {
+          console.error('Failed to load list summary', await res.text());
+          return;
+        }
+        const data = await res.json();
+        const readingCount   = data.reading_count   ?? 0;
+        const completedCount = data.completed_count ?? 0;
+
+        const completedCard = renderShelfCard({
+          name: 'All completed books',
+          book_count: completedCount,
+        });
+        shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
+
+        const readingCard = renderShelfCard({
+          name: 'All current reads',
+          book_count: readingCount,
+        });
+        shelvesGrid.insertBefore(readingCard, shelvesGrid.firstChild);
+      } catch (err) {
+        console.error('Error loading list summary', err);
+      }
+    }
+
     async function loadShelves() {
       if (!token) return;
-
       try {
         const res = await fetch(`${apiBase}/api/home/shelves`, {
           headers: { 'Authorization': `Bearer ${token}` },
@@ -289,7 +319,13 @@
           console.error('Failed to load shelves', await res.text());
           return;
         }
+
         const shelves = await res.json();
+        if (!Array.isArray(shelves)) {
+          console.error('Shelves response was not an array', shelves);
+          return;
+        }
+
         shelves.forEach((shelf) => {
           const card = renderShelfCard(shelf);
           shelvesGrid.insertBefore(card, newListSection);
@@ -301,7 +337,10 @@
           msg.textContent = 'No lists yet — use "New List" to create one.';
           shelvesGrid.insertBefore(msg, newListSection);
         }
-      } catch (err) {console.error('Error loading shelves', err);}
+
+      } catch (err) {
+        console.error('Error loading shelves', err);
+      }
     }
 
     fabButton.addEventListener('click', () => toggleModal(true));
@@ -317,7 +356,6 @@
         listNameInput.focus();
         return;
       }
-
       if (!token) {
         window.location.href = 'index.html';
         return;
@@ -337,7 +375,6 @@
             is_default: false,
           }),
         });
-
         if (!res.ok) {
           console.error('Failed to create shelf', await res.text());
           alert('Something went wrong creating the list.');
@@ -353,6 +390,7 @@
         alert('Something went wrong creating the list.');
       }
     });
+    loadSummary();
     loadShelves();
   });
 </script>
