@@ -433,5 +433,44 @@
     loadShelves().then(loadSummary);
   });
 </script>
+<script>
+  function wireSummaryCardLink(titleText, href) {
+    const headings = Array.from(document.querySelectorAll('main h2'));
+    const heading = headings.find(h => h.textContent.trim() === titleText);
+    if (!heading) return;
+
+    const section = heading.closest('section');
+    if (!section) return;
+
+    if (section.querySelector('a[href*="view-lists"]')) return;
+
+    const wrapper = document.createElement('a');
+    wrapper.href = href;
+    wrapper.className = 'block';
+
+    while (section.firstChild) {
+      wrapper.appendChild(section.firstChild);
+    }
+    section.appendChild(wrapper);
+  }
+
+  function setupSummaryLinks() {
+    const templateLink = document.querySelector('main a[href*="view-lists"]');
+    const href = templateLink ? templateLink.getAttribute('href') : 'view-lists.html';
+
+    wireSummaryCardLink('All current reads', href);
+    wireSummaryCardLink('All completed books', href);
+  }
+
+  window.addEventListener('load', () => {
+    setupSummaryLinks();
+    let tries = 0;
+    const timer = setInterval(() => {
+      setupSummaryLinks();
+      tries += 1;
+      if (tries > 10) clearInterval(timer);
+    }, 500);
+  });
+</script>
 </body>
 </html>
