@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Reads-Profile</title>
-     <script src = "https://cdn.tailwindcss.com"></script>
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src = "https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src = "https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script>
     <style>
         section, .calendar-box, .cat-of-the-day-card {
             padding: 1.25rem; /* p-5 */
@@ -205,6 +206,12 @@
         >
         </div>
     </section>
+</div>
+
+<!-- Graphs -->
+<div class = genre-chart-container>
+    <div class = genre-chart></div>    
+</div>
   
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
@@ -444,5 +451,21 @@
     }
   })();
 </script>
+<script>
+    var data_genres = [{
+        values: [0], //Needs to be db data,
+        labels: ['insert names'], //needs to be the genre labels
+        colorscale: 'YlGnBu',
+        type: 'pie'
+    }];
+
+    var layout_genres = {
+        height: 400,
+        width: 500
+    };
+    Plotly.newPlot('genre-chart', data_genres,layout_genres)
+</script>
 </body>
+
 </html>
+
