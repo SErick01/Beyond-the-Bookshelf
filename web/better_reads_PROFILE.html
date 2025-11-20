@@ -205,6 +205,12 @@
         >
         </div>
     </section>
+</div>
+
+<!-- Graphs -->
+<div class = genre-chart-container>
+    <div class = genre-chart></div>    
+</div>
   
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
@@ -444,5 +450,20 @@
     }
   })();
 </script>
+<script>
+    var data_genres = [{
+        values: [0], //Needs to be db data,
+        labels: ['insert names'], //needs to be the genre labels
+        colorscale: 'YlGnBu',
+        type: 'pie'
+    }];
+
+    var layout_genres = {
+        height: 400,
+        width: 500
+    };
+    Plotly.newPlot('genre-chart', data_genres,layout_genres)
+</script>
 </body>
+
 </html>
