@@ -394,8 +394,9 @@ async def get_shelves(
     counts_by_id: Dict[str, int] = {}
     if shelf_ids:
         si_params = {
-            "select": "shelf_id,book_count:count()",
+            "select": "shelf_id",
             "shelf_id": f"in.({','.join(shelf_ids)})",
+            "limit": "10000",
         }
         si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
 
@@ -404,21 +405,23 @@ async def get_shelves(
             with urllib.request.urlopen(si_req, timeout=10) as si_resp:
                 si_body = si_resp.read().decode("utf-8")
             si_rows = json.loads(si_body)
-        
+
         except urllib.error.HTTPError as e:
             body = e.read().decode("utf-8", errors="ignore")
             print("[home.shelves] shelf_items HTTPError", e.code, body)
             si_rows = []
-        
+
         except Exception as e:
             print("[home.shelves] shelf_items error:", repr(e))
+            print("[home.shelves] falling back to zero counts")
             si_rows = []
 
         for row in si_rows:
             sid = row.get("shelf_id")
             if sid is None:
                 continue
-            counts_by_id[str(sid)] = row.get("book_count") or 0
+            sid_str = str(sid)
+            counts_by_id[sid_str] = counts_by_id.get(sid_str, 0) + 1
 
     result = []
     for row in shelf_rows:
