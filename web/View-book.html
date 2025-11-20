@@ -255,7 +255,6 @@
             }
         }
 
-
         async function addToCurrentReads() {
             if (!CURRENT_USER_ID) {
                 alert("Please log in first.");
@@ -276,7 +275,10 @@
                     },
                 });
                 if (!delResp.ok) {
-                    console.warn("Failed to clear completions for work", delResp.status);
+                    const text = await delResp.text();
+                    console.warn("Failed to clear completions for work", delResp.status, text);
+                } else {
+                    console.log("Cleared completions row for work", workId);
                 }
             } catch (err) {
                 console.error("Error clearing completions", err);
@@ -329,7 +331,10 @@
                     },
                 });
                 if (!delResp.ok) {
-                    console.warn("Failed to clear reading_progress for work", delResp.status);
+                    const text = await delResp.text();
+                    console.warn("Failed to clear reading_progress for work", delResp.status, text);
+                } else {
+                    console.log("Cleared reading_progress row for work", workId);
                 }
             } catch (err) {
                 console.error("Error clearing reading_progress", err);
