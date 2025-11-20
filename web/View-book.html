@@ -195,7 +195,6 @@
         const work = book.works || {};
         const workId = book.work_id || workIdParam;
         const title = work.title || book.title || "Unknown title";
-        const author = work.author || book.author || "Author information coming soon";
         const description = work.summary || "Description coming soon";
 
         let coverSrc = PLACEHOLDER;
@@ -223,14 +222,42 @@
             document.title = `Better Reads - ${title}`;
         }
 
-        if (authorEl) {authorEl.textContent = author;}
-
         if (descEls.length) {
             descEls[0].textContent = description;
             for (let i = 1; i < descEls.length; i++) {
                 descEls[i].style.display = "none";
             }
         }
+
+        if (authorEl && workId) {
+            const authorsUrl = new URL(`${SUPABASE_URL}/rest/v1/work_authors`);
+            authorsUrl.searchParams.set("work_id", `eq.${workId}`);
+            authorsUrl.searchParams.set("select", "order_index, role, authors(name)");
+            authorsUrl.searchParams.set("order", "order_index.asc");
+
+            const aRes = await fetch(authorsUrl.toString(), {
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+            });
+
+            if (aRes.ok) {
+                const aData = await aRes.json();
+                const names = aData
+                    .filter(row => !row.role || row.role === "author")
+                    .map(row => row.authors && row.authors.name)
+                    .filter(Boolean);
+
+                authorEl.textContent = names.length
+                    ? names.join(", ")
+                    : "Author information coming soon";
+            } else {
+                console.error("Failed to load authors", aRes.status);
+                authorEl.textContent = "Author information coming soon";
+            }
+        }
+
         const genreContainer = document.getElementById("genre-list");
         if (!genreContainer || !workId) return;
 
