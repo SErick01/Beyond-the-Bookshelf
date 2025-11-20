@@ -222,10 +222,15 @@
                 console.error("No edition id for shelf item");
                 return;
             }
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
 
             const insertUrl = `${SUPABASE_URL}/rest/v1/shelf_items`;
             const payload = {
                 shelf_id: shelfId,
+                user_id: CURRENT_USER_ID,
                 edition_id: editionId,
             };
 
@@ -240,7 +245,7 @@
                 body: JSON.stringify(payload),
             });
 
-            if (!resp.ok) {
+            if (!resp.ok && resp.status !== 409) {
                 const text = await resp.text();
                 console.error("Failed to add to shelf", resp.status, text);
                 throw new Error("Failed to add to shelf");
@@ -288,7 +293,7 @@
                 alert("Please log in first.");
                 return;
             }
-            if (!editionId) {
+            if (!workId) {
                 console.error("No edition id for completions");
                 return;
             }
@@ -296,7 +301,7 @@
             const url = `${SUPABASE_URL}/rest/v1/completions`;
             const payload = {
                 user_id: CURRENT_USER_ID,
-                edition_id: editionId,
+                work_id: workIdParam || book.work_id,
             };
 
             const resp = await fetch(url, {
