@@ -266,6 +266,22 @@
                 return;
             }
 
+            try {
+                const delUrl = `${SUPABASE_URL}/rest/v1/completions?user_id=eq.${CURRENT_USER_ID}&work_id=eq.${workId}`;
+                const delResp = await fetch(delUrl, {
+                    method: "DELETE",
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+                if (!delResp.ok) {
+                    console.warn("Failed to clear completions for work", delResp.status);
+                }
+            } catch (err) {
+                console.error("Error clearing completions", err);
+            }
+
             const url = `${SUPABASE_URL}/rest/v1/reading_progress`;
             const payload = {
                 user_id: CURRENT_USER_ID,
@@ -301,6 +317,22 @@
             if (!workId) {
                 console.error("No work id for completions");
                 return;
+            }
+
+            try {
+                const delUrl = `${SUPABASE_URL}/rest/v1/reading_progress?user_id=eq.${CURRENT_USER_ID}&work_id=eq.${workId}`;
+                const delResp = await fetch(delUrl, {
+                    method: "DELETE",
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+                if (!delResp.ok) {
+                    console.warn("Failed to clear reading_progress for work", delResp.status);
+                }
+            } catch (err) {
+                console.error("Error clearing reading_progress", err);
             }
 
             const url = `${SUPABASE_URL}/rest/v1/completions`;
