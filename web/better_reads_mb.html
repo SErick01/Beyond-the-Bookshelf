@@ -226,19 +226,20 @@
   document.addEventListener('DOMContentLoaded', () => {
     const apiBase = 'https://beyond-the-bookshelf.onrender.com';
     const token   = localStorage.getItem('btb_token');
-    const fabButton       = document.getElementById('new-list-btn');
-    const modal           = document.getElementById('list-modal');
-    const closeModalBtn   = document.getElementById('close-modal-btn');
-    const createListBtn   = document.getElementById('create-list-btn');
-    const listNameInput   = document.getElementById('list-name-input');
-    const shelvesGrid     = document.getElementById('shelves-grid');
-    const newListSection  = document.getElementById('new-list-section');
+    const fabButton      = document.getElementById('new-list-btn');
+    const modal          = document.getElementById('list-modal');
+    const closeModalBtn  = document.getElementById('close-modal-btn');
+    const createListBtn  = document.getElementById('create-list-btn');
+    const listNameInput  = document.getElementById('list-name-input');
+    const shelvesGrid    = document.getElementById('shelves-grid');
+    const newListSection = document.getElementById('new-list-section');
 
     if (!shelvesGrid || !newListSection) return;
 
     const toggleModal = (show) => {
       if (show) {
         modal.classList.remove('hidden');
+
       } else {
         modal.classList.add('hidden');
         listNameInput.value = '';
@@ -248,10 +249,9 @@
     function renderShelfCard(shelf) {
       const section = document.createElement('section');
       section.className = 'bg-[#E5C09E]';
-
       const shelfId   = shelf.shelf_id ?? shelf.id;
       const name      = shelf.name ?? 'Unnamed list';
-      const count     = shelf.book_count ?? shelf.books_count ?? shelf.item_count ?? 0;
+      const count     = shelf.book_count ?? 0;
       const countWord = count === 1 ? 'book' : 'books';
       const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
       const linkClose = shelfId ? '</a>' : '';
@@ -277,55 +277,41 @@
     }
 
     async function loadShelves() {
-      if (!token) {return;}
+      if (!token) return;
+
       try {
-        const res = await fetch(`${apiBase}/api/shelves`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          mode: 'cors'
+        const res = await fetch(`${apiBase}/api/home/shelves`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          mode: 'cors',
         });
 
         if (!res.ok) {
           console.error('Failed to load shelves', await res.text());
           return;
         }
-        const data = await res.json();
-        const shelves = Array.isArray(data) ? data : (data.shelves || []);
-
+        const shelves = await res.json();
         shelves.forEach((shelf) => {
           const card = renderShelfCard(shelf);
           shelvesGrid.insertBefore(card, newListSection);
         });
 
-        if (shelves.length === 0) {
+        if (!shelves.length) {
           const msg = document.createElement('p');
           msg.className = 'text-gray-600 mb-4';
           msg.textContent = 'No lists yet — use "New List" to create one.';
           shelvesGrid.insertBefore(msg, newListSection);
         }
-
-        console.log('Loaded shelves:', shelves);
-      } catch (err) {
-        console.error('Error loading shelves', err);
-      }
+      } catch (err) {console.error('Error loading shelves', err);}
     }
-    fabButton.addEventListener('click', () => {
-      toggleModal(true);
-    });
 
-    closeModalBtn.addEventListener('click', () => {
-      toggleModal(false);
-    });
-
+    fabButton.addEventListener('click', () => toggleModal(true));
+    closeModalBtn.addEventListener('click', () => toggleModal(false));
     modal.addEventListener('click', (event) => {
-      if (event.target === modal) {
-        toggleModal(false);
-      }
+      if (event.target === modal) toggleModal(false);
     });
+
     createListBtn.addEventListener('click', async () => {
       const listName = listNameInput.value.trim();
-
       if (!listName) {
         alert('Please enter a name for your new list.');
         listNameInput.focus();
@@ -338,18 +324,18 @@
       }
 
       try {
-        const res = await fetch(`${apiBase}/api/shelves`, {
+        const res = await fetch(`${apiBase}/api/home/shelves`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
           mode: 'cors',
           body: JSON.stringify({
             name: listName,
             visibility: 'private',
-            is_default: false
-          })
+            is_default: false,
+          }),
         });
 
         if (!res.ok) {
@@ -360,8 +346,8 @@
         const newShelf = await res.json();
         const card = renderShelfCard(newShelf);
         shelvesGrid.insertBefore(card, newListSection);
-
         toggleModal(false);
+
       } catch (err) {
         console.error('Error creating shelf', err);
         alert('Something went wrong creating the list.');

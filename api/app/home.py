@@ -31,6 +31,11 @@ class CurrentRead(BaseModel):
     page_count: int | None = None
     progress_percent: float = 0.0
 
+class ShelfCreate(BaseModel):
+    name: str
+    visibility: str = "private"
+    is_default: bool = False
+
 def compute_progress_percent(current_page: int, page_count: Optional[int]) -> float:
     if not page_count or page_count <= 0:
         return 0.0
@@ -341,6 +346,153 @@ async def get_current_reads(
     if not current_reads:
         return _stub_current_reads(limit)
     return current_reads
+
+@router.get("/shelves")
+async def get_shelves(
+    limit: int = Query(100, ge=1, le=200),
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+    params = {
+        "select": "shelf_id,name,is_default,visibility",
+        "user_id": f"eq.{user['id']}",
+        "order": "is_default.desc,name.asc",
+        "limit": str(limit),
+    }
+    url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(params)}"
+
+    try:
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+        shelf_rows = json.loads(body)
+    
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelves] shelves HTTPError", e.code, error_body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading shelves ({e.code}): {error_body}",
+        )
+    
+    except Exception as e:
+        print("[home.shelves] shelves error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load shelves")
+
+    if not shelf_rows:
+        return []
+
+    shelf_ids = [
+        str(row["shelf_id"])
+        for row in shelf_rows
+        if row.get("shelf_id") is not None
+    ]
+
+    counts_by_id: Dict[str, int] = {}
+    if shelf_ids:
+        si_params = {
+            "select": "shelf_id,count:work_id(count)",
+            "shelf_id": f"in.({','.join(shelf_ids)})",
+            "group": "shelf_id",
+        }
+        si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
+
+        try:
+            si_req = urllib.request.Request(si_url, headers=headers, method="GET")
+            with urllib.request.urlopen(si_req, timeout=10) as si_resp:
+                si_body = si_resp.read().decode("utf-8")
+            si_rows = json.loads(si_body)
+            
+            for row in si_rows:
+                sid = row.get("shelf_id")
+                
+                if sid is None:
+                    continue
+                counts_by_id[str(sid)] = row.get("count") or 0
+        
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="ignore")
+            print("[home.shelves] shelf_items HTTPError", e.code, body)
+
+        except Exception as e:
+            print("[home.shelves] shelf_items error:", repr(e))
+
+    result = []
+    for row in shelf_rows:
+        sid = row.get("shelf_id")
+        if sid is None:
+            continue
+        sid_str = str(sid)
+        result.append(
+            {
+                "shelf_id": sid,
+                "name": row.get("name"),
+                "visibility": row.get("visibility"),
+                "is_default": row.get("is_default", False),
+                "book_count": counts_by_id.get(sid_str, 0),
+            }
+        )
+    return result
+
+@router.post("/shelves")
+async def create_shelf(
+    payload: ShelfCreate,
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    name = (payload.name or "").strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="name is required")
+
+    headers = supabase_headers()
+    headers["Prefer"] = "return=representation"
+    supabase_row = {
+        "user_id": user["id"],
+        "name": name,
+        "visibility": payload.visibility,
+        "is_default": payload.is_default,
+    }
+    url = f"{SUPABASE_URL}/rest/v1/shelves"
+    data = json.dumps(supabase_row).encode("utf-8")
+
+    try:
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+        rows = json.loads(body)
+        row = rows[0] if isinstance(rows, list) and rows else rows
+
+        return {
+            "shelf_id": row.get("shelf_id"),
+            "name": row.get("name"),
+            "visibility": row.get("visibility"),
+            "is_default": row.get("is_default", False),
+            "book_count": 0,
+        }
+
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelves] create HTTPError", e.code, error_body)
+        
+        if e.code == 409:
+            raise HTTPException(
+                status_code=400,
+                detail="You already have a list with that name.",
+            )
+        
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while creating shelf ({e.code}): {error_body}",
+        )
+    
+    except Exception as e:
+        print("[home.shelves] create error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to create shelf")
 
 class ProgressUpdate(BaseModel):
     work_id: str
