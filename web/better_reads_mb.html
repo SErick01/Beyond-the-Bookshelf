@@ -261,35 +261,34 @@
     };
 
     function renderShelfCard(shelf) {
-      const section = document.createElement('section');
-      section.className = 'bg-[#E5C09E]';
-
-      const shelfId   = shelf.shelf_id ?? shelf.id;
-      const name      = shelf.name ?? 'Unnamed list';
-      const count     = shelf.book_count ?? 0;
-      const countWord = count === 1 ? 'book' : 'books';
-      const coverSrc  = buildCoverUrl(shelf.cover_url);
-      const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
-      const linkClose = shelfId ? '</a>' : '';
-
-      section.innerHTML = `
-        ${linkOpen}
-          <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-            <img
-              src="${coverSrc}"
-              alt="List cover"
-              class="w-24 h-auto"
-            >
-            <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
-              <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
-              <span class="text-sm font-medium text-gray-500 block mb-4">
-                <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
-              </span>
+        const section = document.createElement('section');
+        section.className = 'bg-[#E5C09E]';
+        const shelfId   = shelf.shelf_id ?? shelf.id;
+        const name      = shelf.name ?? 'Unnamed list';
+        const count     = shelf.book_count ?? 0;
+        const countWord = count === 1 ? 'book' : 'books';
+        const coverSrc  = buildCoverUrl(shelf.cover_url);
+        const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
+        const linkClose = shelfId ? '</a>' : '';
+        section.innerHTML = `
+            ${linkOpen}
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+                <img
+                src="${coverSrc}"
+                alt="List cover"
+                class="w-24 h-auto"
+                onerror="this.onerror=null; this.src='${PLACEHOLDER_COVER}'"
+                >
+                <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
+                <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
+                <span class="text-sm font-medium text-gray-500 block mb-4">
+                    <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
+                </span>
+                </div>
             </div>
-          </div>
-        ${linkClose}
-      `;
-      return section;
+            ${linkClose}
+        `;
+        return section;
     }
 
     async function loadSummary() {
