@@ -471,43 +471,41 @@
   });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const searchForm  = document.getElementById('lists-search-form');
-        const searchInput = document.getElementById('lists-search-input');
+  (function () {
+    const searchForm  = document.getElementById('lists-search-form');
+    const searchInput = document.getElementById('lists-search-input');
 
-        if (!searchForm || !searchInput) return;
+    if (!searchForm || !searchInput) return;
+    function filterLists() {
+      const term = searchInput.value.trim().toLowerCase();
+      const sections = document.querySelectorAll('main section');
 
-        function filterLists() {
-            const term = searchInput.value.trim().toLowerCase();
-            const sections = document.querySelectorAll('main section.bg-[#E5C09E]');
-
-            sections.forEach((section) => {
-                if (section.querySelector('#new-list-btn')) {
-                    section.classList.remove('hidden');
-                    return;
-                }
-
-                const heading = section.querySelector('h2');
-                const title   = heading ? heading.textContent.toLowerCase() : '';
-                if (!term || title.includes(term)) {
-                    section.classList.remove('hidden');
-                } else {
-                    section.classList.add('hidden');
-                }
-            });
+      sections.forEach((section) => {
+        if (!section.classList.contains('bg-[#E5C09E]')) {
+          return;
+        }
+e
+        if (section.querySelector('#new-list-btn')) {
+          section.classList.remove('hidden');
+          return;
         }
 
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            filterLists();
-        });
-
-        searchInput.addEventListener('input', () => {
-            filterLists();
-        });
-        });
-        window._betterReadsFilterLists = filterLists;
+        const heading = section.querySelector('h2');
+        const title   = heading ? heading.textContent.toLowerCase() : '';
+        if (!term || title.includes(term)) {
+          section.classList.remove('hidden');
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+    }
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      filterLists();
     });
+    searchInput.addEventListener('input', filterLists);
+    window._betterReadsFilterLists = filterLists;
+  })();
 </script>
 </body>
 </html>
