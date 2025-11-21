@@ -196,33 +196,30 @@
         </div>
     </section>
 
-<!-- Favorites -->
 <div class="lg:col-span-6 space-y-6">
-    <section class="bg-[#E5C09E]">
-        <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
-        <div
-        id="row-favorites"
-        class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E"
-        >
-        </div>
-    </section>
-</div>
+  <!-- Favorites -->
+  <section class="bg-[#E5C09E]">
+    <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
+    <div
+      id="row-favorites"
+      class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E"
+    >
+    </div>
+  </section>
 
-<!-- Graphs -->
-<section class="lg:col-span-3 space-y-4 bg-[#E5C09E] rounded-lg">
-  <h2 class="text-2xl font-bold mb-2">Reading Stats</h2>
-
-  <div class="space-y-4">
-    <div>
-      <h3 class="font-semibold mb-2">Pages read per month</h3>
+  <!-- Graphs -->
+  <section class="bg-[#E5C09E] rounded-lg">
+    <h2 class="text-2xl font-bold mb-2">Reading Stats</h2>
+    <p class="text-sm mb-3">Pages read per month</p>
+    <div class="flex justify-center">
       <img
         id="pages-chart-img"
-        alt="Pages read per month"
-        class="w-full rounded-lg shadow"
+        alt="No chart data available."
+        class="max-w-full rounded-lg shadow"
       />
     </div>
-  </div>
-</section>
+  </section>
+</div>
   
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
@@ -465,7 +462,9 @@
 <script>
   (async () => {
     const token = localStorage.getItem("btb_token");
-    if (!token) {return;}
+    if (!token) {
+      return;
+    }
 
     const apiBase = "https://beyond-the-bookshelf.onrender.com";
     const year = new Date().getFullYear();
@@ -474,22 +473,30 @@
       const img = document.getElementById(imgId);
       if (!img) return;
 
+      img.alt = "Loading chart...";
+
       try {
         const res = await fetch(`${apiBase}${endpointPath}`, {
           headers: { Authorization: `Bearer ${token}` },
           mode: "cors",
         });
 
+        if (res.status === 404) {
+          img.alt = `No chart data available for ${year} yet.`;
+          return;
+        }
+
         if (!res.ok) {
           console.warn("[Charts] API error", res.status);
-          img.alt = "No chart data available.";
+          img.alt = "Error loading chart.";
           return;
         }
 
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         img.src = url;
-        
+        img.alt = `Pages read per month in ${year}`;
+
       } catch (err) {
         console.error("[Charts] Fetch failed", err);
         img.alt = "Error loading chart.";

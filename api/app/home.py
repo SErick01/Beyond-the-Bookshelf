@@ -234,12 +234,14 @@ async def get_favorites(
 
 
 @router.get("/stats/{year}/pages")
-def get_pages_chart(year: int, user_id: str):
-    charts = create_yearly_charts(user_id=user_id, year=year)
+async def get_pages_chart(year: int, user: dict = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    charts = create_yearly_charts(user_id=user["id"], year=year)
 
     if not charts or "pages" not in charts:
         raise HTTPException(status_code=404, detail="No reading data for that year")
-
     return FileResponse(charts["pages"], media_type="image/png")
 
 
