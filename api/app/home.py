@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse
+from userMatplotlib import create_yearly_charts
 from pydantic import BaseModel
 from .security import get_current_user
 import os
@@ -231,6 +233,16 @@ async def get_favorites(
     return favorites[:limit]
 
 
+@router.get("/stats/{year}/pages")
+def get_pages_chart(year: int, user_id: str):
+    charts = create_yearly_charts(user_id=user_id, year=year)
+
+    if not charts or "pages" not in charts:
+        raise HTTPException(status_code=404, detail="No reading data for that year")
+
+    return FileResponse(charts["pages"], media_type="image/png")
+
+
 @router.get("/current-reads", response_model=List[CurrentRead])
 async def get_current_reads(
     limit: int = 2,
@@ -355,6 +367,7 @@ async def get_current_reads(
     if not current_reads:
         return _stub_current_reads(limit)
     return current_reads
+
 
 @router.get("/shelves")
 async def get_shelves(
@@ -506,6 +519,7 @@ async def get_shelves(
         )
     return result
 
+
 @router.post("/shelves")
 async def create_shelf(
     payload: ShelfCreate,
@@ -562,6 +576,7 @@ async def create_shelf(
     except Exception as e:
         print("[home.shelves] create error:", repr(e))
         raise HTTPException(status_code=500, detail="Failed to create shelf")
+
 
 def count_user_rows(table: str, user_id: str, headers: Dict[str, str]) -> int:
     params = {
@@ -660,6 +675,7 @@ def pick_cover_for_table(
 
     return None
 
+
 @router.get("/list_summary")
 async def list_summary(user: dict = Depends(get_current_user)):
     if not user:
@@ -682,11 +698,13 @@ async def list_summary(user: dict = Depends(get_current_user)):
         "completed_cover_url": completed_cover,
     }
 
+
 class ProgressUpdate(BaseModel):
     work_id: str
     current_page: int
     page_count: int
     progress_percent: Optional[float] = None
+
 
 @router.post("/progress")
 async def update_progress(

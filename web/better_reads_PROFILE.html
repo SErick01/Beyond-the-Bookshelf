@@ -209,9 +209,20 @@
 </div>
 
 <!-- Graphs -->
-<div class = genre-chart-container>
-    <div class = genre-chart></div>    
-</div>
+<section class="lg:col-span-3 space-y-4 bg-[#E5C09E] rounded-lg">
+  <h2 class="text-2xl font-bold mb-2">Reading Stats</h2>
+
+  <div class="space-y-4">
+    <div>
+      <h3 class="font-semibold mb-2">Pages read per month</h3>
+      <img
+        id="pages-chart-img"
+        alt="Pages read per month"
+        class="w-full rounded-lg shadow"
+      />
+    </div>
+  </div>
+</section>
   
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
@@ -452,19 +463,43 @@
   })();
 </script>
 <script>
-    var data_genres = [{
-        values: [0], //Needs to be db data,
-        labels: ['insert names'], //needs to be the genre labels
-        colorscale: 'YlGnBu',
-        type: 'pie'
-    }];
+  (async () => {
+    const token = localStorage.getItem("btb_token");
+    if (!token) {return;}
 
-    var layout_genres = {
-        height: 400,
-        width: 500
-    };
-    Plotly.newPlot('genre-chart', data_genres,layout_genres)
+    const apiBase = "https://beyond-the-bookshelf.onrender.com";
+    const year = new Date().getFullYear();
+
+    async function loadChart(endpointPath, imgId) {
+      const img = document.getElementById(imgId);
+      if (!img) return;
+
+      try {
+        const res = await fetch(`${apiBase}${endpointPath}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          mode: "cors",
+        });
+
+        if (!res.ok) {
+          console.warn("[Charts] API error", res.status);
+          img.alt = "No chart data available.";
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        img.src = url;
+        
+      } catch (err) {
+        console.error("[Charts] Fetch failed", err);
+        img.alt = "Error loading chart.";
+      }
+    }
+    await loadChart(`/api/home/stats/${year}/pages`, "pages-chart-img");
+  })();
 </script>
+</body>
+</html>
 </body>
 
 </html>
