@@ -196,8 +196,8 @@
         </div>
     </section>
 
+<!-- Favorites -->
 <div class="lg:col-span-6 space-y-6">
-  <!-- Favorites -->
   <section class="bg-[#E5C09E]">
     <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
     <div
@@ -207,20 +207,46 @@
     </div>
   </section>
 
-  <!-- Graphs -->
-  <section class="bg-[#E5C09E] rounded-lg">
-    <h2 class="text-2xl font-bold mb-2">Reading Stats</h2>
-    <p class="text-sm mb-3">Pages read per month</p>
-    <div class="flex justify-center">
-      <img
-        id="pages-chart-img"
-        alt="No chart data available."
-        class="max-w-full rounded-lg shadow"
-      />
+<!-- Graphs -->
+  <section class="bg-[#E5C09E] mt-6 p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-center">Reading Stats</h2>
+
+    <div class="space-y-6">
+
+      <!-- Bar: pages per month -->
+      <div>
+        <h3 class="font-semibold text-center mb-2">Pages read per month</h3>
+        <img
+          id="pages-chart"
+          alt="Error loading chart."
+          class="mx-auto max-w-full rounded shadow"
+        >
+      </div>
+
+      <!-- Pie: genres for the year -->
+      <div>
+        <h3 class="font-semibold text-center mb-2">Genres read this year</h3>
+        <img
+          id="genres-chart"
+          alt="Error loading chart."
+          class="mx-auto max-w-full rounded shadow"
+        >
+      </div>
+
+      <!-- Scatter: completion timeline -->
+      <div>
+        <h3 class="font-semibold text-center mb-2">Books finished throughout the year</h3>
+        <img
+          id="timeline-chart"
+          alt="Error loading chart."
+          class="mx-auto max-w-full rounded shadow"
+        >
+      </div>
+
     </div>
   </section>
 </div>
-  
+
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
             <div class="icons flex justify-between items-center mb-2">
@@ -462,47 +488,65 @@
 <script>
   (async () => {
     const token = localStorage.getItem("btb_token");
-    if (!token) {
-      return;
-    }
+    if (!token) {return;}
 
     const apiBase = "https://beyond-the-bookshelf.onrender.com";
     const year = new Date().getFullYear();
 
-    async function loadChart(endpointPath, imgId) {
-      const img = document.getElementById(imgId);
-      if (!img) return;
+    let userId;
+    try {
+      const meRes = await fetch(`${apiBase}/api/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        mode: "cors",
+      });
+      if (!meRes.ok) {
+        console.error("[Charts] /api/users/me failed", meRes.status);
+        return;
+      }
+      const me = await meRes.json();
+      userId = me.id;
 
-      img.alt = "Loading chart...";
+    } catch (err) {
+      console.error("[Charts] Failed to load current user", err);
+      return;
+    }
+
+    const charts = [
+      { elemId: "pages-chart",    path: `/api/stats/${year}/pages` },
+      { elemId: "genres-chart",   path: `/api/stats/${year}/genres` },
+      { elemId: "timeline-chart", path: `/api/stats/${year}/timeline` },
+    ];
+
+    for (const chart of charts) {
+      const img = document.getElementById(chart.elemId);
+      if (!img) continue;
+
+      img.alt = "Loading chart…";
 
       try {
-        const res = await fetch(`${apiBase}${endpointPath}`, {
-          headers: { Authorization: `Bearer ${token}` },
-          mode: "cors",
-        });
-
-        if (res.status === 404) {
-          img.alt = `No chart data available for ${year} yet.`;
-          return;
-        }
+        const res = await fetch(
+          `${apiBase}${chart.path}?user_id=${encodeURIComponent(userId)}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            mode: "cors",
+          }
+        );
 
         if (!res.ok) {
-          console.warn("[Charts] API error", res.status);
-          img.alt = "Error loading chart.";
-          return;
+          console.warn(`[Charts] ${chart.elemId} API error`, res.status);
+          img.alt = `Error loading chart (${res.status}).`;
+          continue;
         }
 
         const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        img.src = url;
-        img.alt = `Pages read per month in ${year}`;
-
+        img.src = URL.createObjectURL(blob);
+        img.alt = "";
+        
       } catch (err) {
-        console.error("[Charts] Fetch failed", err);
+        console.error(`[Charts] Fetch failed for ${chart.elemId}`, err);
         img.alt = "Error loading chart.";
       }
     }
-    await loadChart(`/api/home/stats/${year}/pages`, "pages-chart-img");
   })();
 </script>
 </body>
