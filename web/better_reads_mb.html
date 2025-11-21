@@ -104,89 +104,32 @@
 
     <div class = "container mx-auto px-4 mt-8">
 
-        <form class="w-full max-w-2xl mx-auto mb-10">
-        
-            <div class="relative flex items-center">
-                <i class="fa-solid fa-magnifying-glass pl-4 absolute"></i> 
-                <input
-                    type="text"
-                    placeholder="Search Lists"
-                    aria-label="Search field"
-                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-    
-                <button
-                    type="button"
-                    aria-label="Clear search"
-                    class="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                    onclick="document.querySelector('input[type=text]').value = '';"
-                >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                </button>
-            </div>
-        </form>
+    <form id="lists-search-form" class="w-full max-w-2xl mx-auto mb-10">
+        <div class="relative flex items-center">
+            <i class="fa-solid fa-magnifying-glass pl-4 absolute"></i> 
+            <input
+                id="lists-search-input"
+                type="text"
+                placeholder="Search Lists"
+                aria-label="Search field"
+                class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+
+            <button
+                type="button"
+                aria-label="Clear search"
+                class="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                onclick="const el = document.getElementById('lists-search-input'); el.value = ''; if (window._betterReadsFilterLists) window._betterReadsFilterLists();"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </form>
         <div class = "space-y-8 pb-12">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <section class = "bg-[#E5C09E]">
-            <!-- TODO: Fill in the src's with the backend later-->
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-                    <img
-                        src = "76713323._SY180_.jpg"
-                        alt = "Empire of Storms by Sarah J. Maas"
-                        class = "w-24 h-auto"
-                    >
-                    <div class = "md:w-2/3 mb-4 md:mb-0 md:pr-6">
-                        <h2 class = "text-2xl font-bold text-dark-text mb-2">Currently Reading</h2>
-                        <span class = "text-sm font-medium text-gray-500 block mb-4">
-                            <span class = "text-gray-700 font-bold">2 books</span> in this list
-                        </span>
-                        
-                        </a>                     
-                    </div>
-                </div>
-            </section>
-            <section class = "bg-[#E5C09E]">
-                <a href = "view-lists.html">
-            <!-- TODO: Fill in the src's with the backend later-->
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-                    <img
-                        src = "76713323._SY180_.jpg"
-                        alt = "Empire of Storms by Sarah J. Maas"
-                        class = "w-24 h-auto"
-                    >
-                    <div class = "md:w-2/3 mb-4 md:mb-0 md:pr-6">
-                        <h2 class = "text-2xl font-bold text-dark-text mb-2">Finshed</h2>
-                        <span class = "text-sm font-medium text-gray-500 block mb-4">
-                            <span class = "text-gray-700 font-bold">2 books</span> in this list
-                        </span>
-                                             
-                    </div>
-                </div> 
-                </a>
-            </section>
-            <section class = "bg-[#E5C09E]">
-            <!-- TODO: Fill in the src's with the backend later-->
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
-                    <img
-                        src = "76713323._SY180_.jpg"
-                        alt = "Empire of Storms by Sarah J. Maas"
-                        class = "w-24 h-auto"
-                    >
-                    <div class = "md:w-2/3 mb-4 md:mb-0 md:pr-6">
-                        <h2 class = "text-2xl font-bold text-dark-text mb-2">Want to Read</h2>
-                        <span class = "text-sm font-medium text-gray-500 block mb-4">
-                            <span class = "text-gray-700 font-bold">2 books</span> in this list
-                        </span>
-                        
-                        </a>                     
-                    </div>
-                </div>
-            </section>
+            <div id="shelves-grid" class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <!--Create New List-->
-            <section class = "bg-[#E5C09E]">
-                <button id = "new-list-btn">
+            <section id="new-list-section" class="bg-[#E5C09E]">
+                <button id="new-list-btn">
                 <h2 class = "text-2xl font-bold text-dark-text mb-6"> + New List</h2>
                 <div class = "grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
                 </div>
@@ -278,53 +221,291 @@
   })();
 </script>
 <script>
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const fabButton = document.getElementById('new-list-btn');
-        const modal = document.getElementById('list-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const createListBtn = document.getElementById('create-list-btn');
-        const listNameInput = document.getElementById('list-name-input');
-        const toggleModal = (show) => {
-            if (show) {
-                modal.classList.remove('hidden');
-            } else {
-                modal.classList.add('hidden');
-                listNameInput.value = ''
-            }
-        };
+  document.addEventListener('DOMContentLoaded', () => {
+    const apiBase = 'https://beyond-the-bookshelf.onrender.com';
+    const token   = localStorage.getItem('btb_token');
+    const COVER_BASE = 'https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/';
+    const PLACEHOLDER_COVER = COVER_BASE + 'cover/placeholder.jpg';
 
-        // 1. Open the modal when the NLB button is clicked
-        fabButton.addEventListener('click', () => {
-            toggleModal(true);
+    function buildCoverUrl(relativeUrl) {
+      if (!relativeUrl) return PLACEHOLDER_COVER;
+      if (typeof relativeUrl !== 'string') return PLACEHOLDER_COVER;
+
+      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+        return relativeUrl;
+      }
+      if (relativeUrl.startsWith('cover/')) {
+        return COVER_BASE + relativeUrl;
+      }
+      return PLACEHOLDER_COVER;
+    }
+
+    const fabButton      = document.getElementById('new-list-btn');
+    const modal          = document.getElementById('list-modal');
+    const closeModalBtn  = document.getElementById('close-modal-btn');
+    const createListBtn  = document.getElementById('create-list-btn');
+    const listNameInput  = document.getElementById('list-name-input');
+    const shelvesGrid    = document.getElementById('shelves-grid');
+    const newListSection = document.getElementById('new-list-section');
+
+    let readingShelfId = null;
+    let completedShelfId = null;
+
+    if (!shelvesGrid || !newListSection) return;
+
+    const toggleModal = (show) => {
+      if (show) {
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+        listNameInput.value = '';
+      }
+    };
+
+    function renderShelfCard(shelf) {
+        const section = document.createElement('section');
+        section.className = 'bg-[#E5C09E]';
+        const shelfId   = shelf.shelf_id ?? shelf.id;
+        const name      = shelf.name ?? 'Unnamed list';
+        const count     = shelf.book_count ?? 0;
+        const countWord = count === 1 ? 'book' : 'books';
+        const coverSrc  = buildCoverUrl(shelf.cover_url);
+        const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
+        const linkClose = shelfId ? '</a>' : '';
+        section.innerHTML = `
+            ${linkOpen}
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
+                <img
+                src="${coverSrc}"
+                alt="List cover"
+                class="w-24 h-auto"
+                onerror="this.onerror=null; this.src='${PLACEHOLDER_COVER}'"
+                >
+                <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
+                <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
+                <span class="text-sm font-medium text-gray-500 block mb-4">
+                    <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
+                </span>
+                </div>
+            </div>
+            ${linkClose}
+        `;
+        return section;
+    }
+
+    async function loadSummary() {
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${apiBase}/api/home/list_summary`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          mode: 'cors',
         });
 
-        // 2. Close the modal when the 'Cancel' button is clicked
-        closeModalBtn.addEventListener('click', () => {
-            toggleModal(false);
+        if (!res.ok) {
+          console.error('Failed to load list summary', await res.text());
+          return;
+        }
+
+        const data = await res.json();
+        const readingCount   = data.reading_count   ?? 0;
+        const completedCount = data.completed_count ?? 0;
+        const completedCard = renderShelfCard({
+            shelf_id: completedShelfId,
+            name: 'All completed books',
+            book_count: completedCount,
+            cover_url: data.completed_cover_url,
+        });
+        shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
+        const readingCard = renderShelfCard({
+            shelf_id: readingShelfId,
+            name: 'All current reads',
+            book_count: readingCount,
+            cover_url: data.reading_cover_url,
+        });
+        shelvesGrid.insertBefore(readingCard, shelvesGrid.firstChild);
+
+      } catch (err) {
+        console.error('Error loading list summary', err);
+      }
+    }
+
+    async function loadShelves() {
+      if (!token) return;
+
+      try {
+        const res = await fetch(`${apiBase}/api/home/shelves`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          mode: 'cors',
         });
 
-        // 3. Close the modal when the user clicks the dark backdrop
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                toggleModal(false);
-            }
+        if (!res.ok) {
+          console.error('Failed to load shelves', await res.text());
+          return;
+        }
+
+        const shelves = await res.json();
+        if (!Array.isArray(shelves)) {
+          console.error('Shelves response was not an array', shelves);
+          return;
+        }
+
+        shelves.forEach((shelf) => {
+            const card = renderShelfCard(shelf);
+            shelvesGrid.insertBefore(card, newListSection);
+            const nameLower = (shelf.name || '').toLowerCase();
+
+            if (nameLower === 'reading') {
+                readingShelfId = shelf.shelf_id ?? shelf.id;}
+
+            if (nameLower === 'read') {
+                completedShelfId = shelf.shelf_id ?? shelf.id;}
         });
 
-        // 4. Handle the 'Create' action
-        createListBtn.addEventListener('click', () => {
-            const listName = listNameInput.value.trim();
+        if (!shelves.length) {
+          const msg = document.createElement('p');
+          msg.className = 'text-gray-600 mb-4';
+          msg.textContent = 'No lists yet — use "New List" to create one.';
+          shelvesGrid.insertBefore(msg, newListSection);
+        }
 
-            if (listName) {
-                console.log(`New List Created: "${listName}"`);
-                alert(`List "${listName}" created successfully! (Check console for full action)`);
-                toggleModal(false);
-            } else {
-                alert("Please enter a name for your new list.");
-                listNameInput.focus(); 
-            }
-        });
+      } catch (err) {
+        console.error('Error loading shelves', err);
+      }
+    }
+
+    fabButton.addEventListener('click', () => toggleModal(true));
+    closeModalBtn.addEventListener('click', () => {toggleModal(false);});
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        toggleModal(false);
+      }
     });
+
+    createListBtn.addEventListener('click', async () => {
+      const listName = listNameInput.value.trim();
+
+      if (!listName) {
+        alert('Please enter a name for your new list.');
+        listNameInput.focus();
+        return;
+      }
+
+      if (!token) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${apiBase}/api/home/shelves`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          mode: 'cors',
+          body: JSON.stringify({
+            name: listName,
+            visibility: 'private',
+            is_default: false,
+          }),
+        });
+
+        if (!res.ok) {
+          console.error('Failed to create shelf', await res.text());
+          alert('Something went wrong creating the list.');
+          return;
+        }
+
+        const newShelf = await res.json();
+        const card = renderShelfCard(newShelf);
+        shelvesGrid.insertBefore(card, newListSection);
+        toggleModal(false);
+
+      } catch (err) {
+        console.error('Error creating shelf', err);
+        alert('Something went wrong creating the list.');
+      }
+    });
+    loadShelves().then(loadSummary);
+  });
+</script>
+<script>
+  function wireSummaryCardLink(titleText, href) {
+    const headings = Array.from(document.querySelectorAll('main h2'));
+    const heading = headings.find(h => h.textContent.trim() === titleText);
+    if (!heading) return;
+
+    const section = heading.closest('section');
+    if (!section) return;
+
+    if (section.querySelector('a[href*="view-lists"]')) return;
+
+    const wrapper = document.createElement('a');
+    wrapper.href = href;
+    wrapper.className = 'block';
+
+    while (section.firstChild) {
+      wrapper.appendChild(section.firstChild);
+    }
+    section.appendChild(wrapper);
+  }
+
+  function setupSummaryLinks() {
+    const templateLink = document.querySelector('main a[href*="view-lists"]');
+    const href = templateLink ? templateLink.getAttribute('href') : 'view-lists.html';
+
+    wireSummaryCardLink('All current reads', href);
+    wireSummaryCardLink('All completed books', href);
+  }
+
+  window.addEventListener('load', () => {
+    setupSummaryLinks();
+    let tries = 0;
+    const timer = setInterval(() => {
+      setupSummaryLinks();
+      tries += 1;
+      if (tries > 10) clearInterval(timer);
+    }, 500);
+  });
+</script>
+<script>
+  (function () {
+    const searchForm  = document.getElementById('lists-search-form');
+    const searchInput = document.getElementById('lists-search-input');
+
+    if (!searchForm || !searchInput) return;
+    function filterLists() {
+      const term = searchInput.value.trim().toLowerCase();
+      const sections = document.querySelectorAll('main section');
+
+      sections.forEach((section) => {
+        if (!section.classList.contains('bg-[#E5C09E]')) {
+          return;
+        }
+
+        if (section.querySelector('#new-list-btn')) {
+          section.classList.remove('hidden');
+          return;
+        }
+
+        const heading = section.querySelector('h2');
+        const title   = heading ? heading.textContent.toLowerCase() : '';
+        if (!term || title.includes(term)) {
+          section.classList.remove('hidden');
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+    }
+    searchForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      filterLists();
+    });
+    searchInput.addEventListener('input', filterLists);
+    window._betterReadsFilterLists = filterLists;
+  })();
 </script>
 </body>
 </html>

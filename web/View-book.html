@@ -61,7 +61,8 @@
             
             <div class="flex items-center">
                 <nav class="hidden md:flex space-x-6">
-                    <a href="index.html" class="nav-link">LOGIN</a>
+                    <a id="nav-login" href="index.html" class="nav-link">LOGIN</a>
+                    <a id="nav-logout" href="#" class="nav-link" style="display:none">LOGOUT</a>
                     <a href="better_reads_PROFILE.html" class="nav-link">PROFILE</a>
                     <a href="better_reads_mb.html" class="nav-link">MY BOOKS</a>
                     <a href="better_reads_browse.html" class="nav-link">BROWSE</a>
@@ -117,12 +118,17 @@
                         </div>
                     </div>
                     
-                    <div class="relative">
-                        <button class="bg-primary-orange text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-primary-orange/90 transition-colors flex items-center space-x-2">
+                    <div class="relative js-add-to-list">
+                        <button type="button" id="add-to-list-button"
+                                class="bg-primary-orange text-white px-4 py-2 rounded-md shadow-md hover:bg-primary-orange/90 transition-colors flex items-center space-x-2">
                             <span>Add to List</span>
                             <i class="fa-solid fa-chevron-down text-xs"></i>
                         </button>
+                        <div id="add-to-list-menu"
+                            class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-200 py-1 text-sm text-gray-800 hidden z-20">
+                        </div>
                     </div>
+
                 </div>
                 
                 <p class="text-gray-800 mb-4 leading-relaxed js-book-description">
@@ -159,6 +165,207 @@
         const params = new URLSearchParams(window.location.search);
         const editionId = params.get("edition_id");
         const workIdParam = params.get("work_id");
+        let workId = workIdParam || null;
+        const API_BASE = "https://beyond-the-bookshelf.onrender.com";
+        const token = localStorage.getItem("btb_token");
+
+        async function fetchCurrentUserId() {
+            if (!token) return null;
+            try {
+                const res = await fetch(`${API_BASE}/api/users/me`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    mode: "cors",
+                });
+
+                if (!res.ok) {
+                    console.warn("fetchCurrentUserId: /me", res.status);
+                    return null;
+                }
+                const me = await res.json();
+                console.log("Current user from /me:", me);
+                return me.user_id || me.id || null;
+
+            } catch (err) {
+                console.error("fetchCurrentUserId failed", err);
+                return null;
+            }
+        }
+        const CURRENT_USER_ID = await fetchCurrentUserId();
+        const loginNavLink = document.querySelector('a.nav-link[href="index.html"]');
+        const dropdownLogoutLink = document.querySelector('#dropdown-menu a[href="#"]');
+
+        function handleLogout(event) {
+            if (event) event.preventDefault();
+            localStorage.removeItem("btb_token");
+            window.location.href = "index.html";
+        }
+
+        if (CURRENT_USER_ID) {
+            if (loginNavLink) {
+                loginNavLink.textContent = "LOGOUT";
+                loginNavLink.href = "#";
+                loginNavLink.addEventListener("click", handleLogout);
+            }
+
+            if (dropdownLogoutLink) {
+                dropdownLogoutLink.addEventListener("click", handleLogout);
+            }
+
+        } else {
+            if (loginNavLink) {
+                loginNavLink.textContent = "LOGIN";
+                loginNavLink.href = "index.html";
+            }
+        }
+
+
+        async function addBookToShelf(shelfId) {
+            if (!workId) {
+                console.error("No work id for shelf item");
+                return;
+            }
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
+
+            const insertUrl = `${SUPABASE_URL}/rest/v1/shelf_items`;
+            const payload = {
+                shelf_id: shelfId,
+                work_id: workId,
+            };
+
+            const resp = await fetch(insertUrl, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok && resp.status !== 409) {
+                const text = await resp.text();
+                console.error("Failed to add to shelf", resp.status, text);
+                alert("Sorry, could not add to that list.");
+            } else {
+                console.log("Added to shelf (or already there)");
+            }
+        }
+
+        async function addToCurrentReads() {
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
+            if (!workId) {
+                console.error("No work id for current reads");
+                return;
+            }
+
+            try {
+                const delUrl = `${SUPABASE_URL}/rest/v1/completions?user_id=eq.${CURRENT_USER_ID}&work_id=eq.${workId}`;
+                const delResp = await fetch(delUrl, {
+                    method: "DELETE",
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+                if (!delResp.ok) {
+                    const text = await delResp.text();
+                    console.warn("Failed to clear completions for work", delResp.status, text);
+                } else {
+                    console.log("Cleared completions row for work", workId);
+                }
+            } catch (err) {
+                console.error("Error clearing completions", err);
+            }
+
+            const url = `${SUPABASE_URL}/rest/v1/reading_progress`;
+            const payload = {
+                user_id: CURRENT_USER_ID,
+                work_id: workId,
+                progress_percent: 0,
+            };
+
+            const resp = await fetch(url, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok && resp.status !== 409) {
+                const text = await resp.text();
+                console.error("Failed to add to current reads", resp.status, text);
+                alert("Sorry, could not add to All current reads.");
+            } else {
+                console.log("Added to current reads");
+            }
+        }
+
+        async function addToCompletions() {
+            if (!CURRENT_USER_ID) {
+                alert("Please log in first.");
+                return;
+            }
+            if (!workId) {
+                console.error("No work id for completions");
+                return;
+            }
+
+            try {
+                const delUrl = `${SUPABASE_URL}/rest/v1/reading_progress?user_id=eq.${CURRENT_USER_ID}&work_id=eq.${workId}`;
+                const delResp = await fetch(delUrl, {
+                    method: "DELETE",
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+                if (!delResp.ok) {
+                    const text = await delResp.text();
+                    console.warn("Failed to clear reading_progress for work", delResp.status, text);
+                } else {
+                    console.log("Cleared reading_progress row for work", workId);
+                }
+            } catch (err) {
+                console.error("Error clearing reading_progress", err);
+            }
+
+            const url = `${SUPABASE_URL}/rest/v1/completions`;
+            const payload = {
+                user_id: CURRENT_USER_ID,
+                work_id: workId,
+                finished_at: new Date().toISOString(),
+            };
+
+            const resp = await fetch(url, {
+                method: "POST",
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    Prefer: "return=minimal",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!resp.ok && resp.status !== 409) {
+                const text = await resp.text();
+                console.error("Failed to add to completions", resp.status, text);
+                alert("Sorry, could not add to All completed books.");
+            } else {
+                console.log("Added to completions");
+            }
+        }
 
         if (!editionId && !workIdParam) {
             console.error("No edition_id or work_id in URL");
@@ -193,9 +400,8 @@
             return;
         }
         const work = book.works || {};
-        const workId = book.work_id || workIdParam;
+        workId = book.work_id || workIdParam || workId;
         const title = work.title || book.title || "Unknown title";
-        const author = work.author || book.author || "Author information coming soon";
         const description = work.summary || "Description coming soon";
 
         let coverSrc = PLACEHOLDER;
@@ -223,14 +429,116 @@
             document.title = `Better Reads - ${title}`;
         }
 
-        if (authorEl) {authorEl.textContent = author;}
-
         if (descEls.length) {
             descEls[0].textContent = description;
             for (let i = 1; i < descEls.length; i++) {
                 descEls[i].style.display = "none";
             }
         }
+
+        if (authorEl && workId) {
+            authorEl.textContent = "Author information coming soon";
+            const authorsUrl = new URL(`${SUPABASE_URL}/rest/v1/work_authors`);
+            authorsUrl.searchParams.set("work_id", `eq.${workId}`);
+            authorsUrl.searchParams.set("select", "authors(name)");
+            const aRes = await fetch(authorsUrl.toString(), {
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+            });
+
+            if (aRes.ok) {
+                const aData = await aRes.json();
+                console.log("Authors data:", aData);
+
+                const names = aData
+                    .map(row => row.authors && row.authors.name)
+                    .filter(Boolean);
+
+                if (names.length) {authorEl.textContent = names.join(", ");}
+            } else {console.error("Failed to load authors", aRes.status);}
+        }
+
+        const addButton = document.getElementById("add-to-list-button");
+        const menu = document.getElementById("add-to-list-menu");
+
+        if (addButton && menu) {
+            addButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                menu.classList.toggle("hidden");
+            });
+
+            document.addEventListener("click", () => {
+                menu.classList.add("hidden");
+            });
+            console.log("CURRENT_USER_ID in view-book:", CURRENT_USER_ID);
+
+            if (!CURRENT_USER_ID) {
+                menu.innerHTML = "";
+                const msg = document.createElement("div");
+                msg.className = "px-4 py-2 text-gray-500";
+                msg.textContent = "Log in to add this book to a list.";
+                menu.appendChild(msg);
+
+            } else {
+                const shelvesUrl = new URL(`${SUPABASE_URL}/rest/v1/shelves`);
+                shelvesUrl.searchParams.set("user_id", `eq.${CURRENT_USER_ID}`);
+                shelvesUrl.searchParams.set("select", "shelf_id,name");
+                shelvesUrl.searchParams.set("order", "name.asc");
+
+                const sRes = await fetch(shelvesUrl.toString(), {
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                });
+
+                if (sRes.ok) {
+                    const shelves = await sRes.json();
+                    console.log("Shelves data:", shelves);
+                    menu.innerHTML = "";
+
+                    function makeMenuButton(label, onClick) {
+                        const btn = document.createElement("button");
+                        btn.type = "button";
+                        btn.className = "block w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-background-light";
+                        btn.textContent = label;
+                        
+                        btn.addEventListener("click", async (event) => {
+                            event.stopPropagation();
+
+                            try {await onClick();} 
+                            finally {menu.classList.add("hidden");}
+                        });
+                        return btn;
+                    }
+
+                    menu.appendChild(
+                        makeMenuButton("All current reads", () => addToCurrentReads())
+                    );
+                    menu.appendChild(
+                        makeMenuButton("All completed books", () => addToCompletions())
+                    );
+
+                    if (shelves.length) {
+                        const divider = document.createElement("div");
+                        divider.className = "border-t border-gray-200 my-1";
+                        menu.appendChild(divider);
+
+                        for (const shelf of shelves) {
+                            menu.appendChild(
+                                makeMenuButton(shelf.name, () => addBookToShelf(shelf.shelf_id))
+                            );
+                        }
+                    }
+
+                } else {
+                    console.error("Failed to load shelves", sRes.status);
+                }
+            }
+        }
+
         const genreContainer = document.getElementById("genre-list");
         if (!genreContainer || !workId) return;
 
@@ -269,6 +577,38 @@
 
             genreContainer.appendChild(pill);
         }
+    })();
+</script>
+<script>
+    (function () {
+        const loginLink = document.getElementById('nav-login');
+        const logoutLink = document.getElementById('nav-logout');
+
+        if (!loginLink || !logoutLink) return;
+        const token = localStorage.getItem('btb_token');
+
+        if (token) {
+            loginLink.style.display = 'none';
+            logoutLink.style.display = '';
+        } else {
+            loginLink.style.display = '';
+            logoutLink.style.display = 'none';
+        }
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            try {
+                if (window.supabase?.auth?.signOut) {
+                    await window.supabase.auth.signOut();
+                } else {
+                    Object.keys(localStorage)
+                        .filter(k => k.includes('supabase') && k.includes('auth'))
+                        .forEach(k => localStorage.removeItem(k));
+                }
+            } catch (_) {}
+            localStorage.removeItem('btb_token');
+            window.location.href = 'index.html';
+        });
     })();
 </script>
 </body>

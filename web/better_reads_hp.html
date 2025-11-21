@@ -571,49 +571,51 @@
     })();
 </script>
 <script>
-  const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
+    const CURRENT_CHALLENGE_YEAR = new Date().getFullYear();
 
-  async function fetchReadingChallenge() {
-    const token = localStorage.getItem('btb_token');
-    const booksCompletedEl = document.getElementById('books-completed');
-    const targetCountEl = document.getElementById('target-count');
-    const challengeYearEl = document.getElementById('challenge-year');
+    async function fetchReadingChallenge() {
+        const token = localStorage.getItem('btb_token');
+        const booksCompletedEl = document.getElementById('books-completed');
+        const targetCountEl = document.getElementById('target-count');
+        const challengeYearEl = document.getElementById('challenge-year');
 
-    if (challengeYearEl) {challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;}
+        if (challengeYearEl) 
+            {challengeYearEl.textContent = `Reading Challenge (${CURRENT_CHALLENGE_YEAR})`;}
 
-    if (!token) {
-      console.log('[ReadingChallenge] No token found');
-      if (booksCompletedEl) booksCompletedEl.textContent = '0';
-      if (targetCountEl) targetCountEl.textContent = '--';
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`,
-        {headers: { Authorization: `Bearer ${token}` }, mode: 'cors',}
-      );
-
-      if (!res.ok) {
-        console.warn('[ReadingChallenge] API error', res.status);
+        if (!token) {
+        console.log('[ReadingChallenge] No token found');
         if (booksCompletedEl) booksCompletedEl.textContent = '0';
         if (targetCountEl) targetCountEl.textContent = '--';
         return;
-      }
-      const data = await res.json();
-      const completed = data.completed_count ?? 0;
-      const target = data.target_count ?? '--';
+        }
 
-      if (booksCompletedEl) booksCompletedEl.textContent = completed;
-      if (targetCountEl) targetCountEl.textContent = target;
+        try {
+            const res = await fetch(
+                `${apiBase}/api/reading-challenge/current?year=${CURRENT_CHALLENGE_YEAR}`,
+                {headers: { Authorization: `Bearer ${token}` }, mode: 'cors',}
+            );
 
-    } catch (err) {
-      console.error('[ReadingChallenge] Fetch failed', err);
-      if (booksCompletedEl) booksCompletedEl.textContent = '0';
-      if (targetCountEl) targetCountEl.textContent = '--';
+        if (!res.ok) {
+            console.warn('[ReadingChallenge] API error', res.status);
+            if (booksCompletedEl) booksCompletedEl.textContent = '0';
+            if (targetCountEl) targetCountEl.textContent = '--';
+            return;
+        }
+        const data = await res.json();
+        const completed = data.completed_count ?? 0;
+        const target = data.target_count ?? '--';
+
+        if (booksCompletedEl) booksCompletedEl.textContent = completed;
+        if (targetCountEl) targetCountEl.textContent = target;
+
+        } catch (err) {
+            console.error('[ReadingChallenge] Fetch failed', err);
+            if (booksCompletedEl) booksCompletedEl.textContent = '0';
+            if (targetCountEl) targetCountEl.textContent = '--';
+        }
     }
-  }
-  fetchReadingChallenge();
+    window.fetchReadingChallenge = fetchReadingChallenge;
+    fetchReadingChallenge();
 </script>
 <script>
     (async () => {
@@ -802,16 +804,25 @@
     const setGoalBtn = document.getElementById('set-goal-btn');
     const closeGoalBtn = document.getElementById('close-goal-modal-btn');
     const saveGoalBtn = document.getElementById('save-goal-btn');
+    
     function openGoalModal() {
-        if (goalModal) {
-            goalModal.classList.remove('hidden');
+        if (!goalModal) return;
+
+        const targetCountEl = document.getElementById('target-count');
+        const goalInput     = document.getElementById('goal-input');
+
+        if (goalInput && targetCountEl) {
+            const current = (targetCountEl.textContent || '').trim();
+            if (current && current !== '--') {
+                goalInput.value = current;
+
+            } else {goalInput.value = '';}
         }
+        goalModal.classList.remove('hidden');
     }
 
     function closeGoalModal() {
-        if (goalModal) {
-            goalModal.classList.add('hidden');
-        }
+        if (goalModal) {goalModal.classList.add('hidden');}
     }
 
     if (closeGoalBtn) {
@@ -819,9 +830,60 @@
     }
 
     if (saveGoalBtn) {
-        saveGoalBtn.addEventListener('click', closeGoalModal); 
-        
-        //Where to save to the db
+        saveGoalBtn.addEventListener('click', async () => {
+            const goalInput = document.getElementById('goal-input');
+            const targetCountEl = document.getElementById('target-count');
+            const token = localStorage.getItem('btb_token');
+            const raw = goalInput ? goalInput.value.trim() : '';
+            const value = parseInt(raw, 10);
+
+            if (!Number.isFinite(value) || value <= 0) {
+                alert('Please enter a positive number of books.');
+                return;
+            }
+
+            if (!token) {
+                alert('You need to be logged in to set a goal.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${apiBase}/api/reading-challenge/current`, {
+                    method: 'PUT',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        year: CURRENT_CHALLENGE_YEAR,
+                        target_count: value,
+                    }),
+                });
+
+                if (!res.ok) {
+                    const body = await res.text();
+                    console.error('[ReadingChallenge] Save error', res.status, body);
+                    alert('Could not save your goal. Please try again.');
+                    return;
+                }
+
+                const data = await res.json();
+                const newTarget = data.target_count ?? value;
+                if (targetCountEl) {
+                    targetCountEl.textContent = newTarget;
+                }
+
+                if (window.fetchReadingChallenge) {
+                    await window.fetchReadingChallenge();
+                }
+
+                closeGoalModal();
+            } catch (err) {
+                console.error('[ReadingChallenge] Save failed', err);
+                alert('Error saving your goal. See console for details.');
+            }
+        }); 
     }
 
     if (goalModal) {
