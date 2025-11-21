@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
-from userMatplotlib import create_yearly_charts
+from .userMatplotlib import create_yearly_charts
 from pydantic import BaseModel
 from .security import get_current_user
 import os
