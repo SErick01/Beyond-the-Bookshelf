@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import tensorflow as tf
 import tensorflow_hub as hub
-import tensorflow_text 
+from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
 import numpy as np  
 import pickle
 
@@ -23,15 +23,10 @@ def getCSVdf  (filename, encoding_type = "utf-8"):
 def get_BERT_embeds (text, batch_size = 1000):
     "When given text, this method uses the uncased BERT model to create an array of the created embeddings."
 
-    #BERT Preprocessor and Encoderl; from Tenserflow Doc & Kaggle API
-    #outdated models//incompatible with current python version -- downgraded to python 3.10
-    text_input = tf.keras.layers.Input(shape=(), dtype=tf.string)
-    preprocessor = hub.KerasLayer("https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3")
-    encoder_inputs = preprocessor(text_input)
-    encoder = hub.KerasLayer( "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/4", trainable=True)
-    outputs = encoder(encoder_inputs)
-    pooled_outputs = outputs["pooled_output"]
-    embedding_model = tf.keras.Model(text_input, pooled_outputs)
+    #BERT Tokenizer & Model via HuggingFace and Tensorflow
+    #was originally tensorflow model -- but had to downgrade python to use it
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
     
     #need batch size otherwise it will overload CPU --do it in parts
     bert = []
@@ -48,11 +43,11 @@ def get_BERT_embeds (text, batch_size = 1000):
     
     for i in range(0, len(text), batch_size):
         batch = cleaned_texts[i:i+ batch_size] #start from i then cont until batch size
-        batch_constant = tf.constant(batch, dtype=tf.string)
-        embedding_batch = embedding_model(batch_constant).numpy() #need to be in an array
-        for embedding in embedding_batch:
-            bert.append(embedding)
-    return np.array(bert)
+        encodings = tokenizer(batch, padding=True, truncation=True,return_tensors="tf", max_length=512)
+        outputs = model(encodings)
+        embedding_batch = outputs.pooler_output #no longer need iterate w/ huggingface outputs
+        bert.append(embedding_batch.numpy())
+    return np.vpstack(bert)
 
 #TF-IDF Vectorization
 def get_TFIDF_Vector(text, maxfeat = 2000):
@@ -117,7 +112,7 @@ def recommend_content(title=None, description=None, genres=None, author=None, to
     
     if genres or author: #Genres & Author Fields (TF-IDF Section)
         tfidf_input = [f"{genres or ''} {author or ''}"]
-        new_tfidf_vector = vectorizer.transform(tfidf_input)
+        new_tfidf_vector = vectorizer.transform(tfidf_input) #was expecting array not tuple
         tfidf_sim = cosine_similarity(new_tfidf_vector, vector_Matrix)[0]
     else:
         tfidf_sim = np.zeros(len(BookDetails_df))
