@@ -64,3 +64,6 @@ if __name__ == "__main__":
     user1 = fulldf["user_id"].iloc[0]  
     print(f"\nRecommendations for user {user1}:")
     print(combinedRS(user1, user_df, user_item_matrix, works, genres = "Romance" ))
+
+    print(f"\nRecommendations for user {user1}:")
+    print(combinedRS(user1, user_df, user_item_matrix, works, genres = "Dystopia", title = "Tale of Two Cities" ))
