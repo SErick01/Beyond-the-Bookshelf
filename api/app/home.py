@@ -245,6 +245,26 @@ async def get_pages_chart(year: int, user: dict = Depends(get_current_user)):
     return FileResponse(charts["pages"], media_type="image/png")
 
 
+@router.get("/api/stats/{year}/genres")
+async def get_genres_chart(year: int, user_id: str):
+    charts = create_yearly_charts(user_id=user_id, year=year)
+
+    if not charts or "genres" not in charts:
+        raise HTTPException(status_code=404, detail="No genre data for that year")
+
+    return FileResponse(charts["genres"], media_type="image/png")
+
+
+@router.get("/api/stats/{year}/timeline")
+async def get_timeline_chart(year: int, user_id: str):
+    charts = create_yearly_charts(user_id=user_id, year=year)
+
+    if not charts or "timeline" not in charts:
+        raise HTTPException(status_code=404, detail="No completion data for that year")
+
+    return FileResponse(charts["timeline"], media_type="image/png")
+
+
 @router.get("/current-reads", response_model=List[CurrentRead])
 async def get_current_reads(
     limit: int = 2,
