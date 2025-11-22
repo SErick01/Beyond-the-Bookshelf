@@ -1,7 +1,7 @@
 from typing import List, Dict
 import os
 from supabase import create_client, Client
-from .BERT_TFIDF_Content import recommend_content
+from .weightedcombov2 import recommend_works_for_user
 
 SUPABASE_URL: str = os.environ.get("SUPABASE_URL", "")
 SUPABASE_SERVICE_ROLE_KEY: str = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -198,18 +198,12 @@ def _get_user_recent_work_id(user_id: str) -> int | None:
 
 
 def recommend_for_user(user_id: str, limit: int = 10) -> List[dict]:
-    seed_work_id = _get_user_recent_work_id(user_id)
-
-    if seed_work_id is None:
+    work_ids = recommend_works_for_user(user_id=user_id, top_n=limit)
+    if not work_ids:
         work_ids = _fallback_popular_work_ids(limit)
-        return _fetch_works_with_details(work_ids)
-
-    similar_ids = _similar_work_ids_from_seed(seed_work_id, limit=limit + 3)
-    similar_ids = [wid for wid in similar_ids if wid != seed_work_id][:limit]
-    return _fetch_works_with_details(similar_ids)
+    return _fetch_works_with_details(work_ids[:limit])
 
 
 def recommend_similar_works(work_id: int, limit: int = 10) -> List[dict]:
-    rec_ids = _similar_work_ids_from_seed(work_id, limit=limit)
-    rec_ids = [wid for wid in rec_ids if wid != work_id][:limit]
-    return _fetch_works_with_details(rec_ids)
+    work_ids = _fallback_popular_work_ids(limit)
+    return _fetch_works_with_details(work_ids)
