@@ -245,7 +245,7 @@ async def get_pages_chart(year: int, user: dict = Depends(get_current_user)):
     return FileResponse(charts["pages"], media_type="image/png")
 
 
-@router.get("/api/stats/{year}/genres")
+@router.get("/stats/{year}/genres")
 async def get_genres_chart(year: int, user_id: str):
     charts = create_yearly_charts(user_id=user_id, year=year)
 
@@ -255,7 +255,7 @@ async def get_genres_chart(year: int, user_id: str):
     return FileResponse(charts["genres"], media_type="image/png")
 
 
-@router.get("/api/stats/{year}/timeline")
+@router.get("/stats/{year}/timeline")
 async def get_timeline_chart(year: int, user_id: str):
     charts = create_yearly_charts(user_id=user_id, year=year)
 
