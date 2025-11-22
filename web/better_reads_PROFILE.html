@@ -488,49 +488,28 @@
 <script>
   (async () => {
     const token = localStorage.getItem("btb_token");
-    if (!token) {return;}
-
-    const apiBase = "https://beyond-the-bookshelf.onrender.com";
-    const year = new Date().getFullYear();
-
-    let userId;
-    try {
-      const meRes = await fetch(`${apiBase}/api/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        mode: "cors",
-      });
-      if (!meRes.ok) {
-        console.error("[Charts] /api/users/me failed", meRes.status);
-        return;
-      }
-      const me = await meRes.json();
-      userId = me.id;
-
-    } catch (err) {
-      console.error("[Charts] Failed to load current user", err);
+    if (!token) {
       return;
     }
 
+    const apiBase = "https://beyond-the-bookshelf.onrender.com";
+    const year = new Date().getFullYear();
     const charts = [
-      { elemId: "pages-chart",    path: `/api/stats/${year}/pages` },
-      { elemId: "genres-chart",   path: `/api/stats/${year}/genres` },
-      { elemId: "timeline-chart", path: `/api/stats/${year}/timeline` },
+      { elemId: "pages-chart",    path: `/api/home/stats/${year}/pages` },
+      { elemId: "genres-chart",   path: `/api/home/stats/${year}/genres` },
+      { elemId: "timeline-chart", path: `/api/home/stats/${year}/timeline` },
     ];
 
     for (const chart of charts) {
       const img = document.getElementById(chart.elemId);
       if (!img) continue;
-
-      img.alt = "Loading chart…";
+      img.alt = "Loading chart...";
 
       try {
-        const res = await fetch(
-          `${apiBase}${chart.path}?user_id=${encodeURIComponent(userId)}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            mode: "cors",
-          }
-        );
+        const res = await fetch(`${apiBase}${chart.path}`, {
+          headers: { Authorization: `Bearer ${token}` },
+          mode: "cors",
+        });
 
         if (!res.ok) {
           console.warn(`[Charts] ${chart.elemId} API error`, res.status);
@@ -541,7 +520,7 @@
         const blob = await res.blob();
         img.src = URL.createObjectURL(blob);
         img.alt = "";
-        
+
       } catch (err) {
         console.error(`[Charts] Fetch failed for ${chart.elemId}`, err);
         img.alt = "Error loading chart.";
