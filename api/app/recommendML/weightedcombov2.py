@@ -3,7 +3,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np  
 import pickle
-import tensorflow as tf
 from .BERT_TFIDF_Content import recommend_content, getCSVdf
 from .collaborative_testing import getuser_item_matrix, recommend_for_user
 
