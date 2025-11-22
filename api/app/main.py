@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, APIRouter, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .security import get_current_user
 from . import home
+from . import recommendRoutes
 import os
 import json
 import urllib.request
@@ -27,6 +28,7 @@ ALLOWED_ORIGINS = [
     "https://beyond-the-bookshelf.vercel.app"
 ]
 
+app.include_router(recommendRoutes.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
