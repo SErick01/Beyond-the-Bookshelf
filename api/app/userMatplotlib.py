@@ -85,7 +85,12 @@ def plot_pages_per_month(completions_df, year, out_path):
     plt.close(fig)
 
 
-def plot_genres_pie(completions_df, work_genres_df, year, out_path):
+def plot_genres_pie(
+    completions_df: pd.DataFrame,
+    work_genres_df: pd.DataFrame,
+    year: int,
+    out_path: str,
+):
     if completions_df.empty or work_genres_df.empty:
         return
 
@@ -96,11 +101,27 @@ def plot_genres_pie(completions_df, work_genres_df, year, out_path):
     if counts.empty:
         return
 
+    max_slices = 8
+    if len(counts) > max_slices:
+        top = counts.iloc[: max_slices - 1]
+        other_sum = counts.iloc[max_slices - 1 :].sum()
+        counts = pd.concat([top, pd.Series({"Other": other_sum})])
+
+    def autopct_fmt(pct):
+        return f"{pct:.1f}%" if pct >= 3 else ""
+
     fig, ax = plt.subplots()
-    ax.pie(counts.values, labels=counts.index, autopct="%1.1f%%", startangle=90)
+    ax.pie(
+        counts.values,
+        labels=counts.index,
+        autopct=autopct_fmt,
+        startangle=90,
+        textprops={"fontsize": 9},
+    )
+    ax.axis("equal")
     ax.set_title(f"Genres read in {year}")
     fig.tight_layout()
-    fig.savefig(out_path)
+    fig.savefig(out_path, bbox_inches="tight")
     plt.close(fig)
 
 
