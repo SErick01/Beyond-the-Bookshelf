@@ -3,6 +3,7 @@ from datetime import datetime
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import pandas as pd
 from supabase import create_client, Client
 
@@ -112,6 +113,8 @@ def plot_completion_timeline(completions_df, year, out_path):
 
     fig, ax = plt.subplots()
     ax.scatter(df["finished_at"], df["book_number"])
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
     ax.set_xlabel("Date finished")
     ax.set_ylabel("Book # finished")
     ax.set_title(f"Reading timeline {year}")
