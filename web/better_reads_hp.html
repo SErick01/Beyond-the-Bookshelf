@@ -687,9 +687,8 @@
 <script>
   (async () => {
     const SUPABASE_URL = "https://swfkspdirzdqotywgvop.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN3ZmtzcGRpcnpkcW90eXdndm9wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyNDk4OTEsImV4cCI6MjA3NDgyNTg5MX0.KEH4KkXwYBFA3Frw_Yx8vXPmB2bzJwmdcFhb2Fg6dWY";
     const STORAGE_BASE = `${SUPABASE_URL}/storage/v1/object/public/`;
-    const PLACEHOLDER = STORAGE_BASE + "cover/placeholder.jpg";
+    const PLACEHOLDER  = STORAGE_BASE + "cover/placeholder.jpg";
     const recHeading   = document.getElementById("recommended-heading");
     const rowContainer = document.getElementById("row-recommended");
 
@@ -703,6 +702,12 @@
          Loading recommendations…
        </p>`;
 
+    function normalizeCoverUrl(coverUrl) {
+      if (!coverUrl) return PLACEHOLDER;
+      if (coverUrl.startsWith("http")) return coverUrl;
+      return STORAGE_BASE + coverUrl.replace(/^\/+/, "");
+    }
+
     function renderRow(rows) {
       if (!rows || !rows.length) {
         rowContainer.innerHTML =
@@ -711,49 +716,32 @@
            </p>`;
         return;
       }
-
       const frag = document.createDocumentFragment();
+
       for (const row of rows) {
-        const title = row?.works?.title ?? "Unknown title";
-        let imgSrc = PLACEHOLDER;
-
-        if (row.cover_url) {
-          imgSrc = row.cover_url.startsWith("http")
-            ? row.cover_url
-            : STORAGE_BASE + row.cover_url.replace(/^\/+/, "");
-        }
+        const title = row?.title ?? "Unknown title";
+        const workId = row?.work_id;
+        const coverUrl = normalizeCoverUrl(row?.cover_url ?? null);
         const a = document.createElement("a");
-        a.href =
-          `View-book.html?work_id=${encodeURIComponent(row.work_id)}` +
-          `&edition_id=${encodeURIComponent(row.edition_id)}`;
+        a.href = `View-book.html?work_id=${encodeURIComponent(workId)}`;
         a.className = "block";
-
         const img = document.createElement("img");
-        img.src = imgSrc;
+        img.src = coverUrl;
         img.alt = title;
-        img.className = "w-full h-auto object-cover shadow-xl rounded " +
-        "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
+        img.className =
+          "w-full h-auto object-cover shadow-xl rounded " +
+          "hover:scale-[1.03] transition-transform duration-300 cursor-pointer";
 
         img.onerror = () => {
-            img.onerror = null;
-            img.src = PLACEHOLDER;
-
-            if (!a.querySelector("p")) {
-                const p = document.createElement("p");
-                p.textContent = title;
-                p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
-                a.appendChild(p);
-            }
+          img.onerror = null;
+          img.src = PLACEHOLDER;
         };
 
         a.appendChild(img);
-        if (!row.cover_url || /placeholder\.jpg$/i.test(imgSrc)) {
-            const p = document.createElement("p");
-            p.textContent = title;
-            p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
-            a.appendChild(p);
-        }
-
+        const p = document.createElement("p");
+        p.textContent = title;
+        p.className = "mt-1 text-xs font-semibold text-center text-[#51200F]";
+        a.appendChild(p);
         const wrap = document.createElement("div");
         wrap.className = "book-card";
         wrap.appendChild(a);
@@ -763,32 +751,35 @@
       rowContainer.appendChild(frag);
     }
 
-    async function fetchBooks(limit = 21) {
-      const url = new URL(`${SUPABASE_URL}/rest/v1/editions`);
-      url.searchParams.set("select", "edition_id,work_id,cover_url,works!inner(title)");
-      url.searchParams.set("order", "pub_date.desc");
-      url.searchParams.set("limit", String(limit));
-
-      const res = await fetch(url.toString(), {
-        headers: {apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`,},
-      });
-
-      if (!res.ok) {
-        console.error("[Recommended] Supabase error", res.status);
-        rowContainer.innerHTML =
-          `<p class="col-span-3 text-center text-sm text-red-700">
-             Error loading recommendations (Supabase ${res.status}).
-           </p>`;
-        return [];
+    const token = localStorage.getItem("btb_token");
+    if (!token) {
+      rowContainer.innerHTML =
+        `<p class="col-span-3 text-center text-sm text-[#51200F]">
+           Log in to see personalized recommendations.
+         </p>`;
+      if (recHeading) {
+        recHeading.textContent = "Recommended For You (login required)";
       }
-      return await res.json();
+      return;
     }
 
     try {
-      const rows = await fetchBooks(21);
-      renderRow(rows);
-      if (recHeading) recHeading.textContent = "Recommended for you";
+      const res = await fetch(`${apiBase}/api/recommend/user?limit=21`, {
+        headers: { Authorization: `Bearer ${token}` },
+        mode: "cors",
+      });
 
+      if (!res.ok) {
+        console.error("[Recommended] API error", res.status);
+        rowContainer.innerHTML =
+          `<p class="col-span-3 text-center text-sm text-red-700">
+             Error loading recommendations (API ${res.status}).
+           </p>`;
+        return;
+      }
+
+      const rows = await res.json();
+      renderRow(rows);
     } catch (err) {
       console.error("[Recommended] Fetch failed", err);
       rowContainer.innerHTML =
@@ -799,7 +790,6 @@
   })();
 </script>
 <script>
-    // Modal for Goals
     const goalModal = document.getElementById('goal-modal');
     const setGoalBtn = document.getElementById('set-goal-btn');
     const closeGoalBtn = document.getElementById('close-goal-modal-btn');
