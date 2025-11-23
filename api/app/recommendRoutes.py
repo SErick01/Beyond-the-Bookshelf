@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List
 from .security import get_current_user
-from .recommendML.service import (recommend_for_user, recommend_similar_works,)
+from .recommendML.service import (recommend_for_user, recommend_similar_works, recommend_newest_works,)
 
 router = APIRouter(prefix="/api/recommend", tags=["recommendations"])
 
@@ -21,6 +21,10 @@ def recommend_for_user_public(limit: int = 10):
     demo_user_id = "1"
     return recommend_for_user(user_id=demo_user_id, limit=limit)
 
+
+@router.get("/newest", response_model=List[WorkOut])
+def recommend_newest(limit: int = 10):
+    return recommend_newest_works(limit = limit)
 
 @router.get("/similar/{work_id}", response_model=List[WorkOut])
 def similar_works(work_id: str, limit: int = 10):
