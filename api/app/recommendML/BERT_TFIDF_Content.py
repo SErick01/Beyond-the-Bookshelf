@@ -5,18 +5,23 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity 
 from sklearn.feature_extraction.text import TfidfVectorizer
-import tensorflow as tf
-import tensorflow_hub as hub
-from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
+# import tensorflow as tf
+# import tensorflow_hub as hub
+# from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
 import numpy as np  
 import pickle
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
 
 ## https://www.youtube.com/watch?v=e-I_G9QhHTA&list=PL2iCg75NbOIphVypF1BTGNQrwujM0X2L4
 
 
 def getCSVdf  (filename, encoding_type = "utf-8"):
     "When given a filename, this method reads the csv file as a dataframe."
-    book_dataframe = pd.read_csv(filename, encoding = encoding_type)
+    csv_path = BASE_DIR / filename
+    book_dataframe = pd.read_csv(csv_path, encoding = encoding_type)
     return book_dataframe
 
 
@@ -88,13 +93,13 @@ def getDF_matricies(filename = "book_details.csv"):
 
 def load_matricies():
     "This method loads the associated matrices and dataframes associated with the original dataset."
-    with open("book_embeddings.pkl", "rb") as f:
+    with open(BASE_DIR / "book_embeddings.pkl", "rb") as f:
         embeddings = pickle.load(f)
-    with open("tfidf_matrix.pkl", "rb") as f:
+    with open(BASE_DIR / "tfidf_matrix.pkl", "rb") as f:
         vector_Matrix = pickle.load(f)
-    with open("tfidf_vectorizer.pkl", "rb") as f:
+    with open(BASE_DIR / "tfidf_vectorizer.pkl", "rb") as f:
         vectorizer = pickle.load(f)
-    with open("book_details.pkl", "rb") as f:
+    with open(BASE_DIR / "book_details.pkl", "rb") as f:
         BookDetails_df = pickle.load(f)
     return embeddings, vector_Matrix, vectorizer, BookDetails_df
 

@@ -198,10 +198,24 @@ def _get_user_recent_work_id(user_id: str) -> int | None:
 
 
 def recommend_for_user(user_id: str, limit: int = 10) -> List[dict]:
-    work_ids = recommend_works_for_user(user_id=user_id, top_n=limit)
+    try:
+        titles = recommend_works_for_user(user_id=user_id, top_n=limit)
+        print("ML returned titles:", titles)
+    except Exception as e:
+        print("Error in recommend_works_for_user:", e)
+        titles = []
+
+    if not titles:
+        fallback_ids = _fallback_popular_work_ids(limit)
+        return _fetch_works_with_details(fallback_ids)
+
+    work_ids = _titles_to_work_ids(titles)
     if not work_ids:
-        work_ids = _fallback_popular_work_ids(limit)
-    return _fetch_works_with_details(work_ids[:limit])
+        fallback_ids = _fallback_popular_work_ids(limit)
+        return _fetch_works_with_details(fallback_ids)
+
+    work_ids = work_ids[:limit]
+    return _fetch_works_with_details(work_ids)
 
 
 def recommend_similar_works(work_id: int, limit: int = 10) -> List[dict]:

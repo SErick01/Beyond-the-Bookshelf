@@ -7,7 +7,7 @@ from .recommendML.service import (recommend_for_user, recommend_similar_works,)
 router = APIRouter(prefix="/api/recommend", tags=["recommendations"])
 
 class WorkOut(BaseModel):
-    work_id: int
+    work_id: str
     title: str
     publish_year: int | None = None
     authors: list[str] = []
@@ -17,17 +17,11 @@ class WorkOut(BaseModel):
 
 
 @router.get("/user", response_model=List[WorkOut])
-def recommend_for_logged_in_user(
-    limit: int = 10,
-    current_user: dict = Depends(get_current_user),
-):
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    user_id = current_user["id"]
-    return recommend_for_user(user_id=user_id, limit=limit)
+def recommend_for_user_public(limit: int = 10):
+    demo_user_id = "1"
+    return recommend_for_user(user_id=demo_user_id, limit=limit)
 
 
 @router.get("/similar/{work_id}", response_model=List[WorkOut])
-def similar_works(work_id: int, limit: int = 10):
+def similar_works(work_id: str, limit: int = 10):
     return recommend_similar_works(work_id=work_id, limit=limit)
