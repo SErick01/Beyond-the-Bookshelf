@@ -101,6 +101,35 @@ def _fetch_works_with_details(work_ids: List[int]) -> List[dict]:
     return ordered
 
 
+def recommend_newest_works(limit: int = 10) -> List[dict]:
+    editions_resp = (
+        supabase.table("editions")
+        .select("work_id, pub_date")
+        .order("pub_date", desc=True)
+        .limit(limit * 3)
+        .execute()
+    )
+
+    rows = editions_resp.data or []
+    seen: set[int] = set()
+    work_ids: List[int] = []
+
+    for row in rows:
+        wid = row.get("work_id")
+        if wid is None:
+            continue
+        if wid in seen:
+            continue
+        seen.add(wid)
+        work_ids.append(wid)
+        if len(work_ids) >= limit:
+            break
+
+    if not work_ids:
+        return []
+    return _fetch_works_with_details(work_ids)
+
+
 def _titles_to_work_ids(titles: List[str]) -> List[int]:
     if not titles:
         return []
