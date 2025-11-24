@@ -13,26 +13,30 @@ def combinedRS(user_id, user_similarity_df, user_item_matrix, works,
     
     collaborative = list()
     content_based = list()
+    
     collaborative_recommendations = recommend_for_user(user_id, user_similarity_df, user_item_matrix, works, top_n * 2)
-    for recommendation in collaborative_recommendations:
-       collaborative.append(recommendation[1]) 
-
-    #content recommendations returns df splices
-    content_recommendations = recommend_content(title=title, description=description, genres=genres, author=author, top_n=top_n*2)
-    for index, row in content_recommendations.iterrows():
-        title = row["title"]
-        content_based.append(title) 
-
-    #both lists return only the titles of the books
-
-    if (weight_cf + weight_cb != 1):
-        num_cf = int(top_n * weight_cf)
-        num_cb = top_n - num_cf
+    if not collaborative_recommendations: #if recommend_for_users are empty
+        recommendations = content_based[:top_n]
     else:
-        num_cf = int(top_n * weight_cf)
-        num_cb = int(top_n * weight_cb)
+        for recommendation in collaborative_recommendations:
+            collaborative.append(recommendation[1]) 
 
-    recommendations = collaborative[:num_cf] + content_based[:num_cb]
+        #content recommendations returns df splices
+        content_recommendations = recommend_content(title=title, description=description, genres=genres, author=author, top_n=top_n*2)
+        for index, row in content_recommendations.iterrows():
+            title = row["title"]
+            content_based.append(title) 
+
+        #both lists return only the titles of the books
+
+        if (weight_cf + weight_cb != 1):
+            num_cf = int(top_n * weight_cf)
+            num_cb = top_n - num_cf
+        else:
+            num_cf = int(top_n * weight_cf)
+            num_cb = int(top_n * weight_cb)
+
+        recommendations = collaborative[:num_cf] + content_based[:num_cb]
 
     #want to make sure there are no duplicates in the list
     visited = set()
