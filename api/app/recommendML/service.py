@@ -160,70 +160,10 @@ def _titles_to_work_ids(titles: List[str]) -> List[int]:
     return result_ids
 
 
-# def _similar_work_ids_from_seed(work_id: int, limit: int = 20) -> List[int]:
-#     resp = (
-#         supabase.table("works")
-#         .select("title, summary")
-#         .eq("work_id", work_id)
-#         .execute()
-#     )
-#     rows = resp.data or []
-#     if not rows:
-#         return []
-
-#     seed = rows[0]
-#     title = seed.get("title") or ""
-#     description = seed.get("summary") or ""
-#     top_n_internal = max(limit * 3, limit + 5)
-#     df = recommend_content(
-#         title=title,
-#         description=description,
-#         genres=None,
-#         author=None,
-#         top_n=top_n_internal,
-#     )
-
-#     if df is None or df.empty:
-#         return []
-
-#     rec_titles = df["title"].tolist()
-#     rec_titles = [t for t in rec_titles if t != title]
-#     work_ids = _titles_to_work_ids(rec_titles)
-
-#     return work_ids[:limit]
-
-
 def _fallback_popular_work_ids(limit: int) -> List[int]:
     resp = supabase.table("works").select("work_id").limit(limit).execute()
     rows = resp.data or []
     return [r["work_id"] for r in rows]
-
-
-# def _get_user_recent_work_id(user_id: str) -> int | None:
-#     resp = (
-#         supabase.table("completions")
-#         .select("work_id, finished_at")
-#         .eq("user_id", user_id)
-#         .order("finished_at", desc=True)
-#         .limit(1)
-#         .execute()
-#     )
-#     rows = resp.data or []
-#     if rows:
-#         return rows[0]["work_id"]
-
-#     resp2 = (
-#         supabase.table("reading_progress")
-#         .select("work_id, updated_at")
-#         .eq("user_id", user_id)
-#         .order("updated_at", desc=True)
-#         .limit(1)
-#         .execute()
-#     )
-#     rows2 = resp2.data or []
-#     if rows2:
-#         return rows2[0]["work_id"]
-#     return None
 
 
 def recommend_for_user(user_id: str, limit: int = 10) -> List[dict]:
