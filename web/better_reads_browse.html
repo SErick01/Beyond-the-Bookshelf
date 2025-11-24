@@ -303,8 +303,30 @@
     }
     return res.json();
   }
-  let initialRecommendedRows = [];
 
+  async function fetchGenreRecommendations(genre, limit = 21) {
+    if (!token) {return [];}
+
+    const params = new URLSearchParams({
+      genre,
+      limit: String(limit),
+    });
+
+    const res = await fetch(`${apiBase}/api/recommend/genre?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      mode: "cors",
+    });
+
+    if (!res.ok) {
+      throw new Error(`Genre recommend API failed: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  let initialRecommendedRows = [];
   try {
     const recRows = await fetchRecommendations(21);
     initialRecommendedRows = recRows;
@@ -324,9 +346,31 @@
     }
     renderRow("row-recommended", fallbackRows);
   }
-  const genreRows = await fetchBooks({ limit: 30 });
-  renderRow("row-fantasy", genreRows);
-  renderRow("row-scifi", genreRows);
+
+  let fantasyRows = [];
+  let scifiRows = [];
+
+  if (token) {
+    try {
+      fantasyRows = await fetchGenreRecommendations("Fantasy", 21);
+    } catch (err) {
+      console.error("[Fantasy genre ML] error, falling back to generic", err);
+    }
+
+    try {
+      scifiRows = await fetchGenreRecommendations("Science fiction", 21);
+    } catch (err) {
+      console.error("[Sci-Fi genre ML] error, falling back to generic", err);
+    }
+  }
+
+  if (!fantasyRows.length || !scifiRows.length) {
+    const fallbackRows = await fetchBooks({ limit: 30 });
+    if (!fantasyRows.length) fantasyRows = fallbackRows;
+    if (!scifiRows.length) scifiRows = fallbackRows;
+  }
+  renderRow("row-fantasy", fantasyRows);
+  renderRow("row-scifi", scifiRows);
 
   if (searchForm && searchInput) {
     searchForm.addEventListener("submit", async (e) => {

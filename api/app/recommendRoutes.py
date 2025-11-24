@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import List
 from .security import get_current_user
-from .recommendML.service import (recommend_for_user, recommend_similar_works, recommend_newest_works,)
+from .recommendML.service import (
+    recommend_for_user, recommend_similar_works, 
+    recommend_newest_works, recommend_for_user_by_genre,)
 
 router = APIRouter(prefix="/api/recommend", tags=["recommendations"])
 
@@ -20,6 +22,19 @@ class WorkOut(BaseModel):
 def recommend_for_user_public(limit: int = 10):
     demo_user_id = "1"
     return recommend_for_user(user_id=demo_user_id, limit=limit)
+
+
+@router.get("/genre", response_model=List[WorkOut])
+def recommend_for_logged_in_user_by_genre(
+    genre: str,
+    limit: int = 10,
+    current_user: dict = Depends(get_current_user),
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    user_id = current_user["id"]
+    return recommend_for_logged_in_user_by_genre(user_id=user_id, genre=genre, limit=limit)
 
 
 @router.get("/newest", response_model=List[WorkOut])
