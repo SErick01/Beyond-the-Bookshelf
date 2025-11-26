@@ -304,33 +304,29 @@
     return res.json();
   }
 
-  const GENRE_NAME_TO_SLUG = {
-  "Fantasy": "fantasy",
-  "Science Fiction": "science-fiction",
-};
-
   async function fetchGenreBooks(genreName, limit = 21) {
-    const slug = 
-      GENRE_NAME_TO_SLUG[genreName] ?? 
-      genreName.toLowerCase().replace(/\s+/g, "-");
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    };
 
-    const genreUrl = `${supabaseUrl}/rest/v1/genres?select=genre_id,slug,name&slug=eq.${encodeURIComponent(slug)}`;
-    const genreResp = await fetch(genreUrl, {
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
-      },
-    });
-    const genreRows = await genreResp.json();
+    const genreUrl = `${SUPABASE_URL}/rest/v1/genres` +
+      `?select=genre_id,name&name=eq.${encodeURIComponent(genreName)}`;
+    const genreRes = await fetch(genreUrl, { headers });
 
+    if (!genreRes.ok) {
+      console.error("[fetchGenreBooks] failed to load genres", genreRes.status);
+      return [];
+    }
+
+    const genreRows = await genreRes.json();
     if (!genreRows.length) {
-      console.warn("[fetchGenreBooks] no genre row for", genreName, "slug:", slug);
+      console.warn("[fetchGenreBooks] no genre row for", genreName);
       return [];
     }
 
     const genreId = genreRows[0].genre_id;
     const wgUrl = new URL(`${SUPABASE_URL}/rest/v1/work_genres`);
-
     wgUrl.searchParams.set("select", "work_id");
     wgUrl.searchParams.set("genre_id", `eq.${genreId}`);
     wgUrl.searchParams.set("limit", String(limit * 5));
@@ -343,6 +339,7 @@
 
     const wgRows = await wgRes.json();
     const workIds = [...new Set(wgRows.map((row) => row.work_id))];
+
     if (!workIds.length) {
       console.warn("[fetchGenreBooks] no works for genre", genreName);
       return [];
