@@ -9,7 +9,6 @@ import json
 import urllib.request
 import urllib.parse
 import urllib.error
-import datetime as dt
 
 router = APIRouter(prefix="/api/home", tags=["home"],)
 

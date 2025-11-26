@@ -1,6 +1,8 @@
 .venv/
 venv/
 __pycache__/
+.env
 *.py[cod]
 api/.env
 .DS_Store
+charts/

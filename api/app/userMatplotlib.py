@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -10,6 +9,7 @@ from supabase import create_client, Client
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 
 def fetch_year_data(user_id: str, year: int):
     start = f"{year}-01-01"
