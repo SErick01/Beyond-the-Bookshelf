@@ -4,6 +4,7 @@ from .security import get_current_user
 from . import home
 from . import recommendRoutes
 from . import readingChallenge
+from . import profileStats
 
 app = FastAPI(title="Beyond the Bookshelf - API", version="0.1.0")
 api = APIRouter()
@@ -37,3 +38,4 @@ async def users_me(user=Depends(get_current_user)):
 app.include_router(api, prefix="/api")
 app.include_router(home.router)
 app.include_router(readingChallenge.router)
+app.include_router(profileStats.router)
