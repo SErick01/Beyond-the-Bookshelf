@@ -310,8 +310,7 @@
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
     };
 
-    const genreUrl = `${SUPABASE_URL}/rest/v1/genres` +
-      `?select=genre_id,name&name=eq.${encodeURIComponent(genreName)}`;
+    const genreUrl = `${SUPABASE_URL}/rest/v1/genres?select=genre_id,name`;
     const genreRes = await fetch(genreUrl, { headers });
 
     if (!genreRes.ok) {
@@ -320,12 +319,17 @@
     }
 
     const genreRows = await genreRes.json();
-    if (!genreRows.length) {
+    console.log("[fetchGenreBooks] all genres:", genreRows);
+    const match = genreRows.find(
+      (g) => (g.name || "").toLowerCase() === genreName.toLowerCase()
+    );
+
+    if (!match) {
       console.warn("[fetchGenreBooks] no genre row for", genreName);
       return [];
     }
 
-    const genreId = genreRows[0].genre_id;
+    const genreId = match.genre_id;
     const wgUrl = new URL(`${SUPABASE_URL}/rest/v1/work_genres`);
     wgUrl.searchParams.set("select", "work_id");
     wgUrl.searchParams.set("genre_id", `eq.${genreId}`);
