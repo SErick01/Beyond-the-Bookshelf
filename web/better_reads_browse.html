@@ -304,26 +304,61 @@
     return res.json();
   }
 
-  async function fetchGenreRecommendations(genre, limit = 21) {
-    if (!token) {return [];}
+  async function fetchGenreBooks(genreName, limit = 21) {
+    const genreUrl = new URL(`${SUPABASE_URL}/rest/v1/genres`);
+    genreUrl.searchParams.set("select", "genre_id,name");
+    genreUrl.searchParams.set("name", `eq.${genreName}`);
+    const headers = {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    };
 
-    const params = new URLSearchParams({
-      genre,
-      limit: String(limit),
-    });
-
-    const res = await fetch(`${apiBase}/api/recommend/genre?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      mode: "cors",
-    });
-
-    if (!res.ok) {
-      throw new Error(`Genre recommend API failed: ${res.status}`);
+    const genreRes = await fetch(genreUrl.toString(), { headers });
+    if (!genreRes.ok) {
+      console.error("[fetchGenreBooks] failed to load genre", genreRes.status);
+      return [];
     }
-    return res.json();
+
+    const genreRows = await genreRes.json();
+    if (!genreRows.length) {
+      console.warn("[fetchGenreBooks] no genre row for", genreName);
+      return [];
+    }
+    const genreId = genreRows[0].genre_id;
+    const wgUrl = new URL(`${SUPABASE_URL}/rest/v1/work_genres`);
+
+    wgUrl.searchParams.set("select", "work_id");
+    wgUrl.searchParams.set("genre_id", `eq.${genreId}`);
+    wgUrl.searchParams.set("limit", String(limit * 5));
+
+    const wgRes = await fetch(wgUrl.toString(), { headers });
+    if (!wgRes.ok) {
+      console.error("[fetchGenreBooks] failed to load work_genres", wgRes.status);
+      return [];
+    }
+
+    const wgRows = await wgRes.json();
+    const workIds = [...new Set(wgRows.map((row) => row.work_id))];
+    if (!workIds.length) {
+      console.warn("[fetchGenreBooks] no works for genre", genreName);
+      return [];
+    }
+
+    const edUrl = new URL(`${SUPABASE_URL}/rest/v1/editions`);
+    edUrl.searchParams.set(
+      "select",
+      "edition_id,work_id,cover_url,works!inner(title)"
+    );
+    edUrl.searchParams.set("order", "pub_date.desc");
+    edUrl.searchParams.set("limit", String(limit));
+    edUrl.searchParams.set("work_id", `in.(${workIds.join(",")})`);
+
+    const edRes = await fetch(edUrl.toString(), { headers });
+    if (!edRes.ok) {
+      console.error("[fetchGenreBooks] failed to load editions", edRes.status);
+      return [];
+    }
+    return await edRes.json();
   }
 
   let initialRecommendedRows = [];
@@ -350,18 +385,16 @@
   let fantasyRows = [];
   let scifiRows = [];
 
-  if (token) {
-    try {
-      fantasyRows = await fetchGenreRecommendations("Fantasy", 21);
-    } catch (err) {
-      console.error("[Fantasy genre ML] error, falling back to generic", err);
-    }
+  try {
+    fantasyRows = await fetchGenreBooks("Fantasy", 21);
+  } catch (err) {
+    console.error("[Fantasy genre] error", err);
+  }
 
-    try {
-      scifiRows = await fetchGenreRecommendations("Science fiction", 21);
-    } catch (err) {
-      console.error("[Sci-Fi genre ML] error, falling back to generic", err);
-    }
+  try {
+    scifiRows = await fetchGenreBooks("Science Fiction", 21);
+  } catch (err) {
+    console.error("[Sci-Fi genre] error", err);
   }
 
   if (!fantasyRows.length || !scifiRows.length) {
@@ -369,6 +402,7 @@
     if (!fantasyRows.length) fantasyRows = fallbackRows;
     if (!scifiRows.length) scifiRows = fallbackRows;
   }
+
   renderRow("row-fantasy", fantasyRows);
   renderRow("row-scifi", scifiRows);
 
