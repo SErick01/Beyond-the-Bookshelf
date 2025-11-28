@@ -11,13 +11,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np  
 import pickle
 from pathlib import Path
+from functools import lru_cache
 
 BASE_DIR = Path(__file__).resolve().parent
 
 
 ## https://www.youtube.com/watch?v=e-I_G9QhHTA&list=PL2iCg75NbOIphVypF1BTGNQrwujM0X2L4
 
-
+@lru_cache(maxsize=None)
 def getCSVdf  (filename, encoding_type = "utf-8"):
     "When given a filename, this method reads the csv file as a dataframe."
     csv_path = BASE_DIR / filename
@@ -91,6 +92,7 @@ def getDF_matricies(filename = "book_details.csv"):
     with open("book_details.pkl", "wb") as f:
         pickle.dump(BookDetails_df, f)
 
+@lru_cache(maxsize=1)
 def load_matricies():
     "This method loads the associated matrices and dataframes associated with the original dataset."
     with open(BASE_DIR / "book_embeddings.pkl", "rb") as f:
