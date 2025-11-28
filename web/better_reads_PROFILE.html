@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Reads-Profile</title>
     <script src = "https://cdn.tailwindcss.com"></script>
+    <script src="hp.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <script src = "https://cdn.plot.ly/plotly-3.3.0.min.js" charset="utf-8"></script>
     <style>
@@ -147,56 +148,55 @@
     >    
 </main>
 
-<!-- Current Reads-->
 <div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
-    <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
-        <h2 class = "text-2xl font-bold text-dark-text mb-4">Current Reads</h2>
-        <div class="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src="76713323._SY180_.jpg"
-                alt="Cover of Empire of Storms by Sarah J. Maas"
-                class="w-16 h-24 object-cover shadow-md rounded"
-            >
-            <div class="flex-grow">
-                <p class="font-bold text-base leading-tight">Empire of Storms</p>
-                <p class="text-sm text-dark-text/80">Sarah J. Maas</p>
+  <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
+      <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
 
-                <div class="w-full h-2 bg-dark-text/30 rounded-full mt-2 overflow-hidden">
-                    <div
-                        class="bg-[#EB7F50] h-2 rounded-full"
-                        id="progress-bar"
-                        style="width: 20.6%"
-                    ></div>
-                </div>
-                <button
-                    onclick="openProfileProgressModal(1)"
-                    class="mt-3 bg-[#EB7F50] text-white text-sm ... rounded-full shadow hover:bg-dark-text transition duration-200">
-                    Update Progress
-                </button>
-            </div>
-        </div>
-        <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
-            <img
-                src = "222946916._SY180_.jpg"
-                alt = "Cover of For Whom the Belle Tolls by Jaysea Lynn"
-                class = "w-16 h-24 object-cover shadow-md rounded"
-            >
-            <div class = "flex-grow">
-                <p class = "font-bold text-lg leading-tight">For Whom the Belle Tolls</p>
-                <p class = "text-sm text-dark-text/80">Jaysea Lynn </p>
-
-                <div class = "w-full h-2 bg-dark-text/30 rounded-full mt-2 overflow-hidden">
-                    <div class="bg-[#EB7F50] h-2 rounded-full" id="progress-bar" 
-                    style="width: 57.6%"></div>   
-                </div>
-                <button
-                    onclick="openProfileProgressModal(2)"
-                    class="mt-3 bg-[#EB7F50] text-white text... transition duration-200">
-                    Update Progress
-                </button>
+      <!--Book 1-->
+      <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
+          <img id="current-cover-1" src = "76713323._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
+          <div class = "flex-grow">
+              <p id="current-title-1" class = "font-bold text-base leading-tight">Empire of Storms</p>
+              <p id="current-author-1" class = "text-sm text-dark-text/80">Sarah J. Maas </p>
+              <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
+                  <div id="progress-bar-1" 
+                      class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                      style="width: 25%">
+                      <span id="progress-text-1" class="text-white font-bold text-xs" 
+                          style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                      </span>
+                  </div>
               </div>
-        </div>
-    </section>
+              <button id ="update-progress-btn-1" onclick="openModal(1)"
+                  class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                  Update Progress
+              </button>
+          </div>
+      </div> 
+
+      <!--Book 2-->
+      <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
+          <img id="current-cover-2" src = "222946916._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
+          <div class = "flex-grow">
+              <p id="current-title-2" class = "font-bold text-base leading-tight">For Whom the Belle Tolls</p>
+              <p id="current-author-2" class = "text-sm text-dark-text/80">Jaysea Lynn</p>
+              <div class = "w-full h-2 bg-dark-brown/30 rounded-full mt-2 overflow-hidden relative">
+                  <div id="progress-bar-2" 
+                      class="bg-primary-orange h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center" 
+                      style="width: 25%">
+                      <span id="progress-text-2" class="text-white font-bold text-xs" 
+                          style="text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">
+                      </span>
+                  </div>
+              </div>
+              <button id ="update-progress-btn-2" onclick="openModal(2)"
+                  class="mt-3 bg-[EB7F50] text-white text-sm px-4 py-1 rounded-full shadow hover:bg-dark-brown transition duration-200"> 
+                  Update Progress
+              </button>
+          </div>
+      </div> 
+  </section>
+
 
 <!-- Favorites -->
 <div class="lg:col-span-6 space-y-6">
@@ -221,8 +221,7 @@
         <img
           id="pages-chart"
           alt="Error loading chart."
-          class="mx-auto max-w-full rounded shadow"
-        >
+          class="mx-auto max-w-full rounded shadow">
       </div>
 
       <!-- Pie: genres for the year -->
@@ -231,8 +230,7 @@
         <img
           id="genres-chart"
           alt="Error loading chart."
-          class="mx-auto max-w-full rounded shadow"
-        >
+          class="mx-auto max-w-full rounded shadow">
       </div>
 
       <!-- Scatter: completion timeline -->
@@ -241,8 +239,7 @@
         <img
           id="timeline-chart"
           alt="Error loading chart."
-          class="mx-auto max-w-full rounded shadow"
-        >
+          class="mx-auto max-w-full rounded shadow">
       </div>
 
     </div>
@@ -282,55 +279,59 @@
         <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
     </div>
 </footer>
-<!-- Profile: Update Progress Modal -->
+
 <div 
-  id="profile-progress-modal" 
-  class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex items-center justify-center"
-  onclick="closeProfileModalOnOutsideClick(event)"
->
-  <div 
-    class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm m-4" 
-    onclick="event.stopPropagation()"
-  >
-    <h2 class="text-xl font-bold mb-2 text-[#51200F]">
-      Update Reading Progress
-    </h2>
-    <p class="mb-4 text-sm text-gray-700">
-      Enter your updated page number for this book.
-    </p>
+    id="progress-modal" 
+    class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex items-center justify-center transition-opacity duration-300"
+    onclick="closeModalOnOutsideClick(event)">
+    <div 
+        class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm m-4 transform scale-100 transition-transform duration-300" 
+        onclick="event.stopPropagation()">
+        <h3 class="text-xl font-bold mb-4">Update Reading Progress</h3>
+        <p class="text-sm text-gray-600 mb-2">Enter the page you’re currently on.</p>
+        <p id="total-pages-label" class="text-xs text-gray-500 mb-4"></p>
 
-    <label 
-      for="profile-pages-read-input" 
-      class="block text-sm font-medium text-gray-700 mb-1"
-    >
-      Current page
-    </label>
-    <input
-      id="profile-pages-read-input"
-      type="number"
-      min="0"
-      class="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#EB7F50]"
-      placeholder="e.g. 120"
-    />
+        <label for="page-input" class="block text-sm font-medium text-gray-700 mb-2">Current page number</label>
+        <input 
+            type="number" id="page-input" name="page-input" min="0" step="1"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-orange focus:border-primary-orange text-lg mb-4"/>
 
-    <div class="flex justify-end space-x-3">
-      <button
-        type="button"
-        onclick="closeProfileModal()"
-        class="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
-      >
-        Cancel
-      </button>
-      <button
-        type="button"
-        onclick="closeProfileModal()"
-        class="px-4 py-2 rounded bg-[#EB7F50] text-white hover:bg-[#C55E32]"
-      >
-        Save
-      </button>
+        <div id="error-message" class="text-red-500 text-sm mb-4 hidden"></div>
+
+        <div class="flex justify-end space-x-3">
+            <button 
+                onclick="closeModal()" 
+                class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-150">
+                Cancel
+            </button>
+            <button 
+                onclick="updateProgress()" 
+                class="px-4 py-2 text-white bg-primary-orange rounded-lg hover:bg-dark-brown font-semibold transition duration-150">
+                Submit Update
+            </button>
+        </div>
     </div>
-  </div>
 </div>
+
+<div id="rating-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
+        <h3 class="text-2xl font-bold mb-2">Congratulations!</h3>
+        <p class="mb-4">You've finished the book. How would you rate it?</p>
+        <div id="star-rating-container" class="text-4xl mb-6">
+            <span class="cursor-pointer hover:opacity-75" data-rating="1">★</span>
+            <span class="cursor-pointer hover:opacity-75" data-rating="2">★</span>
+            <span class="cursor-pointer hover:opacity-75" data-rating="3">★</span>
+            <span class="cursor-pointer hover:opacity-75" data-rating="4">★</span>
+            <span class="cursor-pointer hover:opacity-75" data-rating="5">★</span>
+        </div>
+        <p id="selected-rating" class="mb-4 text-gray-600">Click a star to rate</p>
+        <div class="flex justify-center space-x-3">
+            <button onclick="closeRatingModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Skip</button>
+            <button onclick="saveRating()" class="bg-primary-orange text-white px-4 py-2 rounded hover:bg-dark-brown">Submit Rating</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let date = new Date();
     let currYear = date.getFullYear();
