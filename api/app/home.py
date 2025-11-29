@@ -675,3 +675,140 @@ async def list_summary(user: dict = Depends(get_current_user)):
         "reading_cover_url": reading_cover,
         "completed_cover_url": completed_cover,
     }
+
+
+def user_books_from_table(
+    table: str,
+    order_column: str,
+    user_id: str,
+    limit: int,
+    headers: Dict[str, str],
+) -> List[Dict[str, Any]]:
+    params = {
+        "select": f"work_id,{order_column}",
+        "user_id": f"eq.{user_id}",
+        "order": f"{order_column}.desc",
+        "limit": str(limit),
+    }
+    base_url = f"{SUPABASE_URL}/rest/v1/{table}"
+    url = f"{base_url}?{urllib.parse.urlencode(params)}"
+
+    try:
+        req = urllib.request.Request(url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8")
+        rows = json.loads(body)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print(f"[home.{table}_list] HTTPError reading {table}", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading {table} ({e.code}): {body}",
+        )
+    except Exception as e:
+        print(f"[home.{table}_list] error reading {table}:", repr(e))
+        raise HTTPException(status_code=500, detail=f"Failed to load {table}")
+
+    if not rows:
+        return []
+
+    work_ids: List[str] = []
+    order_map: Dict[str, int] = {}
+
+    for idx, row in enumerate(rows):
+        wid = row.get("work_id")
+        if not wid:
+            continue
+        wid_str = str(wid)
+        if wid_str not in order_map:
+            order_map[wid_str] = idx
+            work_ids.append(wid_str)
+
+    if not work_ids:
+        return []
+
+    ed_params = {
+        "select": "edition_id,work_id,cover_url,works!inner(title)",
+        "work_id": f"in.({','.join(work_ids)})",
+        "order": "pub_date.desc",
+    }
+    ed_url = f"{SUPABASE_URL}/rest/v1/editions?{urllib.parse.urlencode(ed_params)}"
+
+    try:
+        ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+        with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+            ed_body = ed_resp.read().decode("utf-8")
+        ed_rows = json.loads(ed_body)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print(f"[home.{table}_list] editions HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading editions ({e.code}): {body}",
+        )
+    except Exception as e:
+        print(f"[home.{table}_list] editions error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load editions")
+
+    items: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for row in ed_rows:
+        wid = row.get("work_id")
+        if not wid:
+            continue
+        wid_str = str(wid)
+        if wid_str in seen:
+            continue
+        seen.add(wid_str)
+
+        title = (row.get("works") or {}).get("title") or f"Work {wid_str}"
+        items.append(
+            {
+                "work_id": wid_str,
+                "edition_id": row.get("edition_id"),
+                "title": title,
+                "cover_url": row.get("cover_url"),
+            }
+        )
+
+    items.sort(key=lambda r: order_map.get(str(r["work_id"]), 0))
+    return items[:limit]
+
+
+@router.get("/reading_list")
+async def reading_list(
+    limit: int = Query(100, ge=1, le=200),
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+    items = user_books_from_table(
+        "reading_progress", "updated_at", user["id"], limit, headers
+    )
+
+    return {
+        "name": "All current reads",
+        "items": items,
+    }
+
+
+@router.get("/completed_list")
+async def completed_list(
+    limit: int = Query(100, ge=1, le=200),
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+    items = user_books_from_table(
+        "completions", "finished_at", user["id"], limit, headers
+    )
+
+    return {
+        "name": "All completed books",
+        "items": items,
+    }
