@@ -188,7 +188,7 @@ async def get_favorites(
 
 @router.get("/shelves/{shelf_id}/items")
 async def get_shelf_items(
-    shelf_id: int,
+    shelf_id: str,
     limit: int = Query(100, ge=1, le=200),
     user: dict = Depends(get_current_user),
 ):
