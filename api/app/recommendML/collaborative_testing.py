@@ -3,10 +3,11 @@
 ## Collaborative Filtering Testing and Development
 
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity 
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np  
-import pickle
+from sklearn.metrics.pairwise import cosine_similarity
+from functools import lru_cache
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# import numpy as np  
+# import pickle
 
 # https://pandas.pydata.org/docs/user_guide/merging.html -- for info on merging w/ pandas
 # https://www.geeksforgeeks.org/machine-learning/build-a-recommendation-engine-with-collaborative-filtering/
@@ -19,7 +20,7 @@ def getCSVdf  (filename, encoding_type = "utf-8"):
     return book_dataframe
 
 # based on ratings!
-
+@lru_cache(maxsize=1)
 def getuser_item_matrix(fulldf):
     "When given the fully merged dataframe, it will return the user item matrix, the similarity matrix, and the user dataframe."
     user_item_matrix = fulldf.pivot_table(index="user_id",columns="work_id",values="rating_value").fillna(0) #user-item relationship 
@@ -27,7 +28,6 @@ def getuser_item_matrix(fulldf):
     user_df = pd.DataFrame(user_similarity,index=user_item_matrix.index,columns=user_item_matrix.index)
 
     return user_item_matrix, user_similarity, user_df
-
 
 
 def recommend_for_user(user_id, user_similarity_df, user_item_matrix, works, top_n=5):

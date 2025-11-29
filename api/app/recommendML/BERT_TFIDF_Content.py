@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 # import tensorflow as tf
 # import tensorflow_hub as hub
-# from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
+from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
 import numpy as np  
 import pickle
 from pathlib import Path
