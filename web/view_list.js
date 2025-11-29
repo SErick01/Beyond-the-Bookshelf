@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const listTitleEl = document.getElementById("list-title");
   const bookListEl = document.getElementById("book-list");
   const searchInput = document.getElementById("book-search-input");
-  const fabButton = document.getElementById("fab");
+  // const fabButton = document.getElementById("fab");
   const searchModal = document.getElementById("search-modal");
   const modalSearchInput = document.getElementById("modal-book-search-input");
   const closeModalButton = document.getElementById("close-modal");
@@ -172,15 +172,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (searchInput) {searchInput.addEventListener("input", filterBooks);}
 
-  if (fabButton && searchModal) {
-    fabButton.addEventListener("click", () => {
-      searchModal.classList.remove("hidden");
-      if (modalSearchInput) {
-        modalSearchInput.value = "";
-        modalSearchInput.focus();
-      }
-    });
-  }
+  // if (fabButton && searchModal) {
+  //   fabButton.addEventListener("click", () => {
+  //     searchModal.classList.remove("hidden");
+  //     if (modalSearchInput) {
+  //       modalSearchInput.value = "";
+  //       modalSearchInput.focus();
+  //     }
+  //   });
+  // }
 
   if (closeModalButton && searchModal) {
     closeModalButton.addEventListener("click", () => {
