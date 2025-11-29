@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 # import tensorflow as tf
 # import tensorflow_hub as hub
-# from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
+from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
 import numpy as np  
 import pickle
 from pathlib import Path
@@ -26,13 +26,21 @@ def getCSVdf  (filename, encoding_type = "utf-8"):
     return book_dataframe
 
 
+@lru_cache(maxsize=1)
+def get_bert_model():
+    """Load BERT tokenizer + model once and cache them."""
+    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
+    return tokenizer, model
+
+
 def get_BERT_embeds (text, batch_size = 1000):
     "When given text, this method uses the uncased BERT model to create an array of the created embeddings."
 
     #BERT Tokenizer & Model via HuggingFace and Tensorflow
     #was originally tensorflow model -- but had to downgrade python to use it
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
+    # model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
     
     #need batch size otherwise it will overload CPU --do it in parts
     bert = []
