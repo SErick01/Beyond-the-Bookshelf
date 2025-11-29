@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 # import tensorflow as tf
 # import tensorflow_hub as hub
-from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
+# from transformers import BertTokenizer, TFBertModel #pip install transformers==4.41.2
 import numpy as np  
 import pickle
 from pathlib import Path
@@ -15,8 +15,8 @@ from functools import lru_cache
 
 BASE_DIR = Path(__file__).resolve().parent
 
-
 ## https://www.youtube.com/watch?v=e-I_G9QhHTA&list=PL2iCg75NbOIphVypF1BTGNQrwujM0X2L4
+
 
 @lru_cache(maxsize=None)
 def getCSVdf  (filename, encoding_type = "utf-8"):
@@ -26,21 +26,13 @@ def getCSVdf  (filename, encoding_type = "utf-8"):
     return book_dataframe
 
 
-@lru_cache(maxsize=1)
-def get_bert_model():
-    """Load BERT tokenizer + model once and cache them."""
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
-    return tokenizer, model
-
-
 def get_BERT_embeds (text, batch_size = 1000):
     "When given text, this method uses the uncased BERT model to create an array of the created embeddings."
 
     #BERT Tokenizer & Model via HuggingFace and Tensorflow
     #was originally tensorflow model -- but had to downgrade python to use it
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    # model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
+    model = TFBertModel.from_pretrained("bert-base-uncased", from_pt=True)
     
     #need batch size otherwise it will overload CPU --do it in parts
     bert = []
@@ -63,12 +55,14 @@ def get_BERT_embeds (text, batch_size = 1000):
         bert.append(embedding_batch.numpy())
     return np.vpstack(bert)
 
+
 #TF-IDF Vectorization
 def get_TFIDF_Vector(text, maxfeat = 2000):
     "This method returns the TF-IDF Matrix of any given text"
     bookdefVector = TfidfVectorizer(stop_words = "english", max_features = maxfeat) 
     vectorMatrix = bookdefVector.fit_transform(text)
     return bookdefVector, vectorMatrix
+
 
 def getDF_matricies(filename = "book_details.csv"):
     "This method gets the matricies, embeddings, and related vectors of the original dataset and saves them within pickle files."
@@ -100,6 +94,7 @@ def getDF_matricies(filename = "book_details.csv"):
     with open("book_details.pkl", "wb") as f:
         pickle.dump(BookDetails_df, f)
 
+
 @lru_cache(maxsize=1)
 def load_matricies():
     "This method loads the associated matrices and dataframes associated with the original dataset."
@@ -113,6 +108,7 @@ def load_matricies():
         BookDetails_df = pickle.load(f)
     return embeddings, vector_Matrix, vectorizer, BookDetails_df
 
+
 def recommend_content(title=None, description=None, genres=None, author=None, top_n=5):
     "This method returns suggested books based off of a given title, description, genre, or author."
     embeddings, vector_Matrix, vectorizer, BookDetails_df = load_matricies()
@@ -123,7 +119,6 @@ def recommend_content(title=None, description=None, genres=None, author=None, to
         bert_sim = cosine_similarity(new_bert_embed, (embeddings))[0]
     else:
         bert_sim = np.zeros(len(BookDetails_df))
-    
     
     if genres or author: #Genres & Author Fields (TF-IDF Section)
         tfidf_input = [f"{genres or ''} {author or ''}"]
@@ -140,6 +135,7 @@ def recommend_content(title=None, description=None, genres=None, author=None, to
     
     top_indices = combined_sim.argsort()[::-1][:top_n]
     return BookDetails_df.iloc[top_indices][['title', 'author', 'genres', 'description']]
+
 
 if __name__ == "__main__":
     ## getDF_matricies() only needs to be run the first time!

@@ -118,3 +118,4 @@ if __name__ == "__main__":
 
     print(f"\nRecommendations for user {user1}:")
     print(combinedRS(user1, user_df, user_item_matrix, works, genres = "Dystopia", title = "Tale of Two Cities" ))
+    
