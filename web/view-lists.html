@@ -106,13 +106,14 @@
                 <a href="better_reads_mb.html" class="absolute left-0 text-xl text-dark-brown hover:text-primary-orange transition-colors">
                     <i class="fa-solid fa-angle-left"></i>
                 </a>
-                <h2 class="text-3xl font-extrabold text-dark-brown tracking-wide">Finished</h2>
+                <h2 id="list-title" class="text-3xl font-extrabold text-dark-brown tracking-wide">Finished</h2>
             </div>
 
             <form class="w-full max-w-xl mx-auto mb-10">
                 <div class="relative flex items-center">
                     <i class="fa-solid fa-magnifying-glass pl-4 absolute text-gray-500"></i> 
                     <input
+                        id="book-search-input"
                         type="text"
                         placeholder="Search This List"
                         aria-label="Search field for Want To Read list"
@@ -132,66 +133,8 @@
             </form>
 
             <!-- Book List -->
-            <div class="space-y-4">
-
-                <!-- Book Item 1 -->
-                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
-                    <img 
-                        src="phantasma.jpg" 
-                        alt="Phantasma Cover" 
-                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
-                    >
-                    <div class="flex-grow">
-                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Iron Flame</h3>
-                        <p class="text-gray-700 text-sm mb-2">Kaylie Smith</p>
-                        <div class="flex space-x-0.5 text-lg">
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star-half-stroke text-yellow-500"></i>
-                            <i class="fa-regular fa-star text-yellow-500"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Book Item 2 -->
-                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
-                    <img 
-                        src="redrising.jpg" 
-                        alt="Red Rising Cover" 
-                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
-                    >
-                    <div class="flex-grow">
-                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Red Rising</h3>
-                        <p class="text-gray-700 text-sm mb-2">Pierce Brown</p>
-                        <div class="flex space-x-0.5 text-lg">
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-regular fa-star text-yellow-500"></i>
-                            <i class="fa-regular fa-star text-yellow-500"></i>
-                            <i class="fa-regular fa-star text-yellow-500"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer">
-                    <img 
-                        src="spark.jpg" 
-                        alt="Spark Cover" 
-                        class="w-16 h-24 object-cover shadow-lg rounded-md mr-4 flex-shrink-0"
-                    >
-                    <div class="flex-grow">
-                        <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">Spark</h3>
-                        <p class="text-gray-700 text-sm mb-2">Penn Cole</p>
-                        <div class="flex space-x-0.5 text-lg">
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                            <i class="fa-solid fa-star text-yellow-500"></i>
-                        </div>
-                    </div>
-                </div>
+            <div id="book-list" class="space-y-4">
+                <!-- JS will inject books here -->
             </div>
             
         </section>
@@ -209,7 +152,11 @@
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
         <div class="bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-md">
             <h2 class="text-xl font-bold mb-4"> Search for a Book</h2>
-            <input type="text" id="book-search-input" placeholder="Title, Author, or ISBN..." class="w-full p-2 border border-gray-300 rounded mb-4">
+            <input 
+                type="text" 
+                id="modal-book-search-input" 
+                placeholder="Title, Author, or ISBN..." 
+                class="w-full p-2 border border-gray-300 rounded mb-4">
             <div class="flex justify-end space-x-2">
                 <button id="close-modal" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
                 <button id="perform-search" class="px-4 py-2 bg-primary-orange text-white rounded hover:bg-primary-orange/90">Search</button>

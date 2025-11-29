@@ -186,6 +186,166 @@ async def get_favorites(
     return favorites[:limit]
 
 
+@router.get("/shelves/{shelf_id}/items")
+async def get_shelf_items(
+    shelf_id: int,
+    limit: int = Query(100, ge=1, le=200),
+    user: dict = Depends(get_current_user),
+):
+    if not user:
+        raise HTTPException(status_code=403, detail="Not authenticated")
+
+    headers = supabase_headers()
+    
+    shelf_params = {
+        "select": "shelf_id,name",
+        "shelf_id": f"eq.{shelf_id}",
+        "user_id": f"eq.{user['id']}",
+        "limit": "1",
+    }
+    shelf_url = f"{SUPABASE_URL}/rest/v1/shelves?{urllib.parse.urlencode(shelf_params)}"
+
+    try:
+        s_req = urllib.request.Request(shelf_url, headers=headers, method="GET")
+        with urllib.request.urlopen(s_req, timeout=10) as s_resp:
+            s_body = s_resp.read().decode("utf-8")
+        shelf_rows = json.loads(s_body)
+
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelf_items] shelves HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading shelves ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.shelf_items] shelves error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load shelf")
+
+    if not shelf_rows:
+        raise HTTPException(status_code=404, detail="Shelf not found")
+
+    shelf_row = shelf_rows[0]
+    si_params = {
+        "select": "work_id,added_at",
+        "shelf_id": f"eq.{shelf_id}",
+        "order": "added_at.desc",
+        "limit": str(limit),
+    }
+    si_url = f"{SUPABASE_URL}/rest/v1/shelf_items?{urllib.parse.urlencode(si_params)}"
+
+    try:
+        si_req = urllib.request.Request(si_url, headers=headers, method="GET")
+        with urllib.request.urlopen(si_req, timeout=10) as si_resp:
+            si_body = si_resp.read().decode("utf-8")
+        si_rows = json.loads(si_body)
+
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelf_items] shelf_items HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading shelf_items ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.shelf_items] shelf_items error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load list items")
+
+    if not si_rows:
+        return {
+            "shelf_id": shelf_id,
+            "name": shelf_row.get("name"),
+            "items": [],
+        }
+    work_ids: list[str] = []
+    shelf_order: dict[str, int] = {}
+
+    for idx, row in enumerate(si_rows):
+        wid = row.get("work_id")
+
+        if not wid:
+            continue
+        wid_str = str(wid)
+
+        if wid_str not in shelf_order:
+            shelf_order[wid_str] = idx
+            work_ids.append(wid_str)
+
+    if not work_ids:
+        return {
+            "shelf_id": shelf_id,
+            "name": shelf_row.get("name"),
+            "items": [],
+        }
+
+    ed_params = {
+        "select": "edition_id,work_id,cover_url,works!inner(title)",
+        "work_id": f"in.({','.join(work_ids)})",
+        "order": "pub_date.desc",
+    }
+    ed_url = f"{SUPABASE_URL}/rest/v1/editions?{urllib.parse.urlencode(ed_params)}"
+
+    try:
+        ed_req = urllib.request.Request(ed_url, headers=headers, method="GET")
+        with urllib.request.urlopen(ed_req, timeout=10) as ed_resp:
+            ed_body = ed_resp.read().decode("utf-8")
+        ed_rows = json.loads(ed_body)
+    
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="ignore")
+        print("[home.shelf_items] editions HTTPError", e.code, body)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Supabase error while reading editions ({e.code}): {body}",
+        )
+    
+    except Exception as e:
+        print("[home.shelf_items] editions error:", repr(e))
+        raise HTTPException(status_code=500, detail="Failed to load books for this list")
+
+    items: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    if not ed_rows:
+        for wid in work_ids:
+            items.append(
+                {
+                    "work_id": wid,
+                    "edition_id": None,
+                    "title": f"Work {wid}",
+                    "cover_url": None,
+                }
+            )
+    else:
+        for row in ed_rows:
+            wid = row.get("work_id")
+            if not wid:
+                continue
+            wid_str = str(wid)
+            if wid_str in seen:
+                continue
+            seen.add(wid_str)
+
+            title = (row.get("works") or {}).get("title") or f"Work {wid_str}"
+            items.append(
+                {
+                    "work_id": wid_str,
+                    "edition_id": row.get("edition_id"),
+                    "title": title,
+                    "cover_url": row.get("cover_url"),
+                }
+            )
+    items.sort(key=lambda r: shelf_order.get(str(r["work_id"]), 0))
+
+    return {
+        "shelf_id": shelf_id,
+        "name": shelf_row.get("name"),
+        "items": items,
+    }
+
+
 @router.get("/shelves")
 async def get_shelves(
     limit: int = Query(100, ge=1, le=200),
