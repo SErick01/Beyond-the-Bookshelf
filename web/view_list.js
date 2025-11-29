@@ -1,26 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "https://beyond-the-bookshelf.onrender.com";
+  const apiBase = "https://beyond-the-bookshelf.onrender.com";
   const token = localStorage.getItem("btb_token");
   const COVER_BASE =
     "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
   const PLACEHOLDER_COVER = COVER_BASE + "cover/placeholder.jpg";
 
-  function buildCoverUrl(coverUrl) {
-    if (!coverUrl || typeof coverUrl !== "string") {
+  function buildCoverUrl(relativeUrl) {
+    if (!relativeUrl || typeof relativeUrl !== "string") {
       return PLACEHOLDER_COVER;
     }
-
-    if (coverUrl.startsWith("http://") || coverUrl.startsWith("https://")) {
-      return coverUrl;
+    if (relativeUrl.startsWith("http://") || relativeUrl.startsWith("https://")) {
+      return relativeUrl;
     }
-
-    if (coverUrl.startsWith("cover/")) {
-      return COVER_BASE + coverUrl;
+    if (relativeUrl.startsWith("cover/")) {
+      return COVER_BASE + relativeUrl;
     }
     return PLACEHOLDER_COVER;
   }
 
   const params = new URLSearchParams(window.location.search);
+  const listType = params.get("type");
   const shelfId = params.get("shelf_id");
   const listTitleEl = document.getElementById("list-title");
   const bookListEl = document.getElementById("book-list");
@@ -36,32 +35,45 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  async function loadShelf() {
-    if (!shelfId) {
-      bookListEl.innerHTML =
-        '<p class="text-center text-gray-700">No list selected. This page needs a shelf_id in the URL.</p>';
-      return;
-    }
 
+  async function loadList() {
     if (!token) {
       bookListEl.innerHTML =
         '<p class="text-center text-gray-700">Please log in to view this list.</p>';
       return;
     }
 
-    try {
-      const res = await fetch(
-        `${API_BASE}/api/home/shelves/${encodeURIComponent(
-          shelfId
-        )}/items?limit=100`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          mode: "cors",
-        }
+    if (listType === "reading") {
+      await loadFromEndpoint("/api/home/reading_list?limit=100", "All current reads");
+
+    } else if (listType === "completed") {
+      await loadFromEndpoint(
+        "/api/home/completed_list?limit=100",
+        "All completed books"
       );
+
+    } else if (shelfId) {
+      await loadFromEndpoint(
+        `/api/home/shelves/${encodeURIComponent(shelfId)}/items?limit=100`,
+        null
+      );
+
+    } else {
+      bookListEl.innerHTML =
+        '<p class="text-center text-gray-700">No list selected.</p>';
+    }
+  }
+
+
+  async function loadFromEndpoint(pathWithQuery, fallbackName) {
+    try {
+      const res = await fetch(`${apiBase}${pathWithQuery}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        mode: "cors",
+      });
 
       if (res.status === 403) {
         bookListEl.innerHTML =
@@ -76,45 +88,46 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (!res.ok) {
-        console.error("Failed to load shelf items", res.status);
+        console.error("view-lists: failed to load list", res.status);
         bookListEl.innerHTML =
           '<p class="text-center text-gray-700">Could not load books for this list.</p>';
         return;
       }
 
       const data = await res.json();
-      if (data.name && listTitleEl) {listTitleEl.textContent = data.name;}
+      if (listTitleEl) {
+        listTitleEl.textContent = data.name || fallbackName || "List";
+      }
 
       const items = data.items || [];
       if (!items.length) {
         bookListEl.innerHTML =
-          '<p class="text-center text-gray-700">There are no books on this list yet.</p>';
+          '<p class="text-center text-gray-700">There are no books in this list yet.</p>';
         return;
       }
 
       renderItems(items);
     } catch (err) {
-      console.error("Error loading shelf", err);
+      console.error("view-lists: error loading list", err);
       bookListEl.innerHTML =
         '<p class="text-center text-gray-700">Something went wrong loading this list.</p>';
     }
   }
 
+
   function renderItems(items) {
     bookListEl.innerHTML = "";
 
-    for (const item of items) {
+    items.forEach((item) => {
       const title = item.title || "Untitled";
       const workId = item.work_id;
       const editionId = item.edition_id;
-
       const coverUrl = buildCoverUrl(item.cover_url);
-
       const card = document.createElement("a");
       card.className =
         "flex items-start p-4 border-b border-gray-400 hover:bg-card-background/70 transition-colors cursor-pointer";
       card.href = buildViewBookUrl(workId, editionId);
-
+      card.dataset.title = title.toLowerCase();
       card.innerHTML = `
         <img
           src="${coverUrl}"
@@ -126,21 +139,18 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 class="text-xl font-bold text-dark-brown leading-tight mb-1">
             ${title}
           </h3>
-          <p class="text-gray-700 text-sm mb-2">
-            <!-- optional: author info if you add it later -->
-          </p>
+          <p class="text-gray-700 text-sm mb-2"></p>
         </div>
       `;
 
-      card.dataset.title = title.toLowerCase();
-
       bookListEl.appendChild(card);
-    }
+    });
   }
 
   function buildViewBookUrl(workId, editionId) {
     let url = "View-book.html";
     const qs = new URLSearchParams();
+
     if (editionId) {
       qs.set("edition_id", editionId);
     } else if (workId) {
@@ -160,14 +170,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (searchInput) {
-    searchInput.addEventListener("input", filterBooks);
-  }
+  if (searchInput) {searchInput.addEventListener("input", filterBooks);}
 
   if (fabButton && searchModal) {
     fabButton.addEventListener("click", () => {
       searchModal.classList.remove("hidden");
-      if (modalSearchInput) modalSearchInput.focus();
+      if (modalSearchInput) {
+        modalSearchInput.value = "";
+        modalSearchInput.focus();
+      }
     });
   }
 
@@ -182,5 +193,5 @@ document.addEventListener("DOMContentLoaded", () => {
       searchModal.classList.add("hidden");
     });
   }
-  loadShelf();
+  loadList();
 });

@@ -262,36 +262,51 @@
       }
     };
 
+    
     function renderShelfCard(shelf) {
         const section = document.createElement('section');
         section.className = 'bg-[#E5C09E]';
-        const shelfId   = shelf.shelf_id ?? shelf.id;
+
+        const shelfId  = shelf.shelf_id ?? shelf.id;
+        const listType = shelf.list_type || null;
         const name      = shelf.name ?? 'Unnamed list';
         const count     = shelf.book_count ?? 0;
         const countWord = count === 1 ? 'book' : 'books';
         const coverSrc  = buildCoverUrl(shelf.cover_url);
-        const linkOpen  = shelfId ? `<a href="view-lists.html?shelf_id=${encodeURIComponent(shelfId)}">` : '';
-        const linkClose = shelfId ? '</a>' : '';
+
+        let href = null;
+        if (listType === 'reading') {
+          href = 'view-lists.html?type=reading';
+        } else if (listType === 'completed') {
+          href = 'view-lists.html?type=completed';
+        } else if (shelfId) {
+          href = `view-lists.html?shelf_id=${encodeURIComponent(shelfId)}`;
+        }
+
+        const linkOpen  = href ? `<a href="${href}">` : '';
+        const linkClose = href ? '</a>' : '';
+
         section.innerHTML = `
             ${linkOpen}
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between">
                 <img
-                src="${coverSrc}"
-                alt="List cover"
-                class="w-24 h-auto"
-                onerror="this.onerror=null; this.src='${PLACEHOLDER_COVER}'"
+                  src="${coverSrc}"
+                  alt="List cover"
+                  class="w-28 h-40 object-cover rounded-lg shadow-lg mb-4 md:mb-0 md:mr-6"
+                  onerror="this.onerror=null; this.src='${PLACEHOLDER_COVER}'"
                 >
                 <div class="md:w-2/3 mb-4 md:mb-0 md:pr-6">
-                <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
-                <span class="text-sm font-medium text-gray-500 block mb-4">
+                  <h2 class="text-2xl font-bold text-dark-text mb-2">${name}</h2>
+                  <span class="text-sm font-medium text-gray-500 block mb-4">
                     <span class="text-gray-700 font-bold">${count}</span> ${countWord} in this list
-                </span>
+                  </span>
                 </div>
             </div>
             ${linkClose}
         `;
         return section;
     }
+
 
     async function loadSummary() {
       if (!token) return;
@@ -310,15 +325,17 @@
         const data = await res.json();
         const readingCount   = data.reading_count   ?? 0;
         const completedCount = data.completed_count ?? 0;
+
         const completedCard = renderShelfCard({
-            shelf_id: completedShelfId,
+            list_type: 'completed',
             name: 'All completed books',
             book_count: completedCount,
             cover_url: data.completed_cover_url,
         });
         shelvesGrid.insertBefore(completedCard, shelvesGrid.firstChild);
+
         const readingCard = renderShelfCard({
-            shelf_id: readingShelfId,
+            list_type: 'reading',
             name: 'All current reads',
             book_count: readingCount,
             cover_url: data.reading_cover_url,
@@ -429,45 +446,6 @@
       }
     });
     loadShelves().then(loadSummary);
-  });
-</script>
-<script>
-  function wireSummaryCardLink(titleText, href) {
-    const headings = Array.from(document.querySelectorAll('main h2'));
-    const heading = headings.find(h => h.textContent.trim() === titleText);
-    if (!heading) return;
-
-    const section = heading.closest('section');
-    if (!section) return;
-
-    if (section.querySelector('a[href*="view-lists"]')) return;
-
-    const wrapper = document.createElement('a');
-    wrapper.href = href;
-    wrapper.className = 'block';
-
-    while (section.firstChild) {
-      wrapper.appendChild(section.firstChild);
-    }
-    section.appendChild(wrapper);
-  }
-
-  function setupSummaryLinks() {
-    const templateLink = document.querySelector('main a[href*="view-lists"]');
-    const href = templateLink ? templateLink.getAttribute('href') : 'view-lists.html';
-
-    wireSummaryCardLink('All current reads', href);
-    wireSummaryCardLink('All completed books', href);
-  }
-
-  window.addEventListener('load', () => {
-    setupSummaryLinks();
-    let tries = 0;
-    const timer = setInterval(() => {
-      setupSummaryLinks();
-      tries += 1;
-      if (tries > 10) clearInterval(timer);
-    }, 500);
   });
 </script>
 <script>
