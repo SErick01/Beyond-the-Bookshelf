@@ -9,10 +9,6 @@ from functools import lru_cache
 # import numpy as np  
 # import pickle
 
-# https://pandas.pydata.org/docs/user_guide/merging.html -- for info on merging w/ pandas
-# https://www.geeksforgeeks.org/machine-learning/build-a-recommendation-engine-with-collaborative-filtering/
-# https://softwarepatternslexicon.com/machine-learning/model-training-patterns/collaborative-filtering/user-based-collaborating-filtering/
-
 
 def getCSVdf  (filename, encoding_type = "utf-8"):
     "When given a filename, this method reads the csv file as a dataframe."
