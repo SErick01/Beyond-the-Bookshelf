@@ -15,8 +15,6 @@ from functools import lru_cache
 
 BASE_DIR = Path(__file__).resolve().parent
 
-## https://www.youtube.com/watch?v=e-I_G9QhHTA&list=PL2iCg75NbOIphVypF1BTGNQrwujM0X2L4
-
 
 @lru_cache(maxsize=None)
 def getCSVdf  (filename, encoding_type = "utf-8"):
