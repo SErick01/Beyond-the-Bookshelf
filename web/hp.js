@@ -1,5 +1,4 @@
 //Drop Down in the Nav Bar
-
 function toggleDropdown(event) { 
     const menu = document.getElementById('dropdown-menu');
     const button = event.currentTarget;
@@ -21,8 +20,8 @@ document.addEventListener('click', function(event) {
 });
 
 // Progress Bar Updates
-
 let activeBookId = 1;
+
 function getBookData(bookId) {
     if (!window.currentReads) return null;
     return window.currentReads[bookId] || null;
@@ -52,6 +51,7 @@ function openModal(bookId) {
         const approxPage = Math.round((currentPercent / 100) * totalPages);
         input.value = approxPage || '';
         input.max = totalPages;
+
     } else {
         if (totalPagesLabel) totalPagesLabel.textContent = '';
         input.value = '';
@@ -60,6 +60,7 @@ function openModal(bookId) {
 
     if (modal) {
         modal.classList.remove('hidden');
+
     } else {
         console.error("Modal element with ID 'progress-modal' not found");
     }
@@ -73,15 +74,14 @@ const selectedRatingText = document.getElementById('selected-rating');
 function updateStarDisplay(rating, isHover) {
     stars.forEach(star => {
         const starValue = parseInt(star.dataset.rating);
-        
         // Highlight stars up to the given rating value
         if (starValue <= rating) {
             star.classList.add('highlighted-star');
+
         } else {
             star.classList.remove('highlighted-star');
         }
     });
-
     // Update the explanatory text
     if (rating > 0) {
         selectedRatingText.textContent = isHover 
@@ -111,7 +111,6 @@ starContainer.addEventListener('mouseover', (event) => {
             updateStarDisplay(currentRating, false); 
         }
     });
-
     updateStarDisplay(currentRating, false);
 
 function closeRatingModal() {
@@ -137,7 +136,6 @@ function saveRating() {
     alert(`Rating submitted for book ${activeBookId}!`);
     closeRatingModal();
 }
-
 
 function closeModal() {
     const modal = document.getElementById('progress-modal');

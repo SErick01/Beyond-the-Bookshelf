@@ -26,8 +26,8 @@
     </script>
     <style>
         section, .calendar-box, .cat-of-the-day-card {
-            padding: 1.25rem; /* p-5 */
-            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.25rem;
+            border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
         .nav-link {
@@ -36,7 +36,6 @@
         font-weight: bold;
         transition: color 0.2s ease;
     }
-    
     .nav-link:hover {
         color: #51200F;
     }
@@ -44,7 +43,6 @@
             background-color: var(--tw-colors-sidebar-bg);
             color: var(--tw-colors-dark-brown);
         }
-
         .calendar .Weeks {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -56,7 +54,6 @@
             border-bottom: 1px solid rgba(81, 32, 15, 0.2);
             padding-bottom: 5px;
         }
-
         .calendar .Days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -64,33 +61,28 @@
             padding: 0;
             text-align: center;
         }
-
         .calendar .Days li {
             padding: 0.5rem 0;
             cursor: pointer;
             transition: background-color 0.2s;
             font-size: 0.9rem;
-            border-radius: 9999px; /* full rounded */
+            border-radius: 9999px;
         }
-
         .calendar .Days li.inactive {
-            color: rgba(81, 32, 15, 0.5); /* lighter dark-brown */
+            color: rgba(81, 32, 15, 0.5);
             cursor: default;
         }
-
         .calendar .Days li.active {
             background-color: var(--tw-colors-primary-orange);
             color: #EB7F50;
             font-weight: bold;
         }
-
         .calendar .icons {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.5rem;
         }
-
         .calendar .icons span {
             cursor: pointer;
             color: var(--tw-colors-dark-brown);
@@ -98,15 +90,13 @@
             border-radius: 9999px;
             transition: background-color 0.2s;
         }
-
         .calendar .icons span:hover {
             background-color: rgba(81, 32, 15, 0.1);
         }
     </style>
 </head>
 <body class = "bg-[#F2DBC8] font-sans text-dark-text min-h-screen flex flex-col">
-    
-<!-- Nav BARRRRRRRRRRRR-->
+<!-- Nav BAR-->
 <header class="bg-[#EB7F50] shadow-lg sticky top-0 z-20">
         <div class="flex  justify-between items-center p-4">
             <div class="flex items-center space-x-3">
@@ -115,15 +105,13 @@
                     <img 
                         src="Cat_Logo.png" 
                         alt="Cat Logo" 
-                        class="w-full h-full object-contain" 
-                    >
+                        class="w-full h-full object-contain" >
                     </div>
                 </div>
                 <h1 class="text-2xl font-extrabold text-black">
                     <a href="better_reads_hp.html" class="nav-link">BETTER READS</a>
                 </h1>
             </div>
-            
             <div class="flex items-center">
                 <nav class="hidden md:flex space-x-6">
                     <a id="nav-login" href="index.html" class="nav-link">LOGIN</a>
@@ -136,8 +124,7 @@
                             class="Drop-Down-Menu-Icon-BTN"
                             aria-expanded="false"
                             aria-haspopup="true"
-                            onclick="toggleDropdown(event)"
-                            >
+                            onclick="toggleDropdown(event)">
                             &#9776;
                         </button>
                         <div
@@ -154,20 +141,16 @@
             </div>
         </div>
     </header>
- 
 <!-- Banner and Website Logo -->
 <main class="relative mb-8 shadow-xl">
     <img 
         src="ross-tejada-studying-cat-banner.jpg" 
         alt="Pixel Art Cat Reading" 
-        class="w-full max-h-80 h-full object-cover"
-    >    
+        class="w-full max-h-80 h-full object-cover">    
 </main>
-
 <div class = "container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 pb-12">
   <section class = "lg:col-span-3 space-y-6 bg-[#BAAF6F] rounded-lg">
       <h2 class = text-2xl font-bold text-dark-text mb-4 >Current Reads</h2>
-
       <!--Book 1-->
       <div class ="Current-Read-item-1 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
           <img id="current-cover-1" src = "76713323._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
@@ -189,7 +172,6 @@
               </button>
           </div>
       </div> 
-
       <!--Book 2-->
       <div class ="Current-Read-item-2 flex space-x-4 items-start bg-sidebar-bg/70 p-3 rounded-lg">
           <img id="current-cover-2" src = "222946916._SY180_.jpg" alt = "Cover" class = "w-16 h-24 object-cover shadow-md rounded">
@@ -212,25 +194,19 @@
           </div>
       </div> 
   </section>
-
-
 <!-- Favorites -->
 <div class="lg:col-span-6 space-y-6">
   <section class="bg-[#E5C09E]">
     <h2 id="favorites-heading" class="text-2xl font-bold mb-6">My Favorites</h2>
     <div
       id="row-favorites"
-      class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E"
-    >
+      class="Recommended-books grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-3 bg-E5C09E">
     </div>
   </section>
-
 <!-- Graphs -->
   <section class="bg-[#E5C09E] mt-6 p-6 rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-4 text-center">Reading Stats</h2>
-
     <div class="space-y-6">
-
       <!-- Bar: pages per month -->
       <div>
         <h3 class="font-semibold text-center mb-2">Pages read per month</h3>
@@ -239,7 +215,6 @@
           alt="Error loading chart."
           class="mx-auto max-w-full rounded shadow">
       </div>
-
       <!-- Pie: genres for the year -->
       <div>
         <h3 class="font-semibold text-center mb-2">Genres read this year</h3>
@@ -248,7 +223,6 @@
           alt="Error loading chart."
           class="mx-auto max-w-full rounded shadow">
       </div>
-
       <!-- Scatter: completion timeline -->
       <div>
         <h3 class="font-semibold text-center mb-2">Books finished throughout the year</h3>
@@ -261,7 +235,6 @@
     </div>
   </section>
 </div>
-
     <aside class="lg:col-span-3 space-y-6">
         <div class="calendar-box bg-sidebar-bg">
             <div class="icons flex justify-between items-center mb-2">
@@ -284,9 +257,7 @@
         </aside>
     </div>
 </div>
-
 <footer class="bg-[#51200F] text-white py-4 mt-auto">
-
     <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
         <div class="footer-links space-x-4 mb-2 sm:mb-0">
             <a href="#" class="hover:text-primary transition">About the Company</a>
@@ -295,7 +266,6 @@
         <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
     </div>
 </footer>
-
 <div 
     id="progress-modal" 
     class="fixed inset-0 bg-gray-900 bg-opacity-75 hidden z-50 flex items-center justify-center transition-opacity duration-300"
@@ -306,14 +276,12 @@
         <h3 class="text-xl font-bold mb-4">Update Reading Progress</h3>
         <p class="text-sm text-gray-600 mb-2">Enter the page you’re currently on.</p>
         <p id="total-pages-label" class="text-xs text-gray-500 mb-4"></p>
-
         <label for="page-input" class="block text-sm font-medium text-gray-700 mb-2">Current page number</label>
         <input 
             type="number" id="page-input" name="page-input" min="0" step="1"
             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-orange focus:border-primary-orange text-lg mb-4"/>
 
         <div id="error-message" class="text-red-500 text-sm mb-4 hidden"></div>
-
         <div class="flex justify-end space-x-3">
             <button 
                 onclick="closeModal()" 
@@ -328,7 +296,6 @@
         </div>
     </div>
 </div>
-
 <div id="rating-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm text-center">
         <h3 class="text-2xl font-bold mb-2">Congratulations!</h3>
@@ -348,14 +315,13 @@
     </div>
 </div>
 
+
 <script>
     let date = new Date();
     let currYear = date.getFullYear();
     let currMonth = date.getMonth(); 
     const monthNames = ["January", "February", "March", "April", "May", "June", "July",
                     "August", "September", "October", "November", "December"];
-
-    // --- DOM Elements (Accessed via DOMContentLoaded) ---
     const currentDateEl = document.getElementById("current-date");
     const daysContainer = document.querySelector(".Days");
 
@@ -399,6 +365,8 @@
     window.navigateCalendar = navigateCalendar;
     renderCalendar();    
 </script>
+
+
 <script>
     (async () => {
         const token = localStorage.getItem('btb_token');
@@ -420,6 +388,8 @@
         }
     })();
 </script>
+
+
 <script>
   (function () {
     const loginLink  = document.getElementById('nav-login');
@@ -441,12 +411,14 @@
     });
   })();
 </script>
+
+
 <script>
   (async () => {
     const favoritesHeading  = document.getElementById("favorites-heading");
     const favoritesContainer = document.getElementById("row-favorites");
-    if (!favoritesContainer) return;
 
+    if (!favoritesContainer) return;
     const STORAGE_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
     const PLACEHOLDER  = STORAGE_BASE + "cover/placeholder.jpg";
 
@@ -456,6 +428,7 @@
        </p>`;
 
     const token = localStorage.getItem("btb_token");
+
     if (!token) {
       favoritesContainer.innerHTML =
         `<p class="col-span-3 text-center text-sm text-[#51200F]">
@@ -544,6 +517,7 @@
 
       const data = await res.json();
       renderFavorites(data);
+
     } catch (err) {
       console.error("[Favorites] Fetch failed", err);
       favoritesContainer.innerHTML =
@@ -553,6 +527,8 @@
     }
   })();
 </script>
+
+
 <script>
   (async () => {
     const token = localStorage.getItem("btb_token");

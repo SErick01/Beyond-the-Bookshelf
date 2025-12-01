@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const apiBase = "https://beyond-the-bookshelf.onrender.com";
   const token = localStorage.getItem("btb_token");
-  const COVER_BASE =
-    "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
+  const COVER_BASE = "https://swfkspdirzdqotywgvop.supabase.co/storage/v1/object/public/";
   const PLACEHOLDER_COVER = COVER_BASE + "cover/placeholder.jpg";
 
   function buildCoverUrl(relativeUrl) {
@@ -107,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       renderItems(items);
+
     } catch (err) {
       console.error("view-lists: error loading list", err);
       bookListEl.innerHTML =
@@ -147,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   function buildViewBookUrl(workId, editionId) {
     let url = "View-book.html";
     const qs = new URLSearchParams();
@@ -161,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return url;
   }
 
+  
   function filterBooks() {
     const q = (searchInput?.value || "").trim().toLowerCase();
     const cards = bookListEl.querySelectorAll("a");

@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Better Reads</title>
+
+
     <script src = "https://cdn.tailwindcss.com"></script>
+
+
     <script src="https://kit.fontawesome.com/42bbd9a803.js" crossorigin="anonymous"></script>
+
+
     <script src="view_list.js"></script>
+
+
     <script>
         tailwind.config = {
             theme: {
@@ -24,14 +32,16 @@
             }
         }
     </script>
+
+
     <style>
         body{
             margin: 0;
             padding: 0;
         }
         section, .calendar-box, .cat-of-the-day-card {
-            padding: 1.25rem; /* p-5 */
-            border-radius: 0.75rem; /* rounded-xl */
+            padding: 1.25rem;
+            border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
         .nav-link {
@@ -40,16 +50,12 @@
         font-weight: bold;
         transition: color 0.2s ease;
     }
-    
     .hidden-modal{
         display: none;
     }
-
     .nav-link:hover {
         color: #51200F;
     }
-
-
     </style>
 </head>
 <body class ="bg-[#F2DBC8] min-h-screen flex flex-col">
@@ -61,15 +67,13 @@
                     <img 
                         src="Cat_Logo.png" 
                         alt="Cat Logo" 
-                        class="w-full h-full object-contain" 
-                    >
+                        class="w-full h-full object-contain">
                     </div>
                 </div>
                 <h1 class="text-2xl font-extrabold text-black">
                     <a href ="better_reads_hp.html"> BETTER READS</a>
                 </h1>
             </div>
-            
             <div class="flex items-center">
                 <nav class="hidden md:flex space-x-6">
                     <a href="index.html" class="nav-link" id="nav-logout">LOGOUT</a>
@@ -81,8 +85,7 @@
                             class="Drop-Down-Menu-Icon-BTN"
                             aria-expanded="false"
                             aria-haspopup="true"
-                            onclick="toggleDropdown(event)"
-                            >
+                            onclick="toggleDropdown(event)">
                             &#9776;
                         </button>
                         <div
@@ -99,7 +102,6 @@
             </div>
         </div>
     </header>
-
     <main class="flex-grow container mx-auto px-4 mt-8">
         <section class="bg-card-background p-6 md:p-8 rounded-xl shadow-2xl">
             <div class="flex items-center justify-center mb-6 relative">
@@ -108,7 +110,6 @@
                 </a>
                 <h2 id="list-title" class="text-3xl font-extrabold text-dark-brown tracking-wide">Finished</h2>
             </div>
-
             <form class="w-full max-w-xl mx-auto mb-10">
                 <div class="relative flex items-center">
                     <i class="fa-solid fa-magnifying-glass pl-4 absolute text-gray-500"></i> 
@@ -117,37 +118,32 @@
                         type="text"
                         placeholder="Search This List"
                         aria-label="Search field for Want To Read list"
-                        class="w-full pl-10 pr-10 py-2 border border-gray-400 rounded-3xl focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange transition"
-                    />
+                        class="w-full pl-10 pr-10 py-2 border border-gray-400 rounded-3xl focus:outline-none focus:ring-2 focus:ring-primary-orange focus:border-primary-orange transition"/>
                     <button
                         type="button"
                         aria-label="Clear search"
                         class="absolute right-3 text-gray-500 hover:text-dark-brown focus:outline-none transition"
-                        onclick="document.querySelector('input[type=text]').value = '';"
-                    >
+                        onclick="document.querySelector('input[type=text]').value = '';">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
             </form>
-
             <!-- Book List -->
             <div id="book-list" class="space-y-4">
                 <!-- JS will inject books here -->
             </div>
-            
         </section>
     </main>
 
     <!-- <button 
         id="fab"
         class="fixed bottom-12 right-6 w-16 h-16 bg-primary-orange rounded-full text-white text-4xl flex items-center justify-center shadow-2xl hover:bg-primary-orange/90 active:scale-95 transition-all duration-200 border-4 border-dark-brown"
-        title="Add new book to list"
-    >
+        title="Add new book to list">
         <i class="fa-solid fa-plus font-bold"></i>
     </button> -->
-
+    
     <div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
         <div class="bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-md">
             <h2 class="text-xl font-bold mb-4"> Search for a Book</h2>
@@ -163,7 +159,6 @@
             <div id="search-results" class="mt-4"></div>
         </div>
     </div>
-
 <footer class="bg-[#51200F] text-white py-4 mt-auto">
     <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center px-4">
         <div class="footer-links space-x-4 mb-2 sm:mb-0">
@@ -173,6 +168,8 @@
         <p class="copyright">&copy; Copyright 2025 | Better Reads</p>
     </div>
 </footer>
+
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     function handleLogout(event) {
