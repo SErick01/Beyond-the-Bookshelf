@@ -13,7 +13,7 @@ Getting started is as easy as opening this link and creating  an account: https:
 
 * Recommendation system that elevates collaborative and content-based filtering.
 * Current Reads: users can track their progress on books and rate them upon completion.
-* Reading Challenges: users can set yearly reading challenges.
+* Reading Challenges: users can set yearly reading challenges. (Will be available in a later version.)
 * My Books: users can create and edit lists with their favorite books.
 * User Statistics: users can view their yearly statistics
 * Cat of the Day
@@ -35,7 +35,6 @@ If you have any problem, question, or feedback feel free to contact us at:
 ### v1.0
 * Initial capstone release
 * Recommendation system that elevates collaborative and content-based filtering.
-* Current Reads: users can track their progress on books and rate them upon completion.
 * Reading Challenges: users can set yearly reading challenges.
 * My Books: users can create and edit lists with their favorite books.
 * User Statistics: users can view their yearly statistics
