@@ -1,4 +1,4 @@
-# Beyond-the-Bookshelf
+# Beyond the Bookshelf
 Group Capstone Project / Fall 2025
 
 ## Description
